@@ -1,0 +1,1 @@
+CREATE DATABASE IF NOT EXISTS milk_tea_shop_db;
