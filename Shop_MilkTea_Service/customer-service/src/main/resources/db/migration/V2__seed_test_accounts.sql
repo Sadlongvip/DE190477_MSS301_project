@@ -1,7 +1,7 @@
 -- Migration V2: Seed test accounts
 -- All accounts have password: password123 (hashed with BCrypt)
 
-INSERT INTO t_accounts (username, password, role, email, status, phone_number, address, birthday)
+INSERT IGNORE INTO t_accounts (username, password, role, email, status, phone_number, address, birthday)
 VALUES
     ('customer1', '$2a$10$ffaMSkg9ujNQ.09tTRvnkOo2o7qy1mJDxetbzCkKdPEjtfypHLuZ2', 'CUSTOMER', 'customer1@example.com', 'ACTIVE', '0901234567', '123 Nguyen Trai, Q1, TP.HCM', '2000-01-15'),
     ('customer2', '$2a$10$ffaMSkg9ujNQ.09tTRvnkOo2o7qy1mJDxetbzCkKdPEjtfypHLuZ2', 'CUSTOMER', 'customer2@example.com', 'ACTIVE', '0907654321', '456 Le Loi, Q1, TP.HCM', '1998-05-20'),

@@ -1,14 +1,14 @@
 -- Migration V2: Nạp dữ liệu mẫu (DataSeed) tiếng Việt cho inventory-service
 
 -- 1. Nạp danh mục (category_tea)
-INSERT INTO category_tea (id, name) VALUES
+INSERT IGNORE INTO category_tea (id, name) VALUES
     (1, 'Trà sữa truyền thống'),
     (2, 'Trà trái cây tươi'),
     (3, 'Trà ô long & Macchiato'),
     (4, 'Sữa tươi trân châu');
 
 -- 2. Nạp sản phẩm trà sữa (milk_tea)
-INSERT INTO milk_tea (name, description, price, image, category_id) VALUES
+INSERT IGNORE INTO milk_tea (name, description, price, image, category_id) VALUES
     ('Trà sữa trân châu hoàng gia', 'Hương vị trà đen đậm đà kết hợp sữa thơm béo và trân châu dẻo ngon', 35000, 'https://example.com/images/milktea-royal.jpg', 1),
     ('Lục trà sữa lài', 'Hương hoa nhài thoang thoảng dịu nhẹ, vị chát nhẹ ngọt thanh', 32000, 'https://example.com/images/green-milktea.jpg', 1),
     ('Trà sữa Oolong nướng', 'Lá trà Oolong được sấy nướng nhiệt độ cao tạo hương caramel đặc trưng', 38000, 'https://example.com/images/roasted-oolong.jpg', 1),
@@ -21,7 +21,7 @@ INSERT INTO milk_tea (name, description, price, image, category_id) VALUES
     ('Sữa tươi matcha kem trứng', 'Matcha Nhật Bản kết hợp cùng lớp kem trứng nướng khò béo thơm', 48000, 'https://example.com/images/matcha-egg-cream.jpg', 4);
 
 -- 3. Nạp topping (topping)
-INSERT INTO topping (name, price) VALUES
+INSERT IGNORE INTO topping (name, price) VALUES
     ('Trân châu đen', 5000),
     ('Trân châu hoàng kim', 7000),
     ('Trân châu trắng 3Q', 7000),
