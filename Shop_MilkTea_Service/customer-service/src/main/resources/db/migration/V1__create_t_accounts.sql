@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS t_accounts (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    phone_number VARCHAR(20),
+    address VARCHAR(255),
+    birthday DATE
+);
