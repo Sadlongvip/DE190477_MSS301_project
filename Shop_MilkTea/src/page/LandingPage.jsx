@@ -13,7 +13,7 @@ import LoginModal from '../component/auth/LoginModal';
 
 /**
  * Trang Landing Page chính của Shop_MilkTea
- * Sử dụng MainLayout đã tách riêng TopHeader, Header và Footer
+ * Sử dụng MainLayout bao gồm Header và Footer
  */
 export function LandingPage() {
   // Quản lý giỏ hàng với LocalStorage
