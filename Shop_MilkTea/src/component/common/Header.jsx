@@ -88,29 +88,34 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             </Nav.Link>
           </Nav>
 
-          {/* Action Buttons: Cart & Auth */}
-          <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0 flex-nowrap ms-lg-2">
-            {/* Nút Giỏ Hàng */}
-            <Button
-              variant="light"
-              onClick={onOpenCart}
-              className="position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5 text-nowrap"
-              style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', fontSize: '0.82rem' }}
-              title="Xem giỏ hàng"
-            >
-              <i className="bi bi-bag-heart-fill text-danger fs-6"></i>
-              <span className="fw-bold d-none d-sm-inline text-dark">Giỏ Hàng</span>
-              {cartCount > 0 && (
-                <Badge
-                  pill
-                  bg="danger"
-                  className="position-absolute top-0 start-100 translate-middle shadow-sm px-1.5 py-0.5"
-                  style={{ fontSize: '0.68rem' }}
-                >
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
+          {/* Action Buttons: Cart & Auth - Bám về sát bên phải */}
+          <div
+            className="d-flex align-items-center gap-3 mt-2 mt-lg-0 flex-nowrap ms-auto justify-content-end"
+            style={{ gap: '12px' }}
+          >
+            {/* Nút Giỏ Hàng - Chỉ hiển thị khi đã đăng nhập */}
+            {isAuthenticated && user && (
+              <Button
+                variant="light"
+                onClick={onOpenCart}
+                className="position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center text-nowrap"
+                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', fontSize: '0.82rem' }}
+                title="Xem giỏ hàng"
+              >
+                <i className="bi bi-bag-heart-fill text-danger fs-6 me-2"></i>
+                <span className="fw-bold d-none d-sm-inline text-dark">Giỏ Hàng</span>
+                {cartCount > 0 && (
+                  <Badge
+                    pill
+                    bg="danger"
+                    className="position-absolute top-0 start-100 translate-middle shadow-sm px-1.5 py-0.5"
+                    style={{ fontSize: '0.68rem' }}
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+            )}
 
             {/* Tài Khoản / Đăng Nhập / Tạo Tài Khoản */}
             {isAuthenticated && user ? (
@@ -118,11 +123,11 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                 <Dropdown.Toggle
                   variant="outline-secondary"
                   id="dropdown-user"
-                  className="rounded-pill d-flex align-items-center gap-1.5 py-1.5 px-3 border shadow-sm text-nowrap"
+                  className="rounded-pill d-flex align-items-center py-1.5 px-3 border shadow-sm text-nowrap"
                   style={{ backgroundColor: '#fef3c7', borderColor: '#fcd34d', color: '#92400e', fontSize: '0.82rem' }}
                 >
-                  <i className="bi bi-person-circle fs-6"></i>
-                  <span className="fw-bold">{user.username || 'Thành viên'}</span>
+                  <i className="bi bi-person-circle fs-6 me-2"></i>
+                  <span className="fw-bold me-1">{user.username || 'Thành viên'}</span>
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="shadow-lg border-0 rounded-4 mt-2 p-2">
@@ -143,26 +148,26 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <div className="d-flex align-items-center gap-1.5 flex-nowrap">
+              <div className="d-flex align-items-center gap-2 flex-nowrap" style={{ gap: '8px' }}>
                 {/* Nút Tạo tài khoản */}
                 <Button
                   variant="outline-secondary"
                   onClick={() => onOpenAuth && onOpenAuth('register')}
-                  className="rounded-pill px-2.5 py-1.5 fw-semibold d-inline-flex align-items-center gap-1 border shadow-sm text-nowrap"
+                  className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center border shadow-sm text-nowrap"
                   style={{ fontSize: '0.82rem', borderColor: '#d1d5db', backgroundColor: '#fff', color: '#4b5563' }}
                   title="Tạo tài khoản thành viên mới"
                 >
-                  <i className="bi bi-person-plus text-warning fs-6"></i>
+                  <i className="bi bi-person-plus text-warning fs-6 me-2"></i>
                   <span>Tạo tài khoản</span>
                 </Button>
 
                 {/* Nút Đăng nhập */}
                 <Button
                   onClick={() => onOpenAuth && onOpenAuth('login')}
-                  className="btn-tea-primary d-flex align-items-center gap-1 text-nowrap px-3 py-1.5"
+                  className="btn-tea-primary d-flex align-items-center text-nowrap px-3 py-1.5"
                   style={{ fontSize: '0.82rem' }}
                 >
-                  <i className="bi bi-person-fill fs-6"></i>
+                  <i className="bi bi-person-fill fs-6 me-2"></i>
                   <span>Đăng Nhập</span>
                 </Button>
               </div>
