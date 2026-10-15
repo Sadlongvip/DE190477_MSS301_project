@@ -93,27 +93,29 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             className="d-flex align-items-center gap-3 mt-2 mt-lg-0 flex-nowrap ms-auto justify-content-end"
             style={{ gap: '12px' }}
           >
-            {/* Nút Giỏ Hàng */}
-            <Button
-              variant="light"
-              onClick={onOpenCart}
-              className="position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center text-nowrap"
-              style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', fontSize: '0.82rem' }}
-              title="Xem giỏ hàng"
-            >
-              <i className="bi bi-bag-heart-fill text-danger fs-6 me-2"></i>
-              <span className="fw-bold d-none d-sm-inline text-dark">Giỏ Hàng</span>
-              {cartCount > 0 && (
-                <Badge
-                  pill
-                  bg="danger"
-                  className="position-absolute top-0 start-100 translate-middle shadow-sm px-1.5 py-0.5"
-                  style={{ fontSize: '0.68rem' }}
-                >
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
+            {/* Nút Giỏ Hàng - Chỉ hiển thị khi đã đăng nhập */}
+            {isAuthenticated && user && (
+              <Button
+                variant="light"
+                onClick={onOpenCart}
+                className="position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center text-nowrap"
+                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', fontSize: '0.82rem' }}
+                title="Xem giỏ hàng"
+              >
+                <i className="bi bi-bag-heart-fill text-danger fs-6 me-2"></i>
+                <span className="fw-bold d-none d-sm-inline text-dark">Giỏ Hàng</span>
+                {cartCount > 0 && (
+                  <Badge
+                    pill
+                    bg="danger"
+                    className="position-absolute top-0 start-100 translate-middle shadow-sm px-1.5 py-0.5"
+                    style={{ fontSize: '0.68rem' }}
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+            )}
 
             {/* Tài Khoản / Đăng Nhập / Tạo Tài Khoản */}
             {isAuthenticated && user ? (
