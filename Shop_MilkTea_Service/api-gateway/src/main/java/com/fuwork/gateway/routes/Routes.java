@@ -18,6 +18,9 @@ public class Routes {
     @Value("${services.customer.url:http://localhost:8081}")
     private String customerServiceUrl;
 
+    @Value("${services.inventory.url:http://localhost:8082}")
+    private String inventoryServiceUrl;
+
     /**
      * Định tuyến các API liên quan đến Authentication và Quản lý tài khoản sang customer-service (port 8081)
      */
@@ -26,6 +29,20 @@ public class Routes {
         return route("customer_service")
                 .route(path("/api/auth/**").or(path("/api/accounts/**")), http())
                 .before(uri(customerServiceUrl))
+                .before(forwardUserInfo())
+                .build();
+    }
+
+    /**
+     * Định tuyến các API liên quan đến Quản lý danh mục, trà sữa và topping sang inventory-service (port 8082)
+     */
+    @Bean
+    public RouterFunction<ServerResponse> inventoryServiceRoute() {
+        return route("inventory_service")
+                .route(path("/api/categories/**")
+                        .or(path("/api/milkteas/**"))
+                        .or(path("/api/toppings/**")), http())
+                .before(uri(inventoryServiceUrl))
                 .before(forwardUserInfo())
                 .build();
     }

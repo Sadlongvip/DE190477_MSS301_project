@@ -1,0 +1,37 @@
+package com.fuwork.inventoryservice.dto.milkTea;
+
+import com.fuwork.inventoryservice.model.MilkTea;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MilkTeaResponse {
+
+    private Long id;
+    private String name;
+    private String description;
+    private double price;
+    private String image;
+    private Long categoryId;
+    private String categoryName;
+
+    public static MilkTeaResponse from(MilkTea milkTea) {
+        if (milkTea == null) {
+            return null;
+        }
+        return MilkTeaResponse.builder()
+                .id(milkTea.getId())
+                .name(milkTea.getName())
+                .description(milkTea.getDescription())
+                .price(milkTea.getPrice())
+                .image(milkTea.getImage())
+                .categoryId(milkTea.getCategory() != null ? milkTea.getCategory().getId() : null)
+                .categoryName(milkTea.getCategory() != null ? milkTea.getCategory().getName() : null)
+                .build();
+    }
+}

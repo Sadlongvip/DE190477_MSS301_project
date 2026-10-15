@@ -43,17 +43,17 @@ public class SecurityConfig {
                         // ---------- Public Endpoints ----------
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**").permitAll()
 
                         // ---------- customer-service (Account Management) ----------
                         .requestMatchers("/api/accounts/me", "/api/accounts/me/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/accounts/**").hasRole("ADMIN")
 
-                        // ---------- order-service / product-service (Mở rộng trong tương lai) ----------
+                        // ---------- order-service / inventory-service (Quản trị sản phẩm, đơn hàng) ----------
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/orders/my/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/orders/**").hasRole("ADMIN")
-                        .requestMatchers("/api/products/**", "/api/categories/**").hasRole("ADMIN")
+                        .requestMatchers("/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**").hasRole("ADMIN")
 
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
