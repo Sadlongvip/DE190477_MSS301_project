@@ -14,10 +14,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -30,9 +34,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ---------- Public ----------
+                        // ---------- Preflight CORS (OPTIONS) ----------
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ---------- Public Endpoints ----------
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
@@ -41,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/accounts/me", "/api/accounts/me/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/accounts/**").hasRole("ADMIN")
 
-                        // ---------- order-service / product-service (khi mở rộng) ----------
+                        // ---------- order-service / product-service (Mở rộng trong tương lai) ----------
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/orders/my/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/orders/**").hasRole("ADMIN")
@@ -55,7 +63,30 @@ public class SecurityConfig {
     }
 
     /**
-     * Verify chu ky HS256 bang CUNG secret voi customer-service; tu kiem tra exp.
+     * Cấu hình CORS cho phép Frontend kết nối tới API Gateway
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    /**
+     * Verify chữ ký HS256 bằng CÙNG secret với customer-service; tự kiểm tra expiration (exp).
      */
     @Bean
     public JwtDecoder jwtDecoder() {
@@ -63,7 +94,7 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
     }
 
-    /** Claim "role": "ADMIN" -> authority "ROLE_ADMIN" de dung hasRole("ADMIN"). */
+    /** Claim "role": "ADMIN" -> authority "ROLE_ADMIN" để dùng hasRole("ADMIN"). */
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authorities = new JwtGrantedAuthoritiesConverter();
