@@ -1,21 +1,35 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Nav } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
+import {
+  validateUsername,
+  validatePassword,
+  validateEmail,
+  validateConfirmPassword,
+  validatePhoneNumber,
+  validateBirthday,
+  validateLoginForm,
+  validateRegisterForm,
+} from '../../validation/authValidation';
 
 /**
  * Modal Đăng Nhập & Đăng Ký Tài Khoản (Ánh xạ chuẩn theo Entity Account)
+ * - Tích hợp cơ chế Validation UX:
+ *   + onBlur: Hiện lỗi khi người dùng rời khỏi ô nhập
+ *   + onFocus: Tắt lỗi ngay khi người dùng bắt đầu focus
+ *   + onSubmit: Kiểm tra toàn diện mọi ô trước khi gửi request
+ * - Chỉ giao tiếp API duy nhất qua AuthContext
  */
 export function LoginModal({ show, onHide, initialTab = 'login' }) {
   const { login, register, loading, error, clearError } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState(initialTab); // 'login' | 'register'
 
-  // State cho Form Login
+  // State Form
   const [loginForm, setLoginForm] = useState({
     username: '',
     password: '',
   });
 
-  // State cho Form Register (khớp với entity Account: username, password, email, phoneNumber, address, birthday)
   const [registerForm, setRegisterForm] = useState({
     username: '',
     password: '',
@@ -26,23 +40,52 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
     birthday: '',
   });
 
+  // State Lưu trữ lỗi riêng cho từng trường
+  const [loginErrors, setLoginErrors] = useState({});
+  const [registerErrors, setRegisterErrors] = useState({});
+
   const [formFeedback, setFormFeedback] = useState({ success: '', error: '' });
 
-  // Đồng bộ tab và reset form khi mở modal
+  // Reset form và lỗi khi mở modal
   useEffect(() => {
     if (show) {
       setActiveTab(initialTab);
       clearError();
       setFormFeedback({ success: '', error: '' });
+      setLoginErrors({});
+      setRegisterErrors({});
     }
   }, [show, initialTab, clearError]);
+
+  /* =====================================================================
+   * XỬ LÝ SỰ KIỆN FOCUS / BLUR CHO FORM LOGIN
+   * ===================================================================== */
+  const handleLoginFocus = (field) => {
+    setLoginErrors((prev) => ({ ...prev, [field]: '' }));
+    setFormFeedback((prev) => ({ ...prev, error: '' }));
+  };
+
+  const handleLoginBlur = (field) => {
+    let fieldError = '';
+    if (field === 'username') {
+      fieldError = validateUsername(loginForm.username);
+    } else if (field === 'password') {
+      fieldError = validatePassword(loginForm.password);
+    }
+
+    if (fieldError) {
+      setLoginErrors((prev) => ({ ...prev, [field]: fieldError }));
+    }
+  };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setFormFeedback({ success: '', error: '' });
 
-    if (!loginForm.username || !loginForm.password) {
-      setFormFeedback({ success: '', error: 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!' });
+    // Validate 100% các ô trước khi gửi dữ liệu
+    const validation = validateLoginForm(loginForm);
+    if (!validation.isValid) {
+      setLoginErrors(validation.errors);
       return;
     }
 
@@ -59,17 +102,43 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
     }
   };
 
+  /* =====================================================================
+   * XỬ LÝ SỰ KIỆN FOCUS / BLUR CHO FORM REGISTER
+   * ===================================================================== */
+  const handleRegisterFocus = (field) => {
+    setRegisterErrors((prev) => ({ ...prev, [field]: '' }));
+    setFormFeedback((prev) => ({ ...prev, error: '' }));
+  };
+
+  const handleRegisterBlur = (field) => {
+    let fieldError = '';
+    if (field === 'username') {
+      fieldError = validateUsername(registerForm.username);
+    } else if (field === 'email') {
+      fieldError = validateEmail(registerForm.email);
+    } else if (field === 'password') {
+      fieldError = validatePassword(registerForm.password);
+    } else if (field === 'confirmPassword') {
+      fieldError = validateConfirmPassword(registerForm.confirmPassword, registerForm.password);
+    } else if (field === 'phoneNumber') {
+      fieldError = validatePhoneNumber(registerForm.phoneNumber);
+    } else if (field === 'birthday') {
+      fieldError = validateBirthday(registerForm.birthday);
+    }
+
+    if (fieldError) {
+      setRegisterErrors((prev) => ({ ...prev, [field]: fieldError }));
+    }
+  };
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setFormFeedback({ success: '', error: '' });
 
-    if (!registerForm.username || !registerForm.password || !registerForm.email) {
-      setFormFeedback({ success: '', error: 'Vui lòng điền các trường bắt buộc (Username, Password, Email)!' });
-      return;
-    }
-
-    if (registerForm.password !== registerForm.confirmPassword) {
-      setFormFeedback({ success: '', error: 'Mật khẩu xác nhận không khớp!' });
+    // Validate 100% các ô trước khi gửi dữ liệu
+    const validation = validateRegisterForm(registerForm);
+    if (!validation.isValid) {
+      setRegisterErrors(validation.errors);
       return;
     }
 
@@ -93,6 +162,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
       });
       setActiveTab('login');
       setLoginForm((prev) => ({ ...prev, username: registerForm.username }));
+      setRegisterErrors({});
     }
   };
 
@@ -115,6 +185,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                 setActiveTab('login');
                 clearError();
                 setFormFeedback({ success: '', error: '' });
+                setLoginErrors({});
               }}
               className={`rounded-pill fw-bold py-2 ${
                 activeTab === 'login' ? 'bg-white text-dark shadow-sm' : 'text-muted'
@@ -131,6 +202,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                 setActiveTab('register');
                 clearError();
                 setFormFeedback({ success: '', error: '' });
+                setRegisterErrors({});
               }}
               className={`rounded-pill fw-bold py-2 ${
                 activeTab === 'register' ? 'bg-white text-dark shadow-sm' : 'text-muted'
@@ -142,7 +214,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
           </Nav.Item>
         </Nav>
 
-        {/* Thông báo lỗi / thành công */}
+        {/* Thông báo lỗi / thành công chung */}
         {(error || formFeedback.error) && (
           <Alert variant="danger" className="py-2 px-3 rounded-3 small mb-3">
             <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -158,10 +230,10 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
 
         {/* Tab 1: Đăng Nhập */}
         {activeTab === 'login' ? (
-          <Form onSubmit={handleLoginSubmit}>
+          <Form onSubmit={handleLoginSubmit} noValidate>
             <Form.Group className="mb-3" controlId="loginUsername">
-              <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập hoặc Email</Form.Label>
-              <div className="input-group">
+              <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập hoặc Email *</Form.Label>
+              <div className="input-group has-validation">
                 <span className="input-group-text bg-light border-end-0">
                   <i className="bi bi-person text-muted"></i>
                 </span>
@@ -170,15 +242,20 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   placeholder="Nhập username hoặc email"
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                  onFocus={() => handleLoginFocus('username')}
+                  onBlur={() => handleLoginBlur('username')}
+                  isInvalid={Boolean(loginErrors.username)}
                   className="border-start-0 ps-0"
-                  required
                 />
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  {loginErrors.username}
+                </Form.Control.Feedback>
               </div>
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="loginPassword">
-              <Form.Label className="small fw-semibold text-secondary">Mật khẩu</Form.Label>
-              <div className="input-group">
+              <Form.Label className="small fw-semibold text-secondary">Mật khẩu *</Form.Label>
+              <div className="input-group has-validation">
                 <span className="input-group-text bg-light border-end-0">
                   <i className="bi bi-lock text-muted"></i>
                 </span>
@@ -187,9 +264,14 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   placeholder="••••••••"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  onFocus={() => handleLoginFocus('password')}
+                  onBlur={() => handleLoginBlur('password')}
+                  isInvalid={Boolean(loginErrors.password)}
                   className="border-start-0 ps-0"
-                  required
                 />
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  {loginErrors.password}
+                </Form.Control.Feedback>
               </div>
             </Form.Group>
 
@@ -209,7 +291,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
               )}
             </Button>
 
-            {/* Nút Tạo Tài Khoản / Create Account trong Modal Login */}
+            {/* Nút Tạo Tài Khoản trong Modal Login */}
             <div className="text-center mt-3 pt-3 border-top">
               <span className="small text-muted me-1">Bạn chưa có tài khoản?</span>
               <Button
@@ -220,6 +302,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   setActiveTab('register');
                   clearError();
                   setFormFeedback({ success: '', error: '' });
+                  setRegisterErrors({});
                 }}
               >
                 <i className="bi bi-person-plus-fill me-1"></i>
@@ -229,7 +312,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
           </Form>
         ) : (
           /* Tab 2: Đăng Ký (Theo cấu trúc Account) */
-          <Form onSubmit={handleRegisterSubmit}>
+          <Form onSubmit={handleRegisterSubmit} noValidate>
             <div className="row g-2 mb-2">
               <div className="col-12 col-md-6">
                 <Form.Group controlId="regUsername">
@@ -239,8 +322,13 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                     placeholder="linh_tra_sua"
                     value={registerForm.username}
                     onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
-                    required
+                    onFocus={() => handleRegisterFocus('username')}
+                    onBlur={() => handleRegisterBlur('username')}
+                    isInvalid={Boolean(registerErrors.username)}
                   />
+                  <Form.Control.Feedback type="invalid" className="small">
+                    {registerErrors.username}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
 
@@ -252,8 +340,13 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                     placeholder="name@example.com"
                     value={registerForm.email}
                     onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                    required
+                    onFocus={() => handleRegisterFocus('email')}
+                    onBlur={() => handleRegisterBlur('email')}
+                    isInvalid={Boolean(registerErrors.email)}
                   />
+                  <Form.Control.Feedback type="invalid" className="small">
+                    {registerErrors.email}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </div>
@@ -267,7 +360,13 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                     placeholder="0901234567"
                     value={registerForm.phoneNumber}
                     onChange={(e) => setRegisterForm({ ...registerForm, phoneNumber: e.target.value })}
+                    onFocus={() => handleRegisterFocus('phoneNumber')}
+                    onBlur={() => handleRegisterBlur('phoneNumber')}
+                    isInvalid={Boolean(registerErrors.phoneNumber)}
                   />
+                  <Form.Control.Feedback type="invalid" className="small">
+                    {registerErrors.phoneNumber}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
 
@@ -278,7 +377,13 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                     type="date"
                     value={registerForm.birthday}
                     onChange={(e) => setRegisterForm({ ...registerForm, birthday: e.target.value })}
+                    onFocus={() => handleRegisterFocus('birthday')}
+                    onBlur={() => handleRegisterBlur('birthday')}
+                    isInvalid={Boolean(registerErrors.birthday)}
                   />
+                  <Form.Control.Feedback type="invalid" className="small">
+                    {registerErrors.birthday}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </div>
@@ -290,6 +395,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                 placeholder="123 Đường Nguyễn Huệ, Quận 1, TP.HCM"
                 value={registerForm.address}
                 onChange={(e) => setRegisterForm({ ...registerForm, address: e.target.value })}
+                onFocus={() => handleRegisterFocus('address')}
               />
             </Form.Group>
 
@@ -301,8 +407,13 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   placeholder="••••••••"
                   value={registerForm.password}
                   onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                  required
+                  onFocus={() => handleRegisterFocus('password')}
+                  onBlur={() => handleRegisterBlur('password')}
+                  isInvalid={Boolean(registerErrors.password)}
                 />
+                <Form.Control.Feedback type="invalid" className="small">
+                  {registerErrors.password}
+                </Form.Control.Feedback>
               </div>
               <div className="col-6">
                 <Form.Label className="small fw-semibold text-secondary">Nhập lại mật khẩu *</Form.Label>
@@ -311,8 +422,13 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   placeholder="••••••••"
                   value={registerForm.confirmPassword}
                   onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
-                  required
+                  onFocus={() => handleRegisterFocus('confirmPassword')}
+                  onBlur={() => handleRegisterBlur('confirmPassword')}
+                  isInvalid={Boolean(registerErrors.confirmPassword)}
                 />
+                <Form.Control.Feedback type="invalid" className="small">
+                  {registerErrors.confirmPassword}
+                </Form.Control.Feedback>
               </div>
             </div>
 
@@ -343,6 +459,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   setActiveTab('login');
                   clearError();
                   setFormFeedback({ success: '', error: '' });
+                  setLoginErrors({});
                 }}
               >
                 <i className="bi bi-box-arrow-in-right me-1"></i>
