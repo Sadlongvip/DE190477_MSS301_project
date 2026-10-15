@@ -3,7 +3,7 @@ package com.fuwork.inventoryservice.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Exception nghiệp vụ kèm theo mã HTTP status cho Inventory Service.
+ * Exception nghiệp vụ kèm theo mã HTTP status.
  */
 public class ApiException extends RuntimeException {
 
@@ -20,14 +20,6 @@ public class ApiException extends RuntimeException {
 
     public static ApiException badRequest(String message) {
         return new ApiException(HttpStatus.BAD_REQUEST, message);
-    }
-
-    public static ApiException unauthorized(String message) {
-        return new ApiException(HttpStatus.UNAUTHORIZED, message);
-    }
-
-    public static ApiException forbidden(String message) {
-        return new ApiException(HttpStatus.FORBIDDEN, message);
     }
 
     public static ApiException notFound(String message) {
