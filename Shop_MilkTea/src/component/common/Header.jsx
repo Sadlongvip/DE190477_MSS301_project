@@ -116,13 +116,25 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <Button
-                onClick={onOpenAuth}
-                className="btn-tea-primary d-flex align-items-center gap-2"
-              >
-                <i className="bi bi-person-fill"></i>
-                <span>Đăng Nhập</span>
-              </Button>
+              <div className="d-flex align-items-center gap-2">
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => onOpenAuth && onOpenAuth('register')}
+                  className="rounded-pill px-3 py-2 fw-semibold d-none d-sm-inline-flex align-items-center gap-1 border shadow-sm"
+                  style={{ fontSize: '0.9rem', borderColor: '#d1d5db', backgroundColor: '#fff' }}
+                  title="Tạo tài khoản thành viên mới"
+                >
+                  <i className="bi bi-person-plus text-warning"></i>
+                  <span>Tạo tài khoản</span>
+                </Button>
+                <Button
+                  onClick={() => onOpenAuth && onOpenAuth('login')}
+                  className="btn-tea-primary d-flex align-items-center gap-2"
+                >
+                  <i className="bi bi-person-fill"></i>
+                  <span>Đăng Nhập</span>
+                </Button>
+              </div>
             )}
           </div>
         </Navbar.Collapse>

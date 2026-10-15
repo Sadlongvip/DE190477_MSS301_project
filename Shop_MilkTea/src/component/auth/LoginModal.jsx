@@ -3,11 +3,11 @@ import { Modal, Button, Form, Alert, Spinner, Nav } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
 
 /**
- * Modal Đăng Nhập & Đăng Ký Tài Khoản
+ * Modal Đăng Nhập & Đăng Ký Tài Khoản (Ánh xạ chuẩn theo Entity Account)
  */
-export function LoginModal({ show, onHide }) {
+export function LoginModal({ show, onHide, initialTab = 'login' }) {
   const { login, register, loading, error, clearError } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'login' | 'register'
 
   // State cho Form Login
   const [loginForm, setLoginForm] = useState({
@@ -15,25 +15,27 @@ export function LoginModal({ show, onHide }) {
     password: '',
   });
 
-  // State cho Form Register
+  // State cho Form Register (khớp với entity Account: username, password, email, phoneNumber, address, birthday)
   const [registerForm, setRegisterForm] = useState({
     username: '',
     password: '',
     confirmPassword: '',
     email: '',
-    fullName: '',
-    phone: '',
+    phoneNumber: '',
+    address: '',
+    birthday: '',
   });
 
   const [formFeedback, setFormFeedback] = useState({ success: '', error: '' });
 
-  // Reset form khi đóng mở modal
+  // Đồng bộ tab và reset form khi mở modal
   useEffect(() => {
     if (show) {
+      setActiveTab(initialTab);
       clearError();
       setFormFeedback({ success: '', error: '' });
     }
-  }, [show, clearError]);
+  }, [show, initialTab, clearError]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -45,7 +47,7 @@ export function LoginModal({ show, onHide }) {
     }
 
     const res = await login({
-      username: loginForm.username,
+      username: loginForm.username.trim(),
       password: loginForm.password,
     });
 
@@ -53,7 +55,7 @@ export function LoginModal({ show, onHide }) {
       setFormFeedback({ success: 'Đăng nhập thành công! Chào mừng bạn quay trở lại.', error: '' });
       setTimeout(() => {
         onHide();
-      }, 1000);
+      }, 900);
     }
   };
 
@@ -71,17 +73,22 @@ export function LoginModal({ show, onHide }) {
       return;
     }
 
-    const res = await register({
-      username: registerForm.username,
+    // Payload chuẩn theo AccountRequest của Backend
+    const accountPayload = {
+      username: registerForm.username.trim(),
       password: registerForm.password,
-      email: registerForm.email,
-      fullName: registerForm.fullName,
-      phone: registerForm.phone,
-    });
+      email: registerForm.email.trim(),
+      phoneNumber: registerForm.phoneNumber ? registerForm.phoneNumber.trim() : null,
+      address: registerForm.address ? registerForm.address.trim() : null,
+      birthday: registerForm.birthday || null,
+      role: 'CUSTOMER',
+    };
+
+    const res = await register(accountPayload);
 
     if (res.success) {
       setFormFeedback({
-        success: 'Đăng ký tài khoản thành công! Vui lòng chuyển sang tab Đăng Nhập.',
+        success: 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.',
         error: '',
       });
       setActiveTab('login');
@@ -94,12 +101,12 @@ export function LoginModal({ show, onHide }) {
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="fw-bold fs-5 d-flex align-items-center gap-2">
           <i className="bi bi-cup-straw text-warning fs-4"></i>
-          <span>Chào mừng đến với MilkTea Haven</span>
+          <span>Chào mừng đến với Shop MilkTea</span>
         </Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="pt-2 px-4 pb-4">
-        {/* Tab Toggle */}
+        {/* Tab chuyển đổi Đăng Nhập / Đăng Ký */}
         <Nav variant="pills" className="nav-justified bg-light p-1 rounded-pill mb-4 border">
           <Nav.Item>
             <Nav.Link
@@ -113,6 +120,7 @@ export function LoginModal({ show, onHide }) {
                 activeTab === 'login' ? 'bg-white text-dark shadow-sm' : 'text-muted'
               }`}
             >
+              <i className="bi bi-box-arrow-in-right me-1"></i>
               Đăng Nhập
             </Nav.Link>
           </Nav.Item>
@@ -128,7 +136,8 @@ export function LoginModal({ show, onHide }) {
                 activeTab === 'register' ? 'bg-white text-dark shadow-sm' : 'text-muted'
               }`}
             >
-              Đăng Ký Mới
+              <i className="bi bi-person-plus-fill me-1"></i>
+              Tạo Tài Khoản
             </Nav.Link>
           </Nav.Item>
         </Nav>
@@ -147,18 +156,18 @@ export function LoginModal({ show, onHide }) {
           </Alert>
         )}
 
-        {/* Tab Đăng Nhập */}
+        {/* Tab 1: Đăng Nhập */}
         {activeTab === 'login' ? (
           <Form onSubmit={handleLoginSubmit}>
             <Form.Group className="mb-3" controlId="loginUsername">
-              <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập</Form.Label>
+              <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập hoặc Email</Form.Label>
               <div className="input-group">
                 <span className="input-group-text bg-light border-end-0">
                   <i className="bi bi-person text-muted"></i>
                 </span>
                 <Form.Control
                   type="text"
-                  placeholder="Nhập username"
+                  placeholder="Nhập username hoặc email"
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                   className="border-start-0 ps-0"
@@ -199,39 +208,88 @@ export function LoginModal({ show, onHide }) {
                 </>
               )}
             </Button>
+
+            {/* Nút Tạo Tài Khoản / Create Account trong Modal Login */}
+            <div className="text-center mt-3 pt-3 border-top">
+              <span className="small text-muted me-1">Bạn chưa có tài khoản?</span>
+              <Button
+                variant="link"
+                className="p-0 small fw-bold text-decoration-none"
+                style={{ color: '#d97706' }}
+                onClick={() => {
+                  setActiveTab('register');
+                  clearError();
+                  setFormFeedback({ success: '', error: '' });
+                }}
+              >
+                <i className="bi bi-person-plus-fill me-1"></i>
+                Tạo tài khoản mới
+              </Button>
+            </div>
           </Form>
         ) : (
-          /* Tab Đăng Ký */
+          /* Tab 2: Đăng Ký (Theo cấu trúc Account) */
           <Form onSubmit={handleRegisterSubmit}>
-            <Form.Group className="mb-2" controlId="regUsername">
-              <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập *</Form.Label>
+            <div className="row g-2 mb-2">
+              <div className="col-12 col-md-6">
+                <Form.Group controlId="regUsername">
+                  <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="linh_tra_sua"
+                    value={registerForm.username}
+                    onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
+                    required
+                  />
+                </Form.Group>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <Form.Group controlId="regEmail">
+                  <Form.Label className="small fw-semibold text-secondary">Email *</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="name@example.com"
+                    value={registerForm.email}
+                    onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                    required
+                  />
+                </Form.Group>
+              </div>
+            </div>
+
+            <div className="row g-2 mb-2">
+              <div className="col-12 col-md-6">
+                <Form.Group controlId="regPhone">
+                  <Form.Label className="small fw-semibold text-secondary">Số điện thoại</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    placeholder="0901234567"
+                    value={registerForm.phoneNumber}
+                    onChange={(e) => setRegisterForm({ ...registerForm, phoneNumber: e.target.value })}
+                  />
+                </Form.Group>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <Form.Group controlId="regBirthday">
+                  <Form.Label className="small fw-semibold text-secondary">Ngày sinh</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={registerForm.birthday}
+                    onChange={(e) => setRegisterForm({ ...registerForm, birthday: e.target.value })}
+                  />
+                </Form.Group>
+              </div>
+            </div>
+
+            <Form.Group className="mb-2" controlId="regAddress">
+              <Form.Label className="small fw-semibold text-secondary">Địa chỉ giao hàng</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Ví dụ: linh_tra_sua"
-                value={registerForm.username}
-                onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-2" controlId="regEmail">
-              <Form.Label className="small fw-semibold text-secondary">Email *</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="name@example.com"
-                value={registerForm.email}
-                onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-2" controlId="regFullName">
-              <Form.Label className="small fw-semibold text-secondary">Họ và tên</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Nguyễn Văn A"
-                value={registerForm.fullName}
-                onChange={(e) => setRegisterForm({ ...registerForm, fullName: e.target.value })}
+                placeholder="123 Đường Nguyễn Huệ, Quận 1, TP.HCM"
+                value={registerForm.address}
+                onChange={(e) => setRegisterForm({ ...registerForm, address: e.target.value })}
               />
             </Form.Group>
 
@@ -247,7 +305,7 @@ export function LoginModal({ show, onHide }) {
                 />
               </div>
               <div className="col-6">
-                <Form.Label className="small fw-semibold text-secondary">Nhập lại *</Form.Label>
+                <Form.Label className="small fw-semibold text-secondary">Nhập lại mật khẩu *</Form.Label>
                 <Form.Control
                   type="password"
                   placeholder="••••••••"
@@ -273,6 +331,24 @@ export function LoginModal({ show, onHide }) {
                 </>
               )}
             </Button>
+
+            {/* Chuyển nhanh sang tab Đăng Nhập */}
+            <div className="text-center mt-3 pt-2 border-top">
+              <span className="small text-muted me-1">Đã có tài khoản?</span>
+              <Button
+                variant="link"
+                className="p-0 small fw-bold text-decoration-none"
+                style={{ color: '#854d0e' }}
+                onClick={() => {
+                  setActiveTab('login');
+                  clearError();
+                  setFormFeedback({ success: '', error: '' });
+                }}
+              >
+                <i className="bi bi-box-arrow-in-right me-1"></i>
+                Đăng nhập ngay
+              </Button>
+            </div>
           </Form>
         )}
       </Modal.Body>

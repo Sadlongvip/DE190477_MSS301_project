@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
-import Header from '../component/common/Header';
-import Footer from '../component/common/Footer';
+import { MainLayout } from '../layout';
 import HeroSection from '../component/landing/HeroSection';
 import PromoBanner from '../component/landing/PromoBanner';
 import FeaturedMenu from '../component/landing/FeaturedMenu';
@@ -14,6 +13,7 @@ import LoginModal from '../component/auth/LoginModal';
 
 /**
  * Trang Landing Page chính của Shop_MilkTea
+ * Sử dụng MainLayout đã tách riêng TopHeader, Header và Footer
  */
 export function LandingPage() {
   // Quản lý giỏ hàng với LocalStorage
@@ -28,9 +28,16 @@ export function LandingPage() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState('login'); // 'login' | 'register'
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+
+  // Mở modal Auth với tab chỉ định
+  const handleOpenAuth = (tab = 'login') => {
+    setAuthTab(tab);
+    setIsAuthOpen(true);
+  };
 
   // Đồng bộ giỏ hàng với localStorage
   useEffect(() => {
@@ -91,36 +98,30 @@ export function LandingPage() {
   const totalCartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="landing-page-wrapper d-flex flex-column min-vh-100">
-      {/* 1. Header Điều Hướng */}
-      <Header
-        cartCount={totalCartCount}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
-      />
-
-      {/* 2. Hero Section */}
+    <MainLayout
+      cartCount={totalCartCount}
+      onOpenCart={() => setIsCartOpen(true)}
+      onOpenAuth={handleOpenAuth}
+    >
+      {/* 1. Hero Section */}
       <HeroSection onOpenCart={() => setIsCartOpen(true)} />
 
-      {/* 3. Voucher & Khuyến Mãi */}
+      {/* 2. Voucher & Khuyến Mãi */}
       <PromoBanner onOpenCart={() => setIsCartOpen(true)} />
 
-      {/* 4. Menu Món Nổi Bật */}
+      {/* 3. Menu Món Nổi Bật */}
       <FeaturedMenu
         onSelectProduct={(product) => setSelectedProduct(product)}
       />
 
-      {/* 5. Giá Trị Thương Hiệu (Why Choose Us) */}
+      {/* 4. Giá Trị Thương Hiệu (Why Choose Us) */}
       <WhyChooseUs />
 
-      {/* 6. Đánh Giá Khách Hàng (Testimonials) */}
+      {/* 5. Đánh Giá Khách Hàng (Testimonials) */}
       <Testimonials />
 
-      {/* 7. Câu Hỏi Thường Gặp & Newsletter */}
+      {/* 6. Câu Hỏi Thường Gặp & Newsletter */}
       <FAQSection />
-
-      {/* 8. Footer */}
-      <Footer />
 
       {/* Modal Tùy Chỉnh Chi Tiết Đồ Uống */}
       <ProductDetailModal
@@ -143,6 +144,7 @@ export function LandingPage() {
       {/* Modal Đăng Nhập / Đăng Ký */}
       <LoginModal
         show={isAuthOpen}
+        initialTab={authTab}
         onHide={() => setIsAuthOpen(false)}
       />
 
@@ -165,7 +167,7 @@ export function LandingPage() {
           </Toast.Body>
         </Toast>
       </ToastContainer>
-    </div>
+    </MainLayout>
   );
 }
 

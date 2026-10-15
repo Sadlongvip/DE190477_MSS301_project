@@ -23,8 +23,8 @@ public class AccountRequest {
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
-    @NotNull(message = "Role cannot be null")
-    private Role role;
+    @Builder.Default
+    private Role role = Role.CUSTOMER;
 
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email should be valid")
