@@ -406,16 +406,26 @@ export function MenuPage() {
                             }}
                             className="w-100 h-100 object-fit-cover tea-img-hover"
                           />
-                          {/* Tag Category */}
-                          {tea.categoryName && (
-                            <span
-                              className="position-absolute top-0 start-0 m-2.5 badge rounded-pill px-2.5 py-1 shadow-sm"
-                              style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', color: '#92400e', fontSize: '0.72rem' }}
-                            >
-                              <i className="bi bi-tag-fill me-1 text-warning"></i>
-                              {tea.categoryName}
-                            </span>
-                          )}
+                          {/* Tag Category & Status */}
+                          <div className="position-absolute top-0 start-0 w-100 d-flex justify-content-between p-2.5">
+                            {tea.categoryName && (
+                              <span
+                                className="badge rounded-pill px-2.5 py-1 shadow-sm"
+                                style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', color: '#92400e', fontSize: '0.72rem' }}
+                              >
+                                <i className="bi bi-tag-fill me-1 text-warning"></i>
+                                {tea.categoryName}
+                              </span>
+                            )}
+                            {tea.isAvailable === false && (
+                              <span
+                                className="badge bg-secondary rounded-pill px-2.5 py-1 shadow-sm ms-auto"
+                                style={{ fontSize: '0.72rem' }}
+                              >
+                                Tạm hết hàng
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Nội dung card */}
@@ -424,8 +434,8 @@ export function MenuPage() {
                             <Card.Title
                               className="fw-bold fs-6 text-dark mb-1 text-truncate"
                               title={tea.name}
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => setSelectedProduct(tea)}
+                              style={{ cursor: tea.isAvailable !== false ? 'pointer' : 'default' }}
+                              onClick={() => tea.isAvailable !== false && setSelectedProduct(tea)}
                             >
                               {tea.name}
                             </Card.Title>
@@ -454,15 +464,16 @@ export function MenuPage() {
                             </div>
 
                             <Button
-                              variant="warning"
+                              variant={tea.isAvailable === false ? 'secondary' : 'warning'}
                               size="sm"
-                              onClick={() => setSelectedProduct(tea)}
+                              disabled={tea.isAvailable === false}
+                              onClick={() => tea.isAvailable !== false && setSelectedProduct(tea)}
                               className="rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1 shadow-sm"
                               style={{ fontSize: '0.8rem' }}
-                              title="Tùy chọn topping và đặt món"
+                              title={tea.isAvailable === false ? 'Món đang tạm hết hàng' : 'Tùy chọn topping và đặt món'}
                             >
-                              <i className="bi bi-bag-plus-fill"></i>
-                              <span>Chọn món</span>
+                              <i className={`bi ${tea.isAvailable === false ? 'bi-x-circle' : 'bi-bag-plus-fill'}`}></i>
+                              <span>{tea.isAvailable === false ? 'Tạm hết' : 'Chọn món'}</span>
                             </Button>
                           </div>
                         </Card.Body>

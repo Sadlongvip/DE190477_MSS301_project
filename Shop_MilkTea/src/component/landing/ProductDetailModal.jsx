@@ -1,13 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Modal, Button, Form, Badge, Row, Col } from 'react-bootstrap';
-import { TOPPINGS } from '../../constant/landingData';
+import { InventoryContext } from '../../context/InventoryContext';
+import { TOPPINGS as FALLBACK_TOPPINGS } from '../../constant/landingData';
+
+const DEFAULT_FALLBACK_SIZES = [
+  { id: 1, code: 'M', name: 'Size M (Tiêu chuẩn)', extraPrice: 0, isDefault: true, isAvailable: true },
+  { id: 2, code: 'L', name: 'Size L (Cỡ lớn)', extraPrice: 6000, isDefault: false, isAvailable: true },
+  { id: 3, code: 'XL', name: 'Size XL (Khổng lồ 1L)', extraPrice: 12000, isDefault: false, isAvailable: true },
+];
 
 /**
  * Modal Tùy chỉnh chi tiết đồ uống (Đường, Đá, Size, Topping)
  */
 export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
-  const [size, setSize] = useState('M'); // 'M' (+0) | 'L' (+6000)
-  const [sugar, setSugar] = useState('70%');
+  const { toppings: contextToppings, sizes: contextSizes } = useContext(InventoryContext) || {};
+
+  // Ưu tiên lấy từ Backend, fallback sang dữ liệu mẫu nếu Backend chưa có
+  const availableToppings = contextToppings && contextToppings.length > 0 ? contextToppings : FALLBACK_TOPPINGS;
+  const availableSizes = contextSizes && contextSizes.length > 0 ? contextSizes : DEFAULT_FALLBACK_SIZES;
+
+  const [size, setSize] = useState('M');
+  const [sugar, setSugar] = useState('70% Chuẩn vị');
   const [ice, setIce] = useState('Bình thường (100%)');
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [quantity, setQuantity] = useState(1);
@@ -15,26 +28,34 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
   // Reset state when product changes
   useEffect(() => {
     if (product) {
-      setSize('M');
-      setSugar('70%');
+      const defaultSize = availableSizes.find((s) => s.isDefault && s.isAvailable !== false) || availableSizes[0];
+      setSize(defaultSize ? defaultSize.code : 'M');
+      setSugar('70% Chuẩn vị');
       setIce('Bình thường (100%)');
       setSelectedToppings([]);
       setQuantity(1);
     }
-  }, [product]);
+  }, [product, availableSizes]);
 
   if (!product) return null;
 
-  // Tính toán giá tổng
-  const sizeExtra = size === 'L' ? 6000 : 0;
+  // Tính toán phụ thu theo size đang chọn
+  const chosenSizeObj = availableSizes.find((s) => s.code === size);
+  const sizeExtra = chosenSizeObj ? (chosenSizeObj.extraPrice || 0) : 0;
+
+  // Tính toán tổng tiền topping
   const toppingsTotal = selectedToppings.reduce((sum, topId) => {
-    const item = TOPPINGS.find((t) => t.id === topId);
+    const item = availableToppings.find((t) => t.id === topId);
     return sum + (item ? item.price : 0);
   }, 0);
+
   const unitPrice = product.price + sizeExtra + toppingsTotal;
   const totalPrice = unitPrice * quantity;
 
   const handleToppingToggle = (topId) => {
+    const item = availableToppings.find((t) => t.id === topId);
+    if (item && item.isAvailable === false) return; // Không cho chọn topping hết hàng
+
     if (selectedToppings.includes(topId)) {
       setSelectedToppings(selectedToppings.filter((id) => id !== topId));
     } else {
@@ -47,9 +68,13 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
       ...product,
       cartItemId: `${product.id}-${size}-${sugar}-${ice}-${selectedToppings.sort().join('_')}`,
       size,
+      sizeName: chosenSizeObj ? chosenSizeObj.name : `Size ${size}`,
+      sizeExtra,
       sugar,
       ice,
-      toppings: selectedToppings.map((id) => TOPPINGS.find((t) => t.id === id)?.name).filter(Boolean),
+      toppings: selectedToppings
+        .map((id) => availableToppings.find((t) => t.id === id)?.name)
+        .filter(Boolean),
       unitPrice,
       quantity,
       totalPrice,
@@ -102,24 +127,31 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
               <Form.Label className="fw-bold small text-dark d-block">
                 1. Kích cỡ ly (Size):
               </Form.Label>
-              <div className="d-flex gap-2">
-                {[
-                  { key: 'M', label: 'Size M (Tiêu chuẩn)', extra: '+0đ' },
-                  { key: 'L', label: 'Size L (Cỡ lớn)', extra: '+6.000đ' },
-                ].map((s) => (
-                  <Button
-                    key={s.key}
-                    variant={size === s.key ? 'warning' : 'outline-secondary'}
-                    size="sm"
-                    className={`flex-fill rounded-3 text-start p-2 ${
-                      size === s.key ? 'fw-bold border-warning' : 'border'
-                    }`}
-                    onClick={() => setSize(s.key)}
-                  >
-                    <div>{s.label}</div>
-                    <small className="opacity-75">{s.extra}</small>
-                  </Button>
-                ))}
+              <div className="d-flex flex-wrap gap-2">
+                {availableSizes.map((s) => {
+                  const isSelected = size === s.code;
+                  const isOutOfStock = s.isAvailable === false;
+                  const extraText = s.extraPrice > 0 ? `+${s.extraPrice.toLocaleString('vi-VN')}đ` : '+0đ';
+
+                  return (
+                    <Button
+                      key={s.code || s.id}
+                      variant={isSelected ? 'warning' : 'outline-secondary'}
+                      size="sm"
+                      disabled={isOutOfStock}
+                      className={`flex-fill rounded-3 text-start p-2 ${
+                        isSelected ? 'fw-bold border-warning' : 'border'
+                      } ${isOutOfStock ? 'opacity-50' : ''}`}
+                      onClick={() => !isOutOfStock && setSize(s.code)}
+                    >
+                      <div className="d-flex align-items-center justify-content-between">
+                        <span>{s.name}</span>
+                        {isOutOfStock && <Badge bg="danger" className="ms-1" style={{ fontSize: '0.65rem' }}>Hết</Badge>}
+                      </div>
+                      <small className="opacity-75">{extraText}</small>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
@@ -169,25 +201,39 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
                 4. Topping kèm thêm:
               </Form.Label>
               <div className="d-flex flex-column gap-1">
-                {TOPPINGS.map((top) => {
+                {availableToppings.map((top) => {
                   const isChecked = selectedToppings.includes(top.id);
+                  const isOutOfStock = top.isAvailable === false;
+
                   return (
                     <div
                       key={top.id}
-                      onClick={() => handleToppingToggle(top.id)}
-                      className={`d-flex align-items-center justify-content-between p-2 rounded-3 border cursor-pointer ${
-                        isChecked ? 'bg-warning-subtle border-warning' : 'bg-light'
+                      onClick={() => !isOutOfStock && handleToppingToggle(top.id)}
+                      className={`d-flex align-items-center justify-content-between p-2 rounded-3 border ${
+                        isOutOfStock
+                          ? 'bg-light opacity-50 cursor-not-allowed'
+                          : isChecked
+                          ? 'bg-warning-subtle border-warning cursor-pointer'
+                          : 'bg-light cursor-pointer'
                       }`}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: isOutOfStock ? 'not-allowed' : 'pointer' }}
                     >
-                      <Form.Check
-                        type="checkbox"
-                        id={`topping-${top.id}`}
-                        label={top.name}
-                        checked={isChecked}
-                        onChange={() => {}}
-                        className="small fw-semibold pointer-events-none"
-                      />
+                      <div className="d-flex align-items-center gap-2">
+                        <Form.Check
+                          type="checkbox"
+                          id={`topping-${top.id}`}
+                          label={top.name}
+                          checked={isChecked}
+                          disabled={isOutOfStock}
+                          onChange={() => {}}
+                          className="small fw-semibold pointer-events-none"
+                        />
+                        {isOutOfStock && (
+                          <Badge bg="secondary" style={{ fontSize: '0.65rem' }}>
+                            Tạm hết
+                          </Badge>
+                        )}
+                      </div>
                       <span className="small text-danger fw-bold">+{top.price.toLocaleString('vi-VN')}đ</span>
                     </div>
                   );

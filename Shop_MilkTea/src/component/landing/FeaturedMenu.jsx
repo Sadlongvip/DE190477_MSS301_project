@@ -1,22 +1,65 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Form, InputGroup } from 'react-bootstrap';
-import { CATEGORIES, PRODUCTS } from '../../constant/landingData';
+import { InventoryContext } from '../../context/InventoryContext';
+import { CATEGORIES as FALLBACK_CATEGORIES, PRODUCTS as FALLBACK_PRODUCTS } from '../../constant/landingData';
+
+const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1558857563-b37cfb8cb468?auto=format&fit=crop&w=600&q=80';
 
 /**
  * Featured Menu Section - Thực đơn nổi bật với bộ lọc danh mục và tìm kiếm nhanh
+ * Ưu tiên hiển thị dữ liệu từ Backend thông qua InventoryContext (API Gateway)
+ * Có Fallback an toàn sang dữ liệu mẫu nếu Backend chưa sẵn sàng.
  */
 export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
+  const { categories: beCategories, milkTeas: beMilkTeas } = useContext(InventoryContext) || {};
+
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
 
+  // Chuẩn hóa danh mục (Ưu tiên BE, fallback sang static)
+  const displayCategories = useMemo(() => {
+    if (beCategories && beCategories.length > 0) {
+      return [
+        { id: 'all', name: 'Tất Cả', icon: 'bi-grid-fill' },
+        ...beCategories.map((c) => ({
+          id: String(c.id),
+          name: c.name,
+          icon: 'bi-cup-straw',
+        })),
+      ];
+    }
+    return FALLBACK_CATEGORIES;
+  }, [beCategories]);
+
+  // Chuẩn hóa danh sách sản phẩm (Ưu tiên BE, fallback sang static)
+  const displayProducts = useMemo(() => {
+    if (beMilkTeas && beMilkTeas.length > 0) {
+      return beMilkTeas.map((item, idx) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || 'Hương vị trà thơm béo chuẩn gu.',
+        price: item.price,
+        image: item.image || DEFAULT_TEA_IMAGE,
+        category: String(item.categoryId),
+        categoryName: item.categoryName,
+        rating: 4.8 + (idx % 3) * 0.1,
+        reviewsCount: 120 + idx * 15,
+        tag: item.isAvailable === false ? 'Tạm hết' : idx < 3 ? 'Bán chạy' : 'Mới',
+        tagColor: item.isAvailable === false ? 'secondary' : idx < 3 ? 'danger' : 'warning',
+        isAvailable: item.isAvailable !== false,
+      }));
+    }
+    return FALLBACK_PRODUCTS;
+  }, [beMilkTeas]);
+
   // Lọc sản phẩm theo danh mục và từ khóa tìm kiếm
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((item) => {
+    return displayProducts.filter((item) => {
       const matchCategory =
         activeCategory === 'all'
           ? true
           : activeCategory === 'best-seller'
-          ? item.category === 'best-seller' || item.rating >= 4.9
+          ? item.tag === 'Bán chạy' || item.rating >= 4.9
           : item.category === activeCategory;
 
       const matchKeyword =
@@ -26,7 +69,7 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
 
       return matchCategory && matchKeyword;
     });
-  }, [activeCategory, searchKeyword]);
+  }, [displayProducts, activeCategory, searchKeyword]);
 
   return (
     <section id="menu" className="py-5" style={{ background: '#faf7f2' }}>
