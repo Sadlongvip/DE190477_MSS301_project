@@ -41,7 +41,8 @@ public class Routes {
         return route("inventory_service")
                 .route(path("/api/categories/**")
                         .or(path("/api/milkteas/**"))
-                        .or(path("/api/toppings/**")), http())
+                        .or(path("/api/toppings/**"))
+                        .or(path("/api/sizes/**")), http())
                 .before(uri(inventoryServiceUrl))
                 .before(forwardUserInfo())
                 .build();

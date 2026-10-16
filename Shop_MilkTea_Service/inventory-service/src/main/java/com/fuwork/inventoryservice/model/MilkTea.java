@@ -24,6 +24,7 @@ public class MilkTea {
     private String description;
     private double price;
     private String image;
+    private Boolean isAvailable = true;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

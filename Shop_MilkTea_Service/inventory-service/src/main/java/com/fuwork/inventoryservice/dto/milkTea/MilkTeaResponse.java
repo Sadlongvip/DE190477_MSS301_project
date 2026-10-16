@@ -19,6 +19,7 @@ public class MilkTeaResponse {
     private String image;
     private Long categoryId;
     private String categoryName;
+    private Boolean isAvailable;
 
     public static MilkTeaResponse from(MilkTea milkTea) {
         if (milkTea == null) {
@@ -32,6 +33,7 @@ public class MilkTeaResponse {
                 .image(milkTea.getImage())
                 .categoryId(milkTea.getCategory() != null ? milkTea.getCategory().getId() : null)
                 .categoryName(milkTea.getCategory() != null ? milkTea.getCategory().getName() : null)
+                .isAvailable(milkTea.getIsAvailable() != null ? milkTea.getIsAvailable() : true)
                 .build();
     }
 }
