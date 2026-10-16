@@ -37,16 +37,6 @@ export function HeroSection({ onOpenCart }) {
         <Row className="align-items-center gy-5">
           {/* Cột trái: Văn bản & Kêu gọi hành động */}
           <Col lg={6} className="text-center text-lg-start">
-            {/* Tag khuyến mãi nổi bật */}
-            <div className="d-inline-flex align-items-center gap-2 bg-white px-3 py-2 rounded-pill shadow-sm mb-4 border border-warning">
-              <span className="badge bg-warning text-dark rounded-pill px-2 py-1 small fw-bold">
-                MỚI
-              </span>
-              <span className="small fw-semibold text-dark">
-                Nhập mã <strong>CHAO2026</strong> nhận ngay 25.000đ ưu đãi!
-              </span>
-            </div>
-
             <h1
               className="display-4 fw-bolder mb-3 text-dark"
               style={{ lineHeight: 1.15, letterSpacing: '-1.5px' }}

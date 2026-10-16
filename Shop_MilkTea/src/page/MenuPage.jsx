@@ -114,6 +114,17 @@ export function MenuPage() {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
+  // Lấy icon trực quan tương ứng với tên danh mục
+  const getCategoryIcon = (categoryName = '', isSelected = false) => {
+    const name = categoryName.toLowerCase();
+    const activeColor = isSelected ? 'text-dark' : 'text-amber-600';
+    if (name.includes('truyền thống')) return `bi bi-cup-hot-fill ${activeColor}`;
+    if (name.includes('trái cây') || name.includes('hoa quả')) return `bi bi-droplet-half ${activeColor}`;
+    if (name.includes('ô long') || name.includes('olong') || name.includes('macchiato')) return `bi bi-cup-straw ${activeColor}`;
+    if (name.includes('sữa tươi') || name.includes('trân châu')) return `bi bi-circle-fill ${activeColor}`;
+    return `bi bi-cup-straw ${activeColor}`;
+  };
+
   return (
     <MainLayout
       cartCount={totalCartCount}
@@ -186,50 +197,58 @@ export function MenuPage() {
                   </span>
                 </div>
 
-                {/* Danh sách lọc Category */}
-                <div className="d-flex flex-column gap-1.5 category-filter-list">
-                  {/* Nút: Tất cả sản phẩm */}
+                {/* Danh sách lọc Category - Gộp thành 1 khối duy nhất bo viền tròn */}
+                <div className="category-unified-list overflow-hidden bg-white shadow-2xs mb-1">
+                  {/* Mục: Tất Cả Sản Phẩm */}
                   <button
                     type="button"
                     onClick={() => filterByCategory(null)}
-                    className={`btn text-start d-flex align-items-center justify-content-between py-2 px-3 rounded-3 transition-all ${
+                    className={`w-100 text-start d-flex align-items-center justify-content-between py-2.5 px-3 border-0 transition-all ${
                       selectedCategoryId === null
-                        ? 'btn-warning text-dark fw-bold shadow-sm'
-                        : 'btn-light text-secondary fw-semibold'
+                        ? 'btn-category-active fw-bold'
+                        : 'category-item-row text-secondary fw-semibold'
                     }`}
-                    style={{ fontSize: '0.9rem', border: 'none' }}
+                    style={{
+                      fontSize: '0.9rem',
+                      borderBottom: categories.length > 0 ? '1px solid #f0eae1' : 'none',
+                    }}
                   >
                     <span className="d-flex align-items-center gap-2">
-                      <i className="bi bi-stars text-warning"></i>
+                      <i className={`bi bi-grid-fill ${selectedCategoryId === null ? 'text-dark' : 'text-warning'}`}></i>
                       <span>Tất Cả Sản Phẩm</span>
                     </span>
                     <Badge
                       pill
-                      bg={selectedCategoryId === null ? 'dark' : 'secondary'}
-                      className="px-2"
-                      style={{ fontSize: '0.7rem' }}
+                      bg={selectedCategoryId === null ? 'dark' : 'light'}
+                      text={selectedCategoryId === null ? 'white' : 'dark'}
+                      className="border px-2"
+                      style={{ fontSize: '0.72rem' }}
                     >
                       {milkTeas.length}
                     </Badge>
                   </button>
 
                   {/* Danh sách từng Category từ API */}
-                  {categories.map((cat) => {
+                  {categories.map((cat, idx) => {
                     const isSelected = selectedCategoryId === cat.id;
+                    const isLast = idx === categories.length - 1;
                     return (
                       <button
                         key={cat.id}
                         type="button"
                         onClick={() => filterByCategory(cat.id)}
-                        className={`btn text-start d-flex align-items-center justify-content-between py-2 px-3 rounded-3 transition-all ${
+                        className={`w-100 text-start d-flex align-items-center justify-content-between py-2.5 px-3 border-0 transition-all ${
                           isSelected
-                            ? 'btn-warning text-dark fw-bold shadow-sm'
-                            : 'btn-light text-secondary fw-semibold'
+                            ? 'btn-category-active fw-bold'
+                            : 'category-item-row text-secondary fw-semibold'
                         }`}
-                        style={{ fontSize: '0.9rem', border: 'none' }}
+                        style={{
+                          fontSize: '0.9rem',
+                          borderBottom: !isLast ? '1px solid #f0eae1' : 'none',
+                        }}
                       >
                         <span className="d-flex align-items-center gap-2 text-truncate">
-                          <i className="bi bi-cup-hot text-amber-600"></i>
+                          <i className={getCategoryIcon(cat.name, isSelected)}></i>
                           <span className="text-truncate">{cat.name}</span>
                         </span>
                         {cat.milkTeaCount > 0 && (
@@ -238,7 +257,7 @@ export function MenuPage() {
                             bg={isSelected ? 'dark' : 'light'}
                             text={isSelected ? 'white' : 'dark'}
                             className="border px-2"
-                            style={{ fontSize: '0.7rem' }}
+                            style={{ fontSize: '0.72rem' }}
                           >
                             {cat.milkTeaCount}
                           </Badge>
@@ -251,20 +270,47 @@ export function MenuPage() {
                 {/* Phần Topping gợi ý ở sidebar */}
                 {toppings && toppings.length > 0 && (
                   <div className="mt-4 pt-3 border-top">
-                    <h6 className="fw-bold mb-2 text-dark small d-flex align-items-center gap-1.5">
-                      <i className="bi bi-plus-circle-fill text-success"></i>
-                      <span>Topping Hấp Dẫn</span>
-                    </h6>
-                    <div className="d-flex flex-wrap gap-1.5">
+                    <div className="d-flex align-items-center justify-content-between mb-2.5">
+                      <h6 className="fw-bold mb-0 text-dark small d-flex align-items-center gap-1.5">
+                        <i className="bi bi-plus-circle-fill text-success"></i>
+                        <span>Topping Hấp Dẫn</span>
+                      </h6>
+                      <span
+                        className="badge bg-light text-muted border rounded-pill px-2 py-0.5"
+                        style={{ fontSize: '0.7rem' }}
+                      >
+                        {toppings.length} loại
+                      </span>
+                    </div>
+
+                    {/* Danh sách topping dạng thẻ micro-card thông thoáng */}
+                    <div
+                      className="d-flex flex-column gap-2"
+                      style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '2px' }}
+                    >
                       {toppings.map((top) => (
-                        <span
+                        <div
                           key={top.id}
-                          className="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 small fw-normal d-inline-flex align-items-center gap-1"
-                          style={{ fontSize: '0.75rem' }}
+                          className="topping-item-card d-flex align-items-center justify-content-between p-2 px-2.5 rounded-3 border bg-light-subtle transition-all"
+                          style={{
+                            borderColor: '#ece6de',
+                            fontSize: '0.82rem',
+                          }}
                         >
-                          <span>{top.name}</span>
-                          <span className="text-warning fw-semibold">+{formatVND(top.price)}</span>
-                        </span>
+                          <div className="d-flex align-items-center gap-2 text-truncate me-2">
+                            <span
+                              className="rounded-circle bg-warning flex-shrink-0"
+                              style={{ width: 6, height: 6 }}
+                            ></span>
+                            <span className="text-dark fw-medium text-truncate">{top.name}</span>
+                          </div>
+                          <span
+                            className="badge bg-warning-subtle text-amber-900 border border-warning-subtle rounded-pill fw-bold px-2 py-1 flex-shrink-0"
+                            style={{ fontSize: '0.72rem' }}
+                          >
+                            +{formatVND(top.price)}
+                          </span>
+                        </div>
                       ))}
                     </div>
                   </div>
