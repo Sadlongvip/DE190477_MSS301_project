@@ -115,6 +115,17 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             >
               Hỏi Đáp
             </Nav.Link>
+            {user?.role === 'ADMIN' && (
+              <Nav.Link
+                onClick={() => handleNavigate('/admin/menu')}
+                className={`px-2.5 py-1.5 rounded-pill hover-link text-nowrap ${
+                  location.pathname.startsWith('/admin') ? 'fw-bold text-danger' : 'text-danger fw-semibold'
+                }`}
+                style={{ fontSize: '0.85rem', cursor: 'pointer' }}
+              >
+                <i className="bi bi-shield-lock-fill me-1"></i> Quản Trị
+              </Nav.Link>
+            )}
           </Nav>
 
           {/* Action Buttons: Cart & Auth - Bám về sát bên phải */}
@@ -164,6 +175,14 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                     <p className="fw-bold mb-0 text-dark small">{user.username}</p>
                     <small className="text-muted" style={{ fontSize: '0.75rem' }}>{user.email || 'Khách hàng thân thiết'}</small>
                   </div>
+                  {user?.role === 'ADMIN' && (
+                    <>
+                      <Dropdown.Item onClick={() => handleNavigate('/admin/menu')} className="rounded-3 py-1.5 small text-danger fw-bold">
+                        <i className="bi bi-sliders me-2"></i> Quản Trị Thực Đơn
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+                    </>
+                  )}
                   <Dropdown.Item href="#orders" className="rounded-3 py-1.5 small">
                     <i className="bi bi-receipt me-2 text-primary"></i> Đơn hàng của tôi
                   </Dropdown.Item>

@@ -20,4 +20,6 @@ public class ToppingRequest {
     @NotNull(message = "Giá topping không được để trống")
     @PositiveOrZero(message = "Giá topping phải lớn hơn hoặc bằng 0")
     private Double price;
+
+    private Boolean isAvailable = true;
 }
