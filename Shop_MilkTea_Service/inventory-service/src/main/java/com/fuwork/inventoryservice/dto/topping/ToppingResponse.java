@@ -15,6 +15,7 @@ public class ToppingResponse {
     private Long id;
     private String name;
     private double price;
+    private Boolean isAvailable;
 
     public static ToppingResponse from(Topping topping) {
         if (topping == null) {
@@ -24,6 +25,7 @@ public class ToppingResponse {
                 .id(topping.getId())
                 .name(topping.getName())
                 .price(topping.getPrice())
+                .isAvailable(topping.getIsAvailable() != null ? topping.getIsAvailable() : true)
                 .build();
     }
 }

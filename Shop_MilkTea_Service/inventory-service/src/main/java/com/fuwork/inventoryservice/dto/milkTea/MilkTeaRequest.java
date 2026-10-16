@@ -27,4 +27,6 @@ public class MilkTeaRequest {
 
     @NotNull(message = "Danh mục không được để trống")
     private Long categoryId;
+
+    private Boolean isAvailable = true;
 }

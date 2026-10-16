@@ -31,6 +31,9 @@ public class ToppingService {
         Topping topping = new Topping();
         topping.setName(trimmedName);
         topping.setPrice(request.getPrice());
+        if (request.getIsAvailable() != null) {
+            topping.setIsAvailable(request.getIsAvailable());
+        }
 
         Topping saved = toppingRepository.save(topping);
         log.info("Topping created: id={}, name={}", saved.getId(), saved.getName());
@@ -66,6 +69,9 @@ public class ToppingService {
 
         topping.setName(trimmedName);
         topping.setPrice(request.getPrice());
+        if (request.getIsAvailable() != null) {
+            topping.setIsAvailable(request.getIsAvailable());
+        }
 
         Topping updated = toppingRepository.save(topping);
         log.info("Topping updated: id={}, name={}", updated.getId(), updated.getName());

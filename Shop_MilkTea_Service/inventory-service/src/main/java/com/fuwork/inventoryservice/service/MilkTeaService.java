@@ -34,6 +34,9 @@ public class MilkTeaService {
         milkTea.setPrice(request.getPrice());
         milkTea.setImage(request.getImage());
         milkTea.setCategory(category);
+        if (request.getIsAvailable() != null) {
+            milkTea.setIsAvailable(request.getIsAvailable());
+        }
 
         MilkTea saved = milkTeaRepository.save(milkTea);
         log.info("MilkTea created: id={}, name={}", saved.getId(), saved.getName());
@@ -79,6 +82,9 @@ public class MilkTeaService {
         milkTea.setPrice(request.getPrice());
         milkTea.setImage(request.getImage());
         milkTea.setCategory(category);
+        if (request.getIsAvailable() != null) {
+            milkTea.setIsAvailable(request.getIsAvailable());
+        }
 
         MilkTea updated = milkTeaRepository.save(milkTea);
         log.info("MilkTea updated: id={}, name={}", updated.getId(), updated.getName());

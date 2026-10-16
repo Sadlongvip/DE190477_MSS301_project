@@ -20,4 +20,5 @@ public class Topping {
     private Long id;
     private String name;
     private double price;
+    private Boolean isAvailable = true;
 }

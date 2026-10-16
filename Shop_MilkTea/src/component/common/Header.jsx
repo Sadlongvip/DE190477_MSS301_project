@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Navbar, Container, Nav, Button, Badge, Dropdown } from 'react-bootstrap';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
 /**
@@ -8,12 +9,36 @@ import { AuthContext } from '../../context/AuthContext';
  */
 export function Header({ cartCount, onOpenCart, onOpenAuth }) {
   const { user, isAuthenticated, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isHome = location.pathname === '/';
+  const isMenu = location.pathname === '/menu';
+
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
+  const handleSectionClick = (hash) => {
+    if (location.pathname !== '/') {
+      navigate('/' + hash);
+    } else {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <Navbar expand="lg" sticky="top" className="glass-nav py-2">
       <Container fluid="xl" className="px-3 px-xl-4">
         {/* Brand Logo */}
-        <Navbar.Brand href="#home" className="d-flex align-items-center gap-2 text-decoration-none me-3">
+        <Navbar.Brand
+          onClick={() => handleNavigate('/')}
+          className="d-flex align-items-center gap-2 text-decoration-none me-3"
+          style={{ cursor: 'pointer' }}
+        >
           <div
             className="d-flex align-items-center justify-content-center text-white rounded-circle shadow-sm"
             style={{
@@ -45,44 +70,48 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
           {/* Navigation Links */}
           <Nav className="mx-auto my-2 my-lg-0 gap-lg-1 gap-xl-2 fw-semibold align-items-center">
             <Nav.Link
-              href="#home"
-              className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem' }}
+              onClick={() => handleNavigate('/')}
+              className={`px-2.5 py-1.5 rounded-pill hover-link text-nowrap ${
+                isHome ? 'fw-bold text-warning' : 'text-dark'
+              }`}
+              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
             >
               Trang Chủ
             </Nav.Link>
             <Nav.Link
-              href="#menu"
-              className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem' }}
+              onClick={() => handleNavigate('/menu')}
+              className={`px-2.5 py-1.5 rounded-pill hover-link text-nowrap ${
+                isMenu ? 'fw-bold text-warning' : 'text-dark'
+              }`}
+              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
             >
               Thực Đơn
             </Nav.Link>
             <Nav.Link
-              href="#promo"
+              onClick={() => handleSectionClick('#promo')}
               className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem' }}
+              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
             >
               Ưu Đãi
             </Nav.Link>
             <Nav.Link
-              href="#about"
+              onClick={() => handleSectionClick('#about')}
               className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem' }}
+              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
             >
               Về Chúng Tôi
             </Nav.Link>
             <Nav.Link
-              href="#reviews"
+              onClick={() => handleSectionClick('#reviews')}
               className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem' }}
+              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
             >
               Đánh Giá
             </Nav.Link>
             <Nav.Link
-              href="#faq"
+              onClick={() => handleSectionClick('#faq')}
               className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem' }}
+              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
             >
               Hỏi Đáp
             </Nav.Link>
