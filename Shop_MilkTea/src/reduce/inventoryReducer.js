@@ -6,6 +6,7 @@ export const INVENTORY_ACTION_TYPES = {
   SET_CATEGORIES: 'SET_CATEGORIES',
   SET_MILK_TEAS: 'SET_MILK_TEAS',
   SET_TOPPINGS: 'SET_TOPPINGS',
+  SET_SIZES: 'SET_SIZES',
   SET_SELECTED_CATEGORY: 'SET_SELECTED_CATEGORY',
   SET_SEARCH_KEYWORD: 'SET_SEARCH_KEYWORD',
   INVENTORY_FAILURE: 'INVENTORY_FAILURE',
@@ -19,6 +20,7 @@ export const initialInventoryState = {
   categories: [],
   milkTeas: [],
   toppings: [],
+  sizes: [],
   selectedCategoryId: null, // null là chọn tất cả
   searchKeyword: '',
   loading: false,
@@ -57,6 +59,13 @@ export function inventoryReducer(state, action) {
         ...state,
         loading: false,
         toppings: action.payload || [],
+      };
+
+    case INVENTORY_ACTION_TYPES.SET_SIZES:
+      return {
+        ...state,
+        loading: false,
+        sizes: action.payload || [],
       };
 
     case INVENTORY_ACTION_TYPES.SET_SELECTED_CATEGORY:
