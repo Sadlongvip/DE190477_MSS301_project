@@ -269,14 +269,15 @@ export function MenuPage() {
 
                 {/* Phần Topping gợi ý ở sidebar */}
                 {toppings && toppings.length > 0 && (
-                  <div className="mt-4 pt-3 border-top">
-                    <div className="d-flex align-items-center justify-content-between mb-2.5">
-                      <h6 className="fw-bold mb-0 text-dark small d-flex align-items-center gap-1.5">
-                        <i className="bi bi-plus-circle-fill text-success"></i>
+                  <div className="mt-4 pt-4 border-top">
+                    {/* Header chủ đề Topping - Tách khoảng cách rộng rãi mb-3 */}
+                    <div className="d-flex align-items-center justify-content-between mb-3 pb-1">
+                      <h6 className="fw-bold mb-0 text-dark small d-flex align-items-center">
+                        <i className="bi bi-plus-circle-fill text-success fs-6 me-2"></i>
                         <span>Topping Hấp Dẫn</span>
                       </h6>
                       <span
-                        className="badge bg-light text-muted border rounded-pill px-2 py-0.5"
+                        className="badge bg-light text-muted border rounded-pill px-2.5 py-1"
                         style={{ fontSize: '0.7rem' }}
                       >
                         {toppings.length} loại
@@ -285,28 +286,34 @@ export function MenuPage() {
 
                     {/* Danh sách topping dạng thẻ micro-card thông thoáng */}
                     <div
-                      className="d-flex flex-column gap-2"
-                      style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '2px' }}
+                      className="d-flex flex-column gap-2 mt-1"
+                      style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}
                     >
                       {toppings.map((top) => (
                         <div
                           key={top.id}
-                          className="topping-item-card d-flex align-items-center justify-content-between p-2 px-2.5 rounded-3 border bg-light-subtle transition-all"
+                          className="topping-item-card d-flex align-items-center justify-content-between p-2 px-2.5 rounded-3 border bg-white shadow-sm transition-all"
                           style={{
-                            borderColor: '#ece6de',
+                            borderColor: '#e5e7eb',
                             fontSize: '0.82rem',
                           }}
                         >
                           <div className="d-flex align-items-center gap-2 text-truncate me-2">
                             <span
                               className="rounded-circle bg-warning flex-shrink-0"
-                              style={{ width: 6, height: 6 }}
+                              style={{ width: 7, height: 7 }}
                             ></span>
-                            <span className="text-dark fw-medium text-truncate">{top.name}</span>
+                            <span className="text-dark fw-semibold text-truncate">{top.name}</span>
                           </div>
+                          {/* Chữ đen nền trắng viền xám rõ ràng, dễ đọc */}
                           <span
-                            className="badge bg-warning-subtle text-amber-900 border border-warning-subtle rounded-pill fw-bold px-2 py-1 flex-shrink-0"
-                            style={{ fontSize: '0.72rem' }}
+                            className="badge bg-white text-dark border rounded-pill fw-bold px-2.5 py-1 flex-shrink-0 shadow-sm"
+                            style={{
+                              fontSize: '0.75rem',
+                              color: '#111827',
+                              backgroundColor: '#ffffff',
+                              borderColor: '#e5e7eb',
+                            }}
                           >
                             +{formatVND(top.price)}
                           </span>
