@@ -89,7 +89,7 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
         <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-5">
           {/* Category Tabs */}
           <div className="d-flex flex-wrap gap-2 justify-content-center">
-            {CATEGORIES.map((cat) => (
+            {displayCategories.map((cat) => (
               <Button
                 key={cat.id}
                 variant={activeCategory === cat.id ? 'warning' : 'light'}
