@@ -1,5 +1,6 @@
 package com.fuwork.customerservice.service;
 
+import com.fuwork.customerservice.context.AuditContext;
 import com.fuwork.customerservice.dto.AccountRequest;
 import com.fuwork.customerservice.dto.AccountResponse;
 import com.fuwork.customerservice.exception.ApiException;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -87,6 +89,8 @@ public class AccountService {
         account.setPhoneNumber(request.getPhoneNumber());
         account.setAddress(request.getAddress());
         account.setBirthday(request.getBirthday());
+        account.setUpdatedAt(LocalDateTime.now());
+        account.setUpdatedBy(AuditContext.getCurrentUser());
 
         Account updated = accountRepository.save(account);
         log.info("Account updated: id={}, username={}", updated.getId(), updated.getUsername());

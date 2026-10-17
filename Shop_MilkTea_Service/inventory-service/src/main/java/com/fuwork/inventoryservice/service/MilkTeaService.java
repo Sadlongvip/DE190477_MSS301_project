@@ -1,5 +1,6 @@
 package com.fuwork.inventoryservice.service;
 
+import com.fuwork.inventoryservice.context.AuditContext;
 import com.fuwork.inventoryservice.dto.milkTea.MilkTeaRequest;
 import com.fuwork.inventoryservice.dto.milkTea.MilkTeaResponse;
 import com.fuwork.inventoryservice.exception.ApiException;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -85,6 +87,8 @@ public class MilkTeaService {
         if (request.getIsAvailable() != null) {
             milkTea.setIsAvailable(request.getIsAvailable());
         }
+        milkTea.setUpdatedAt(LocalDateTime.now());
+        milkTea.setUpdatedBy(AuditContext.getCurrentUser());
 
         MilkTea updated = milkTeaRepository.save(milkTea);
         log.info("MilkTea updated: id={}, name={}", updated.getId(), updated.getName());

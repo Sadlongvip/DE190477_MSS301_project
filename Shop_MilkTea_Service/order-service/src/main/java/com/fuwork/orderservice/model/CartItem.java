@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Embeddable
 @Data
 @NoArgsConstructor
@@ -47,4 +49,20 @@ public class CartItem {
 
     @Column(name = "note")
     private String note;
+
+    @Column(name = "created_at", nullable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "created_by")
+    @Builder.Default
+    private String createdBy = "SYSTEM";
+
+    @Column(name = "updated_at", nullable = false)
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "updated_by")
+    @Builder.Default
+    private String updatedBy = "SYSTEM";
 }

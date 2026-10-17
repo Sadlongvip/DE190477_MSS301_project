@@ -1,5 +1,6 @@
 package com.fuwork.inventoryservice.service;
 
+import com.fuwork.inventoryservice.context.AuditContext;
 import com.fuwork.inventoryservice.dto.teaSize.TeaSizeRequest;
 import com.fuwork.inventoryservice.dto.teaSize.TeaSizeResponse;
 import com.fuwork.inventoryservice.exception.ApiException;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -69,6 +71,8 @@ public class TeaSizeService {
         if (request.getIsAvailable() != null) {
             size.setIsAvailable(request.getIsAvailable());
         }
+        size.setUpdatedAt(LocalDateTime.now());
+        size.setUpdatedBy(AuditContext.getCurrentUser());
 
         TeaSize updated = teaSizeRepository.save(size);
         log.info("TeaSize updated: id={}, code={}, extraPrice={}", updated.getId(), updated.getCode(), updated.getExtraPrice());
