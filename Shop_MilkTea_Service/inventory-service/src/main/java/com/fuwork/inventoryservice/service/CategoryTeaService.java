@@ -1,5 +1,6 @@
 package com.fuwork.inventoryservice.service;
 
+import com.fuwork.inventoryservice.context.AuditContext;
 import com.fuwork.inventoryservice.dto.categoryTea.CategoryTeaRequest;
 import com.fuwork.inventoryservice.dto.categoryTea.CategoryTeaResponse;
 import com.fuwork.inventoryservice.exception.ApiException;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -66,6 +68,8 @@ public class CategoryTeaService {
         }
 
         category.setName(trimmedName);
+        category.setUpdatedAt(LocalDateTime.now());
+        category.setUpdatedBy(AuditContext.getCurrentUser());
         CategoryTea updated = categoryTeaRepository.save(category);
         log.info("Category updated: id={}, name={}", updated.getId(), updated.getName());
         return CategoryTeaResponse.from(updated);

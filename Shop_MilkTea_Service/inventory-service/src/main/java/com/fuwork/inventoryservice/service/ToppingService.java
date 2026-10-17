@@ -1,5 +1,6 @@
 package com.fuwork.inventoryservice.service;
 
+import com.fuwork.inventoryservice.context.AuditContext;
 import com.fuwork.inventoryservice.dto.topping.ToppingRequest;
 import com.fuwork.inventoryservice.dto.topping.ToppingResponse;
 import com.fuwork.inventoryservice.exception.ApiException;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -72,6 +74,8 @@ public class ToppingService {
         if (request.getIsAvailable() != null) {
             topping.setIsAvailable(request.getIsAvailable());
         }
+        topping.setUpdatedAt(LocalDateTime.now());
+        topping.setUpdatedBy(AuditContext.getCurrentUser());
 
         Topping updated = toppingRepository.save(topping);
         log.info("Topping updated: id={}, name={}", updated.getId(), updated.getName());
