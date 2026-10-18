@@ -18,6 +18,9 @@ public class Routes {
     @Value("${services.customer.url:http://localhost:8081}")
     private String customerServiceUrl;
 
+    @Value("${services.inventory.url:http://localhost:8082}")
+    private String inventoryServiceUrl;
+
     @Value("${services.order.url:http://localhost:8083}")
     private String orderServiceUrl;
 
