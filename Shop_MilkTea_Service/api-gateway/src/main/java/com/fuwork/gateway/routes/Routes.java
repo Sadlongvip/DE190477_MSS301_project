@@ -18,8 +18,11 @@ public class Routes {
     @Value("${services.customer.url:http://localhost:8081}")
     private String customerServiceUrl;
 
-    @Value("${services.inventory.url:http://localhost:8082}")
-    private String inventoryServiceUrl;
+    @Value("${services.order.url:http://localhost:8083}")
+    private String orderServiceUrl;
+
+    @Value("${services.payment.url:http://localhost:8084}")
+    private String paymentServiceUrl;
 
     /**
      * Định tuyến các API liên quan đến Authentication và Quản lý tài khoản sang customer-service (port 8081)
@@ -47,4 +50,28 @@ public class Routes {
                 .before(forwardUserInfo())
                 .build();
     }
-}
+
+    /**
+     * Định tuyến các API liên quan đến Quản lý đơn hàng sang order-service (port 8083)
+     */
+    @Bean
+    public RouterFunction<ServerResponse> orderServiceRoute() {
+        return route("order_service")
+                .route(path("/api/orders/**"), http())
+                .before(uri(orderServiceUrl))
+                .before(forwardUserInfo())
+                .build();
+    }
+
+    /**
+     * Định tuyến các API liên quan đến Thanh toán sang payment-service (port 8084)
+     */
+    @Bean
+    public RouterFunction<ServerResponse> paymentServiceRoute() {
+        return route("payment_service")
+                .route(path("/api/payments/**"), http())
+                .before(uri(paymentServiceUrl))
+                .before(forwardUserInfo())
+                .build();
+    }
+}

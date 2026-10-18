@@ -44,10 +44,16 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**", "/api/sizes/**").permitAll()
+                        .requestMatchers("/api/payments/vnpay-ipn").permitAll()
 
                         // ---------- customer-service (Account Management) ----------
                         .requestMatchers("/api/accounts/me", "/api/accounts/me/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/accounts/**").hasRole("ADMIN")
+
+                        // ---------- payment-service ----------
+                        .requestMatchers(HttpMethod.POST, "/api/payments/create").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/*/status").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers("/api/payments/**").hasRole("ADMIN")
 
                         // ---------- order-service / inventory-service (Quản trị sản phẩm, đơn hàng) ----------
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
@@ -56,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**", "/api/sizes/**").hasRole("ADMIN")
 
                         .anyRequest().denyAll())
+
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
                         .decoder(jwtDecoder())
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())))
