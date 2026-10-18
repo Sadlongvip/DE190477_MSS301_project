@@ -1,4 +1,4 @@
-package com.fuwork.customerservice.exception;
+package com.dework.customerservice.exception;
 
 import org.springframework.http.HttpStatus;
 

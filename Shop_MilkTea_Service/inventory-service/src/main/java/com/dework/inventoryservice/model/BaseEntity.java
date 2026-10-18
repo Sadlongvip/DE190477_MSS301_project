@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.model;
+package com.dework.inventoryservice.model;
 
-import com.fuwork.inventoryservice.context.AuditContext;
+import com.dework.inventoryservice.context.AuditContext;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;

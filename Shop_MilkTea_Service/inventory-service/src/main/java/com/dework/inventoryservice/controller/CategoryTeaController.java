@@ -1,8 +1,8 @@
-package com.fuwork.inventoryservice.controller;
+package com.dework.inventoryservice.controller;
 
-import com.fuwork.inventoryservice.dto.categoryTea.CategoryTeaRequest;
-import com.fuwork.inventoryservice.dto.categoryTea.CategoryTeaResponse;
-import com.fuwork.inventoryservice.service.CategoryTeaService;
+import com.dework.inventoryservice.dto.categoryTea.CategoryTeaRequest;
+import com.dework.inventoryservice.dto.categoryTea.CategoryTeaResponse;
+import com.dework.inventoryservice.service.CategoryTeaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

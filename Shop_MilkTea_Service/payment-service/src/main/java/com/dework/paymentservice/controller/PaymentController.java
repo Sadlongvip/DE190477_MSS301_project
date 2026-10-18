@@ -1,8 +1,8 @@
-package com.fuwork.paymentservice.controller;
+package com.dework.paymentservice.controller;
 
-import com.fuwork.paymentservice.dto.PaymentRequestDTO;
-import com.fuwork.paymentservice.dto.PaymentResponseDTO;
-import com.fuwork.paymentservice.service.PaymentService;
+import com.dework.paymentservice.dto.PaymentRequestDTO;
+import com.dework.paymentservice.dto.PaymentResponseDTO;
+import com.dework.paymentservice.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

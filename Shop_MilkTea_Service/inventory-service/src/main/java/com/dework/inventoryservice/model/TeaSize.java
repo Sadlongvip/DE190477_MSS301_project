@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.model;
+package com.dework.inventoryservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

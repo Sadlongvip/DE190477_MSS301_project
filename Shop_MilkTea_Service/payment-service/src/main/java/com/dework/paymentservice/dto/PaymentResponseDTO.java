@@ -1,7 +1,7 @@
-package com.fuwork.paymentservice.dto;
+package com.dework.paymentservice.dto;
 
-import com.fuwork.paymentservice.model.PaymentMethod;
-import com.fuwork.paymentservice.model.PaymentStatus;
+import com.dework.paymentservice.model.PaymentMethod;
+import com.dework.paymentservice.model.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.dto.milkTea;
+package com.dework.inventoryservice.dto.milkTea;
 
-import com.fuwork.inventoryservice.model.MilkTea;
+import com.dework.inventoryservice.model.MilkTea;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

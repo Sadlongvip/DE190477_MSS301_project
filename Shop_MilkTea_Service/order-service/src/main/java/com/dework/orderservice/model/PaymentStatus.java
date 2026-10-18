@@ -1,4 +1,4 @@
-package com.fuwork.orderservice.model;
+package com.dework.orderservice.model;
 
 public enum PaymentStatus {
     UNPAID,      // Chưa thanh toán

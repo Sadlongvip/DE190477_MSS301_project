@@ -1,12 +1,12 @@
-package com.fuwork.customerservice.service;
+package com.dework.customerservice.service;
 
-import com.fuwork.customerservice.dto.LoginRequest;
-import com.fuwork.customerservice.dto.LoginResponse;
-import com.fuwork.customerservice.exception.ApiException;
-import com.fuwork.customerservice.model.Account;
-import com.fuwork.customerservice.model.AccountStatus;
-import com.fuwork.customerservice.repository.AccountRepository;
-import com.fuwork.customerservice.security.JwtService;
+import com.dework.customerservice.dto.LoginRequest;
+import com.dework.customerservice.dto.LoginResponse;
+import com.dework.customerservice.exception.ApiException;
+import com.dework.customerservice.model.Account;
+import com.dework.customerservice.model.AccountStatus;
+import com.dework.customerservice.repository.AccountRepository;
+import com.dework.customerservice.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;

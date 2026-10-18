@@ -1,8 +1,8 @@
-package com.fuwork.customerservice.dto;
+package com.dework.customerservice.dto;
 
-import com.fuwork.customerservice.model.Account;
-import com.fuwork.customerservice.model.AccountStatus;
-import com.fuwork.customerservice.model.Role;
+import com.dework.customerservice.model.Account;
+import com.dework.customerservice.model.AccountStatus;
+import com.dework.customerservice.model.Role;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.fuwork.customerservice.model;
+package com.dework.customerservice.model;
 
-import com.fuwork.customerservice.context.AuditContext;
+import com.dework.customerservice.context.AuditContext;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;

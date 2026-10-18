@@ -1,4 +1,4 @@
-package com.fuwork.customerservice.dto;
+package com.dework.customerservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

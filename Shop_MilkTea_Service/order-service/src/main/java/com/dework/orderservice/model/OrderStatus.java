@@ -1,4 +1,4 @@
-package com.fuwork.orderservice.model;
+package com.dework.orderservice.model;
 
 public enum OrderStatus {
     PENDING,     // Chờ xác nhận

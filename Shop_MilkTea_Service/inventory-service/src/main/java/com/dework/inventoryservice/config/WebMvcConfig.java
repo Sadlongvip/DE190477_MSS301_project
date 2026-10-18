@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.config;
+package com.dework.inventoryservice.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

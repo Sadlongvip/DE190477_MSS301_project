@@ -1,4 +1,4 @@
-package com.fuwork.gateway;
+package com.dework.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

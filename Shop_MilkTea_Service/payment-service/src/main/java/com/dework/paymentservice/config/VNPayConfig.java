@@ -1,4 +1,4 @@
-package com.fuwork.paymentservice.config;
+package com.dework.paymentservice.config;
 
 import lombok.Getter;
 import lombok.Setter;

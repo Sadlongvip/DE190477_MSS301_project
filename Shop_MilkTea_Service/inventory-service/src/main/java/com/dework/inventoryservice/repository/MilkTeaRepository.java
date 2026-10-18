@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.repository;
+package com.dework.inventoryservice.repository;
 
-import com.fuwork.inventoryservice.model.MilkTea;
+import com.dework.inventoryservice.model.MilkTea;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

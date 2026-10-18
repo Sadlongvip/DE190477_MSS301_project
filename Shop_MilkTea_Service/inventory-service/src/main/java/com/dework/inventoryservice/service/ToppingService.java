@@ -1,11 +1,11 @@
-package com.fuwork.inventoryservice.service;
+package com.dework.inventoryservice.service;
 
-import com.fuwork.inventoryservice.context.AuditContext;
-import com.fuwork.inventoryservice.dto.topping.ToppingRequest;
-import com.fuwork.inventoryservice.dto.topping.ToppingResponse;
-import com.fuwork.inventoryservice.exception.ApiException;
-import com.fuwork.inventoryservice.model.Topping;
-import com.fuwork.inventoryservice.repository.ToppingRepository;
+import com.dework.inventoryservice.context.AuditContext;
+import com.dework.inventoryservice.dto.topping.ToppingRequest;
+import com.dework.inventoryservice.dto.topping.ToppingResponse;
+import com.dework.inventoryservice.exception.ApiException;
+import com.dework.inventoryservice.model.Topping;
+import com.dework.inventoryservice.repository.ToppingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;

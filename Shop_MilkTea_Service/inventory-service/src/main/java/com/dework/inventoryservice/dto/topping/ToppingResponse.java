@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.dto.topping;
+package com.dework.inventoryservice.dto.topping;
 
-import com.fuwork.inventoryservice.model.Topping;
+import com.dework.inventoryservice.model.Topping;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

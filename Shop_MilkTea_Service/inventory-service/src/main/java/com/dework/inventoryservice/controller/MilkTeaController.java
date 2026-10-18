@@ -1,8 +1,8 @@
-package com.fuwork.inventoryservice.controller;
+package com.dework.inventoryservice.controller;
 
-import com.fuwork.inventoryservice.dto.milkTea.MilkTeaRequest;
-import com.fuwork.inventoryservice.dto.milkTea.MilkTeaResponse;
-import com.fuwork.inventoryservice.service.MilkTeaService;
+import com.dework.inventoryservice.dto.milkTea.MilkTeaRequest;
+import com.dework.inventoryservice.dto.milkTea.MilkTeaResponse;
+import com.dework.inventoryservice.service.MilkTeaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

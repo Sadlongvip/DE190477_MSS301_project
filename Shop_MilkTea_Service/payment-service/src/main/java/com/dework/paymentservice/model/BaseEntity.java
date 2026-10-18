@@ -1,6 +1,6 @@
-package com.fuwork.paymentservice.model;
+package com.dework.paymentservice.model;
 
-import com.fuwork.paymentservice.context.AuditContext;
+import com.dework.paymentservice.context.AuditContext;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;

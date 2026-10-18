@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.exception;
+package com.dework.inventoryservice.exception;
 
 import org.springframework.http.HttpStatus;
 

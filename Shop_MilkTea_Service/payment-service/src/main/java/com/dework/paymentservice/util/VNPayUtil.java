@@ -1,4 +1,4 @@
-package com.fuwork.paymentservice.util;
+package com.dework.paymentservice.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 

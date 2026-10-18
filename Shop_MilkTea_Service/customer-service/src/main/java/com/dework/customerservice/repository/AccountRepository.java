@@ -1,6 +1,6 @@
-package com.fuwork.customerservice.repository;
+package com.dework.customerservice.repository;
 
-import com.fuwork.customerservice.model.Account;
+import com.dework.customerservice.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

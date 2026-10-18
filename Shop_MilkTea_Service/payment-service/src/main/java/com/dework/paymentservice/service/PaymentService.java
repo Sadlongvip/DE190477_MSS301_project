@@ -1,7 +1,7 @@
-package com.fuwork.paymentservice.service;
+package com.dework.paymentservice.service;
 
-import com.fuwork.paymentservice.dto.PaymentRequestDTO;
-import com.fuwork.paymentservice.dto.PaymentResponseDTO;
+import com.dework.paymentservice.dto.PaymentRequestDTO;
+import com.dework.paymentservice.dto.PaymentResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;

@@ -1,13 +1,13 @@
-package com.fuwork.customerservice.service;
+package com.dework.customerservice.service;
 
-import com.fuwork.customerservice.context.AuditContext;
-import com.fuwork.customerservice.dto.AccountRequest;
-import com.fuwork.customerservice.dto.AccountResponse;
-import com.fuwork.customerservice.exception.ApiException;
-import com.fuwork.customerservice.model.Account;
-import com.fuwork.customerservice.model.AccountStatus;
-import com.fuwork.customerservice.model.Role;
-import com.fuwork.customerservice.repository.AccountRepository;
+import com.dework.customerservice.context.AuditContext;
+import com.dework.customerservice.dto.AccountRequest;
+import com.dework.customerservice.dto.AccountResponse;
+import com.dework.customerservice.exception.ApiException;
+import com.dework.customerservice.model.Account;
+import com.dework.customerservice.model.AccountStatus;
+import com.dework.customerservice.model.Role;
+import com.dework.customerservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

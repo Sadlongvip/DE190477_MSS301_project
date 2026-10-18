@@ -1,4 +1,4 @@
-package com.fuwork.customerservice.security;
+package com.dework.customerservice.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.beans.factory.annotation.Value;

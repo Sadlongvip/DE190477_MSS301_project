@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.dto.teaSize;
+package com.dework.inventoryservice.dto.teaSize;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

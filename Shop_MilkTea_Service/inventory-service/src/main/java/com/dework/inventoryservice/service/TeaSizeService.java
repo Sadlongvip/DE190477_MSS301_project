@@ -1,11 +1,11 @@
-package com.fuwork.inventoryservice.service;
+package com.dework.inventoryservice.service;
 
-import com.fuwork.inventoryservice.context.AuditContext;
-import com.fuwork.inventoryservice.dto.teaSize.TeaSizeRequest;
-import com.fuwork.inventoryservice.dto.teaSize.TeaSizeResponse;
-import com.fuwork.inventoryservice.exception.ApiException;
-import com.fuwork.inventoryservice.model.TeaSize;
-import com.fuwork.inventoryservice.repository.TeaSizeRepository;
+import com.dework.inventoryservice.context.AuditContext;
+import com.dework.inventoryservice.dto.teaSize.TeaSizeRequest;
+import com.dework.inventoryservice.dto.teaSize.TeaSizeResponse;
+import com.dework.inventoryservice.exception.ApiException;
+import com.dework.inventoryservice.model.TeaSize;
+import com.dework.inventoryservice.repository.TeaSizeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;

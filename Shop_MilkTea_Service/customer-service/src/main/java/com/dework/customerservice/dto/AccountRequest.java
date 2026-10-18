@@ -1,7 +1,7 @@
-package com.fuwork.customerservice.dto;
+package com.dework.customerservice.dto;
 
-import com.fuwork.customerservice.model.AccountStatus;
-import com.fuwork.customerservice.model.Role;
+import com.dework.customerservice.model.AccountStatus;
+import com.dework.customerservice.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

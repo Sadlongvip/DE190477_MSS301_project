@@ -1,6 +1,6 @@
-package com.fuwork.paymentservice.dto;
+package com.dework.paymentservice.dto;
 
-import com.fuwork.paymentservice.model.PaymentMethod;
+import com.dework.paymentservice.model.PaymentMethod;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

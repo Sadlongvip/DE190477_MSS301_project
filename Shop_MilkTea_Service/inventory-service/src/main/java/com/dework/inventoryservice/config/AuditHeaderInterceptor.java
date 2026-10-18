@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.config;
+package com.dework.inventoryservice.config;
 
-import com.fuwork.inventoryservice.context.AuditContext;
+import com.dework.inventoryservice.context.AuditContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.fuwork.paymentservice.model;
+package com.dework.paymentservice.model;
 
 public enum PaymentStatus {
     PENDING,     // Đang chờ thanh toán

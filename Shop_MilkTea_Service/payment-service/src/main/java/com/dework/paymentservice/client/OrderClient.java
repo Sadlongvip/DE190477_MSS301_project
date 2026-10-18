@@ -1,4 +1,4 @@
-package com.fuwork.paymentservice.client;
+package com.dework.paymentservice.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;

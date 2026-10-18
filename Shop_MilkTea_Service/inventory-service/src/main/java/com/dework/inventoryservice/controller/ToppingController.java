@@ -1,8 +1,8 @@
-package com.fuwork.inventoryservice.controller;
+package com.dework.inventoryservice.controller;
 
-import com.fuwork.inventoryservice.dto.topping.ToppingRequest;
-import com.fuwork.inventoryservice.dto.topping.ToppingResponse;
-import com.fuwork.inventoryservice.service.ToppingService;
+import com.dework.inventoryservice.dto.topping.ToppingRequest;
+import com.dework.inventoryservice.dto.topping.ToppingResponse;
+import com.dework.inventoryservice.service.ToppingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

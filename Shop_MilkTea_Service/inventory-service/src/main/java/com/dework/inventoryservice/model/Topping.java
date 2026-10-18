@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.model;
+package com.dework.inventoryservice.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

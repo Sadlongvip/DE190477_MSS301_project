@@ -1,11 +1,11 @@
-package com.fuwork.customerservice.controller;
+package com.dework.customerservice.controller;
 
-import com.fuwork.customerservice.dto.AccountRequest;
-import com.fuwork.customerservice.dto.AccountResponse;
-import com.fuwork.customerservice.dto.LoginRequest;
-import com.fuwork.customerservice.dto.LoginResponse;
-import com.fuwork.customerservice.service.AccountService;
-import com.fuwork.customerservice.service.AuthService;
+import com.dework.customerservice.dto.AccountRequest;
+import com.dework.customerservice.dto.AccountResponse;
+import com.dework.customerservice.dto.LoginRequest;
+import com.dework.customerservice.dto.LoginResponse;
+import com.dework.customerservice.service.AccountService;
+import com.dework.customerservice.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

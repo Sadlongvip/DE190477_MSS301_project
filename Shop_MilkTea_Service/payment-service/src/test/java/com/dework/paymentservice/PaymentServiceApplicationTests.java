@@ -1,4 +1,4 @@
-package com.fuwork.paymentservice;
+package com.dework.paymentservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.dto.categoryTea;
+package com.dework.inventoryservice.dto.categoryTea;
 
-import com.fuwork.inventoryservice.model.CategoryTea;
+import com.dework.inventoryservice.model.CategoryTea;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

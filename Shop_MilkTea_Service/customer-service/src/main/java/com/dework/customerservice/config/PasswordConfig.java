@@ -1,4 +1,4 @@
-package com.fuwork.customerservice.config;
+package com.dework.customerservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

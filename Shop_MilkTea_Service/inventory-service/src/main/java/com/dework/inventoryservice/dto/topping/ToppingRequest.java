@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.dto.topping;
+package com.dework.inventoryservice.dto.topping;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

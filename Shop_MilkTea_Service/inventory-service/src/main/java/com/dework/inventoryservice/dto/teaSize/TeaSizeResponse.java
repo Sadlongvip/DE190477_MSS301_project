@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.dto.teaSize;
+package com.dework.inventoryservice.dto.teaSize;
 
-import com.fuwork.inventoryservice.model.TeaSize;
+import com.dework.inventoryservice.model.TeaSize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

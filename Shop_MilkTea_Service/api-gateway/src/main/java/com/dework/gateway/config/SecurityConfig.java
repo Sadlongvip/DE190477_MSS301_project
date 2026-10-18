@@ -1,4 +1,4 @@
-package com.fuwork.gateway.config;
+package com.dework.gateway.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -1,15 +1,15 @@
-package com.fuwork.paymentservice.service.impl;
+package com.dework.paymentservice.service.impl;
 
-import com.fuwork.paymentservice.client.OrderClient;
-import com.fuwork.paymentservice.config.VNPayConfig;
-import com.fuwork.paymentservice.dto.PaymentRequestDTO;
-import com.fuwork.paymentservice.dto.PaymentResponseDTO;
-import com.fuwork.paymentservice.model.PaymentMethod;
-import com.fuwork.paymentservice.model.PaymentStatus;
-import com.fuwork.paymentservice.model.PaymentTransaction;
-import com.fuwork.paymentservice.repository.PaymentTransactionRepository;
-import com.fuwork.paymentservice.service.PaymentService;
-import com.fuwork.paymentservice.util.VNPayUtil;
+import com.dework.paymentservice.client.OrderClient;
+import com.dework.paymentservice.config.VNPayConfig;
+import com.dework.paymentservice.dto.PaymentRequestDTO;
+import com.dework.paymentservice.dto.PaymentResponseDTO;
+import com.dework.paymentservice.model.PaymentMethod;
+import com.dework.paymentservice.model.PaymentStatus;
+import com.dework.paymentservice.model.PaymentTransaction;
+import com.dework.paymentservice.repository.PaymentTransactionRepository;
+import com.dework.paymentservice.service.PaymentService;
+import com.dework.paymentservice.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

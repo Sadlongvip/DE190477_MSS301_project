@@ -1,6 +1,6 @@
-package com.fuwork.inventoryservice.repository;
+package com.dework.inventoryservice.repository;
 
-import com.fuwork.inventoryservice.model.CategoryTea;
+import com.dework.inventoryservice.model.CategoryTea;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

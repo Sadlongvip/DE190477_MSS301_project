@@ -1,4 +1,4 @@
-package com.fuwork.customerservice.dto;
+package com.dework.customerservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

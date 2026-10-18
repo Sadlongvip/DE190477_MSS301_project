@@ -1,6 +1,6 @@
-package com.fuwork.orderservice.config;
+package com.dework.orderservice.config;
 
-import com.fuwork.orderservice.context.AuditContext;
+import com.dework.orderservice.context.AuditContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

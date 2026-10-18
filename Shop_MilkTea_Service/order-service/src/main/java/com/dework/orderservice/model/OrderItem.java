@@ -1,4 +1,4 @@
-package com.fuwork.orderservice.model;
+package com.dework.orderservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

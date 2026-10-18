@@ -1,6 +1,6 @@
-package com.fuwork.customerservice.config;
+package com.dework.customerservice.config;
 
-import com.fuwork.customerservice.context.AuditContext;
+import com.dework.customerservice.context.AuditContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.fuwork.customerservice.model;
+package com.dework.customerservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

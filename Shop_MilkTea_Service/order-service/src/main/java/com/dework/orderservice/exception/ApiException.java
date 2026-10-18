@@ -1,4 +1,4 @@
-package com.fuwork.orderservice.exception;
+package com.dework.orderservice.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,6 +1,6 @@
-package com.fuwork.paymentservice.repository;
+package com.dework.paymentservice.repository;
 
-import com.fuwork.paymentservice.model.PaymentTransaction;
+import com.dework.paymentservice.model.PaymentTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

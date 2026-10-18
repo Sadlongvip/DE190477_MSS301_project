@@ -1,4 +1,4 @@
-package com.fuwork.paymentservice.model;
+package com.dework.paymentservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

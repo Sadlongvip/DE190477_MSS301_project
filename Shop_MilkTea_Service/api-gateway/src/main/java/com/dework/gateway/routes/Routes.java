@@ -1,4 +1,4 @@
-package com.fuwork.gateway.routes;
+package com.dework.gateway.routes;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static com.fuwork.gateway.filter.UserHeaderFilter.forwardUserInfo;
+import static com.dework.gateway.filter.UserHeaderFilter.forwardUserInfo;
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;

@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.context;
+package com.dework.inventoryservice.context;
 
 public final class AuditContext {
 

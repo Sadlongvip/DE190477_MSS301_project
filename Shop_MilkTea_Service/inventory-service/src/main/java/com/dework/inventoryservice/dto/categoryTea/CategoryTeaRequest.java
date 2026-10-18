@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice.dto.categoryTea;
+package com.dework.inventoryservice.dto.categoryTea;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

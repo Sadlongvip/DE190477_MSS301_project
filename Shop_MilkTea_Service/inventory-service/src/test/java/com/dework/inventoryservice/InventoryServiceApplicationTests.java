@@ -1,4 +1,4 @@
-package com.fuwork.inventoryservice;
+package com.dework.inventoryservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
