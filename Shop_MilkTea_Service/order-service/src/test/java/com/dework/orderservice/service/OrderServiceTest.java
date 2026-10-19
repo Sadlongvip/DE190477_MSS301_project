@@ -151,4 +151,27 @@ class OrderServiceTest {
 
         assertThrows(ApiException.class, () -> orderService.cancelOrder("ORD-123456", "Muốn hủy", 10L, false));
     }
+
+    @Test
+    @DisplayName("Kiểm tra ánh xạ User 1-N Order: Một User có thể liên kết nhiều đơn hàng")
+    void order_UserMapping_OneToMany_Success() {
+        Order order1 = Order.builder()
+                .id(1L)
+                .orderCode("ORD-111111")
+                .userId(10L)
+                .build();
+
+        Order order2 = Order.builder()
+                .id(2L)
+                .orderCode("ORD-222222")
+                .userId(10L)
+                .build();
+
+        assertNotNull(order1.getUser());
+        assertNotNull(order2.getUser());
+        assertEquals(10L, order1.getUser().getId());
+        assertEquals(10L, order2.getUser().getId());
+        assertEquals(10L, order1.getUserId());
+        assertEquals(10L, order2.getUserId());
+    }
 }

@@ -119,4 +119,18 @@ class CartServiceTest {
         assertEquals(0.0, cart.getTotalPrice());
         verify(cartRepository).save(cart);
     }
+
+    @Test
+    @DisplayName("Kiểm tra ánh xạ User 1-1 Cart: Cart liên kết chính xác thực thể User")
+    void cart_UserMapping_OneToOne_Success() {
+        Cart cart = Cart.builder()
+                .id(1L)
+                .userId(10L)
+                .items(new ArrayList<>())
+                .build();
+
+        assertNotNull(cart.getUser());
+        assertEquals(10L, cart.getUser().getId());
+        assertEquals(10L, cart.getUserId());
+    }
 }
