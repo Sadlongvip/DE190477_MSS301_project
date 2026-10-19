@@ -17,6 +17,20 @@ public class AuditHeaderInterceptor implements HandlerInterceptor {
         } else {
             AuditContext.setCurrentUser("SYSTEM");
         }
+
+        String userIdStr = request.getHeader("X-User-Id");
+        if (userIdStr != null && !userIdStr.isBlank()) {
+            try {
+                AuditContext.setCurrentUserId(Long.parseLong(userIdStr.trim()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        String role = request.getHeader("X-User-Role");
+        if (role != null && !role.isBlank()) {
+            AuditContext.setCurrentUserRole(role.trim());
+        }
+
         return true;
     }
 
