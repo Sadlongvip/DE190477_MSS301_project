@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/api/carts", "/api/orders/cart"})
+@RequestMapping("/api/carts")
 @RequiredArgsConstructor
 public class CartController {
 

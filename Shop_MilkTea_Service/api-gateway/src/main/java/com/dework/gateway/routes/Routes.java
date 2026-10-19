@@ -55,12 +55,12 @@ public class Routes {
     }
 
     /**
-     * Định tuyến các API liên quan đến Quản lý đơn hàng sang order-service (port 8083)
+     * Định tuyến các API liên quan đến Quản lý đơn hàng và giỏ hàng sang order-service (port 8083)
      */
     @Bean
     public RouterFunction<ServerResponse> orderServiceRoute() {
         return route("order_service")
-                .route(path("/api/orders/**"), http())
+                .route(path("/api/orders/**").or(path("/api/carts/**")), http())
                 .before(uri(orderServiceUrl))
                 .before(forwardUserInfo())
                 .build();
