@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -39,8 +40,9 @@ public class Order extends BaseEntity {
     @Column(name = "order_code", nullable = false, unique = true)
     private String orderCode;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "customer_name", nullable = false)
     private String customerName;
@@ -116,5 +118,28 @@ public class Order extends BaseEntity {
                 .mapToDouble(OrderItem::getTotalPrice)
                 .sum();
         this.totalAmount = Math.max(0.0, this.subtotal + this.shippingFee - this.discountAmount);
+    }
+
+    public Long getUserId() {
+        return this.user != null ? this.user.getId() : null;
+    }
+
+    public void setUserId(Long userId) {
+        if (userId != null) {
+            this.user = User.builder().id(userId).build();
+        } else {
+            this.user = null;
+        }
+    }
+
+    public static class OrderBuilder {
+        public OrderBuilder userId(Long userId) {
+            if (userId != null) {
+                this.user = User.builder().id(userId).build();
+            } else {
+                this.user = null;
+            }
+            return this;
+        }
     }
 }

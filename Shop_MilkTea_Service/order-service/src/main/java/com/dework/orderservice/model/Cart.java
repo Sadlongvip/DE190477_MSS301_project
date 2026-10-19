@@ -18,6 +18,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import jakarta.persistence.OneToOne;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +36,9 @@ public class Cart extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
 
     @Column(name = "session_id")
     private String sessionId;
@@ -70,10 +73,33 @@ public class Cart extends BaseEntity {
             this.items = new ArrayList<>();
         }
         this.totalQuantity = this.items.stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
+            .mapToInt(CartItem::getQuantity)
+            .sum();
         this.totalPrice = this.items.stream()
-                .mapToDouble(CartItem::getTotalPrice)
-                .sum();
+            .mapToDouble(CartItem::getTotalPrice)
+            .sum();
+    }
+
+    public Long getUserId() {
+        return this.user != null ? this.user.getId() : null;
+    }
+
+    public void setUserId(Long userId) {
+        if (userId != null) {
+            this.user = User.builder().id(userId).build();
+        } else {
+            this.user = null;
+        }
+    }
+
+    public static class CartBuilder {
+        public CartBuilder userId(Long userId) {
+            if (userId != null) {
+                this.user = User.builder().id(userId).build();
+            } else {
+                this.user = null;
+            }
+            return this;
+        }
     }
 }
