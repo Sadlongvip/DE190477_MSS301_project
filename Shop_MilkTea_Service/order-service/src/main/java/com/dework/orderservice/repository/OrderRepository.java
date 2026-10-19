@@ -20,9 +20,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     boolean existsByOrderCode(String orderCode);
 
-    List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.createdAt DESC")
+    List<Order> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 
-    Page<Order> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    List<Order> findByUser_IdOrderByCreatedAtDesc(Long userId);
+
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.createdAt DESC")
+    Page<Order> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, Pageable pageable);
+
+    Page<Order> findByUser_IdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     List<Order> findByStatusOrderByCreatedAtDesc(OrderStatus status);
 
