@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from '../page/LandingPage';
 import MenuPage from '../page/MenuPage';
+import CartPage from '../page/CartPage';
 import AdminMenuPage from '../page/admin/AdminMenuPage';
 import AdminRoute from '../component/auth/AdminRoute';
 
@@ -9,6 +10,7 @@ import AdminRoute from '../component/auth/AdminRoute';
  * AppRouter - Cấu hình định tuyến trang cho toàn bộ ứng dụng Shop_MilkTea
  * - / : Trang Chủ (Landing Page)
  * - /menu : Trang Thực Đơn (Menu Page 30-70)
+ * - /cart : Trang Giỏ Hàng (Cart Page cho User)
  * - /admin/menu : Trang Quản Trị Thực Đơn (Dành riêng cho ADMIN)
  * - * : Mặc định chuyển hướng về Trang Chủ
  */
@@ -18,6 +20,7 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/menu" element={<MenuPage />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route
           path="/admin/menu"
           element={

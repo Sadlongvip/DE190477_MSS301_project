@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**", "/api/sizes/**").permitAll()
+                        .requestMatchers("/api/carts", "/api/carts/**").permitAll()
                         .requestMatchers("/api/payments/vnpay-ipn").permitAll()
 
                         // ---------- customer-service (Account Management) ----------

@@ -5,6 +5,7 @@ import { InventoryContext } from '../context/InventoryContext';
 import CartDrawer from '../component/cart/CartDrawer';
 import LoginModal from '../component/auth/LoginModal';
 import ProductDetailModal from '../component/landing/ProductDetailModal';
+import useCart from '../hook/useCart';
 
 // Ảnh fallback chất lượng cao nếu ảnh từ backend không load được
 const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1558857563-b37cfb8cb468?auto=format&fit=crop&w=600&q=80';
@@ -27,30 +28,20 @@ export function MenuPage() {
     searchProducts,
   } = useContext(InventoryContext);
 
-  // State giỏ hàng (đồng bộ với LocalStorage)
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem('milktea_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const {
+    cartItems,
+    totalQuantity,
+    addToCart,
+    updateQuantity,
+    removeItem,
+    clearCart,
+  } = useCart();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState('login');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchInput, setSearchInput] = useState('');
-
-  // Lưu giỏ hàng vào LocalStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('milktea_cart', JSON.stringify(cartItems));
-    } catch {
-      // Ignored
-    }
-  }, [cartItems]);
 
   // Xử lý tìm kiếm với độ trễ nhẹ (debounce)
   useEffect(() => {
@@ -62,45 +53,10 @@ export function MenuPage() {
 
   // Thêm vào giỏ hàng
   const handleAddToCart = (item) => {
-    setCartItems((prevItems) => {
-      const existingIndex = prevItems.findIndex((i) => i.cartItemId === item.cartItemId);
-      if (existingIndex > -1) {
-        const updated = [...prevItems];
-        updated[existingIndex].quantity += item.quantity;
-        updated[existingIndex].totalPrice =
-          updated[existingIndex].unitPrice * updated[existingIndex].quantity;
-        return updated;
-      }
-      return [...prevItems, item];
-    });
+    addToCart(item);
     setIsCartOpen(true);
   };
 
-  const handleUpdateQuantity = (cartItemId, newQty) => {
-    setCartItems((prevItems) =>
-      prevItems
-        .map((item) => {
-          if (item.cartItemId === cartItemId) {
-            return {
-              ...item,
-              quantity: newQty,
-              totalPrice: item.unitPrice * newQty,
-            };
-          }
-          return item;
-        })
-        .filter((item) => item.quantity > 0)
-    );
-  };
-
-  const handleRemoveItem = (cartItemId) => {
-    setCartItems((prevItems) => prevItems.filter((i) => i.cartItemId !== cartItemId));
-  };
-
-  // Tổng số lượng món trong giỏ hàng
-  const totalCartCount = useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  }, [cartItems]);
 
   // Tên danh mục hiện tại đang chọn
   const currentCategoryName = useMemo(() => {
@@ -127,13 +83,14 @@ export function MenuPage() {
 
   return (
     <MainLayout
-      cartCount={totalCartCount}
+      cartCount={totalQuantity}
       onOpenCart={() => setIsCartOpen(true)}
       onOpenAuth={(tab) => {
         setAuthTab(tab);
         setIsAuthOpen(true);
       }}
     >
+
       <div className="menu-page-wrapper py-4" style={{ backgroundColor: '#fafaf9', minHeight: '85vh' }}>
         <Container fluid="xl" className="px-3 px-xl-4">
           {/* 1. Header Banner & Tiêu đề trang */}
@@ -507,14 +464,11 @@ export function MenuPage() {
         show={isCartOpen}
         onHide={() => setIsCartOpen(false)}
         cartItems={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onCheckout={() => {
-          setIsCartOpen(false);
-          alert('Đơn hàng của bạn đã được tiếp nhận thành công!');
-          setCartItems([]);
-        }}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeItem}
+        onClearCart={clearCart}
       />
+
 
       {/* Modal Đăng Nhập / Đăng Ký */}
       <LoginModal

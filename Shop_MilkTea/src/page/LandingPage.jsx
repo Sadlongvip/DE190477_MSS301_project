@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import { MainLayout } from '../layout';
 import HeroSection from '../component/landing/HeroSection';
@@ -10,21 +10,21 @@ import FAQSection from '../component/landing/FAQSection';
 import ProductDetailModal from '../component/landing/ProductDetailModal';
 import CartDrawer from '../component/cart/CartDrawer';
 import LoginModal from '../component/auth/LoginModal';
+import useCart from '../hook/useCart';
 
 /**
  * Trang Landing Page chính của Shop_MilkTea
  * Sử dụng MainLayout bao gồm Header và Footer
  */
 export function LandingPage() {
-  // Quản lý giỏ hàng với LocalStorage
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem('milktea_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const {
+    cartItems,
+    totalQuantity,
+    addToCart,
+    updateQuantity,
+    removeItem,
+    clearCart,
+  } = useCart();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -39,70 +39,20 @@ export function LandingPage() {
     setIsAuthOpen(true);
   };
 
-  // Đồng bộ giỏ hàng với localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('milktea_cart', JSON.stringify(cartItems));
-    } catch {
-      // Ignored
-    }
-  }, [cartItems]);
-
   // Thêm sản phẩm vào giỏ
   const handleAddToCart = (item) => {
-    setCartItems((prevItems) => {
-      const existingIndex = prevItems.findIndex((i) => i.cartItemId === item.cartItemId);
-      if (existingIndex > -1) {
-        const updated = [...prevItems];
-        updated[existingIndex].quantity += item.quantity;
-        updated[existingIndex].totalPrice =
-          updated[existingIndex].unitPrice * updated[existingIndex].quantity;
-        return updated;
-      }
-      return [...prevItems, item];
-    });
-
+    addToCart(item);
     setToastMessage(`Đã thêm "${item.name}" vào giỏ hàng!`);
     setShowToast(true);
   };
 
-  // Cập nhật số lượng
-  const handleUpdateQuantity = (cartItemId, newQty) => {
-    setCartItems((prevItems) =>
-      prevItems
-        .map((item) => {
-          if (item.cartItemId === cartItemId) {
-            return {
-              ...item,
-              quantity: newQty,
-              totalPrice: item.unitPrice * newQty,
-            };
-          }
-          return item;
-        })
-        .filter((item) => item.quantity > 0)
-    );
-  };
-
-  // Xóa sản phẩm khỏi giỏ
-  const handleRemoveItem = (cartItemId) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.cartItemId !== cartItemId));
-  };
-
-  // Xóa sạch giỏ hàng
-  const handleClearCart = () => {
-    setCartItems([]);
-  };
-
-  // Tổng số lượng cốc trong giỏ
-  const totalCartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
   return (
     <MainLayout
-      cartCount={totalCartCount}
+      cartCount={totalQuantity}
       onOpenCart={() => setIsCartOpen(true)}
       onOpenAuth={handleOpenAuth}
     >
+
       {/* 1. Hero Section */}
       <HeroSection onOpenCart={() => setIsCartOpen(true)} />
 
@@ -136,10 +86,11 @@ export function LandingPage() {
         show={isCartOpen}
         onHide={() => setIsCartOpen(false)}
         cartItems={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeItem}
+        onClearCart={clearCart}
       />
+
 
       {/* Modal Đăng Nhập / Đăng Ký */}
       <LoginModal
