@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Navbar, Container, Nav, Button, Badge, Dropdown } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import useCart from '../../hook/useCart';
 
 /**
  * Header Navigation Bar - Thanh điều hướng phong cách Glassmorphism
@@ -9,11 +10,15 @@ import { AuthContext } from '../../context/AuthContext';
  */
 export function Header({ cartCount, onOpenCart, onOpenAuth }) {
   const { user, isAuthenticated, logout } = useContext(AuthContext);
+  const { totalQuantity } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isHome = location.pathname === '/';
   const isMenu = location.pathname === '/menu';
+  const isCart = location.pathname === '/cart';
+
+  const displayCartCount = cartCount !== undefined ? cartCount : totalQuantity;
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -133,25 +138,27 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             className="d-flex align-items-center gap-3 mt-2 mt-lg-0 flex-nowrap ms-auto justify-content-end"
             style={{ gap: '12px' }}
           >
-            {/* Nút Giỏ Hàng - Chỉ hiển thị khi đã đăng nhập */}
-            {isAuthenticated && user && (
+            {/* Nút Giỏ Hàng - Hiển thị khi đã đăng nhập hoặc giỏ có món */}
+            {(isAuthenticated || displayCartCount > 0) && (
               <Button
                 variant="light"
-                onClick={onOpenCart}
-                className="position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center text-nowrap"
-                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', fontSize: '0.82rem' }}
+                onClick={() => handleNavigate('/cart')}
+                className={`position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center text-nowrap ${
+                  isCart ? 'border-warning bg-warning bg-opacity-10' : ''
+                }`}
+                style={{ backgroundColor: isCart ? '#fef3c7' : '#fff', borderColor: isCart ? '#fcd34d' : '#e5e7eb', fontSize: '0.82rem' }}
                 title="Xem giỏ hàng"
               >
                 <i className="bi bi-bag-heart-fill text-danger fs-6 me-2"></i>
                 <span className="fw-bold d-none d-sm-inline text-dark">Giỏ Hàng</span>
-                {cartCount > 0 && (
+                {displayCartCount > 0 && (
                   <Badge
                     pill
                     bg="danger"
                     className="position-absolute top-0 start-100 translate-middle shadow-sm px-1.5 py-0.5"
                     style={{ fontSize: '0.68rem' }}
                   >
-                    {cartCount}
+                    {displayCartCount}
                   </Badge>
                 )}
               </Button>
@@ -183,6 +190,9 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                       <Dropdown.Divider />
                     </>
                   )}
+                  <Dropdown.Item onClick={() => handleNavigate('/cart')} className="rounded-3 py-1.5 small">
+                    <i className="bi bi-cart3 me-2 text-warning"></i> Giỏ hàng ({displayCartCount})
+                  </Dropdown.Item>
                   <Dropdown.Item href="#orders" className="rounded-3 py-1.5 small">
                     <i className="bi bi-receipt me-2 text-primary"></i> Đơn hàng của tôi
                   </Dropdown.Item>
@@ -195,6 +205,7 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
+
             ) : (
               <div className="d-flex align-items-center gap-2 flex-nowrap" style={{ gap: '8px' }}>
                 {/* Nút Tạo tài khoản */}
