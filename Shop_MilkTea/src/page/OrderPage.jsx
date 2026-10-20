@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, InputGroup, Button, Spinner, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
@@ -29,6 +29,11 @@ export function OrderPage() {
     reorder,
     clearError,
   } = useOrder();
+
+  // Luôn làm mới danh sách đơn hàng khi vào trang để đảm bảo dữ liệu mới nhất
+  useEffect(() => {
+    fetchMyOrders();
+  }, [fetchMyOrders]);
 
   // State cho Modal chi tiết & Modal hủy đơn
   const [detailOrder, setDetailOrder] = useState(null);

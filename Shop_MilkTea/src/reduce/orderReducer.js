@@ -4,6 +4,7 @@
 export const ORDER_ACTION_TYPES = {
   ORDER_START: 'ORDER_START',
   SET_MY_ORDERS: 'SET_MY_ORDERS',
+  ADD_ORDER: 'ADD_ORDER',
   SET_SELECTED_ORDER: 'SET_SELECTED_ORDER',
   CANCEL_ORDER_START: 'CANCEL_ORDER_START',
   CANCEL_ORDER_SUCCESS: 'CANCEL_ORDER_SUCCESS',
@@ -47,6 +48,31 @@ export function orderReducer(state, action) {
         orders: Array.isArray(action.payload) ? action.payload : [],
         error: null,
       };
+
+    case ORDER_ACTION_TYPES.ADD_ORDER: {
+      const newOrder = action.payload;
+      if (!newOrder) return state;
+
+      // Tránh trùng lặp nếu đơn đã tồn tại trong danh sách
+      const exists = state.orders.some(
+        (ord) => ord.orderCode === newOrder.orderCode || (ord.id && ord.id === newOrder.id)
+      );
+
+      if (exists) {
+        return {
+          ...state,
+          orders: state.orders.map((ord) =>
+            ord.orderCode === newOrder.orderCode || (ord.id && ord.id === newOrder.id) ? newOrder : ord
+          ),
+        };
+      }
+
+      return {
+        ...state,
+        orders: [newOrder, ...state.orders],
+        statusFilter: 'ALL', // Đưa về tab Tất cả để người dùng thấy ngay đơn vừa đặt
+      };
+    }
 
     case ORDER_ACTION_TYPES.SET_SELECTED_ORDER:
       return {

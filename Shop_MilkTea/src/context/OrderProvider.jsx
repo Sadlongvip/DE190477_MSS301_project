@@ -137,6 +137,18 @@ export function OrderProvider({ children }) {
   }, [addItem]);
 
   /**
+   * Đưa ngay một đơn hàng mới tạo vào danh sách (Optimistic UI / Instant update)
+   */
+  const addNewOrder = useCallback((order) => {
+    if (order) {
+      dispatch({
+        type: ORDER_ACTION_TYPES.ADD_ORDER,
+        payload: order,
+      });
+    }
+  }, []);
+
+  /**
    * Đặt bộ lọc trạng thái (ALL | PENDING | CONFIRMED | PREPARING | DELIVERING | COMPLETED | CANCELLED)
    */
   const setStatusFilter = useCallback((filter) => {
@@ -238,6 +250,7 @@ export function OrderProvider({ children }) {
 
     // Các hàm hành động (cổng duy nhất gọi API orderService)
     fetchMyOrders,
+    addNewOrder,
     getOrderDetail,
     cancelOrder,
     selectOrder,

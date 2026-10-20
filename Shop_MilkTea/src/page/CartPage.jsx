@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
 import useCart from '../hook/useCart';
 import useAuth from '../hook/useAuth';
+import useOrder from '../hook/useOrder';
 import CartItemRow from '../component/cart/CartItemRow';
 import CartSummaryCard from '../component/cart/CartSummaryCard';
 import LoginModal from '../component/auth/LoginModal';
@@ -39,6 +40,7 @@ export function CartPage() {
 
 
   const { user, isAuthenticated } = useAuth();
+  const { addNewOrder } = useOrder();
 
   // State quản lý Checkout & Modal
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -101,6 +103,10 @@ export function CartPage() {
       });
 
       if (result.success) {
+        if (result.order) {
+          // Cập nhật tức thì đơn mới vào Order state (0ms latency, không cần chờ reload)
+          addNewOrder(result.order);
+        }
         setOrderSuccess(result.order);
         setShowCheckoutModal(false);
       } else {
