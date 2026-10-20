@@ -1,5 +1,7 @@
 package com.dework.orderservice.service;
 
+import com.dework.orderservice.dto.inventory.TeaSizeClientDto;
+import com.dework.orderservice.dto.inventory.ToppingClientDto;
 import com.dework.orderservice.dto.order.CreateOrderRequest;
 import com.dework.orderservice.dto.order.OrderItemRequest;
 import com.dework.orderservice.dto.order.OrderResponse;
@@ -12,6 +14,7 @@ import com.dework.orderservice.model.PaymentMethod;
 import com.dework.orderservice.model.PaymentStatus;
 import com.dework.orderservice.repository.CartRepository;
 import com.dework.orderservice.repository.OrderRepository;
+import com.dework.orderservice.service.PriceVerificationService.VerifiedProductInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,6 +37,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
+    private final PriceVerificationService priceVerificationService;
 
     private static final DateTimeFormatter ORDER_CODE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
@@ -46,19 +50,31 @@ public class OrderService {
         String randomSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 4).toUpperCase();
         String orderCode = "ORD-" + LocalDateTime.now().format(ORDER_CODE_DATE_FORMAT) + "-" + randomSuffix;
 
+        List<TeaSizeClientDto> allSizes = priceVerificationService.getAllSizes();
+        List<ToppingClientDto> allToppings = priceVerificationService.getAllToppings();
+
         List<OrderItem> items = request.getItems().stream().map(reqItem -> {
-            double totalPrice = reqItem.getUnitPrice() * reqItem.getQuantity();
+            VerifiedProductInfo verified = priceVerificationService.verifyItemPrice(
+                    reqItem.getMilkTeaId(),
+                    reqItem.getSize(),
+                    reqItem.getToppings(),
+                    reqItem.getUnitPrice(),
+                    allSizes,
+                    allToppings
+            );
+
+            double totalPrice = verified.getVerifiedUnitPrice() * reqItem.getQuantity();
             return OrderItem.builder()
-                    .milkTeaId(reqItem.getMilkTeaId())
-                    .milkTeaName(reqItem.getMilkTeaName().trim())
+                    .milkTeaId(verified.getMilkTeaId())
+                    .milkTeaName(verified.getMilkTeaName())
                     .size(reqItem.getSize())
                     .sugar(reqItem.getSugar())
                     .ice(reqItem.getIce())
                     .toppings(reqItem.getToppings())
                     .quantity(reqItem.getQuantity())
-                    .unitPrice(reqItem.getUnitPrice())
+                    .unitPrice(verified.getVerifiedUnitPrice())
                     .totalPrice(totalPrice)
-                    .image(reqItem.getImage())
+                    .image(reqItem.getImage() != null && !reqItem.getImage().isBlank() ? reqItem.getImage() : verified.getImage())
                     .note(reqItem.getNote())
                     .build();
         }).collect(Collectors.toCollection(ArrayList::new));
