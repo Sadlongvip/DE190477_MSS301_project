@@ -190,9 +190,20 @@ export function CartPage() {
                     Cảm ơn bạn đã lựa chọn Shop MilkTea! Nhân viên quầy pha chế đang chuẩn bị đơn và sẽ giao tới địa chỉ
                     của bạn trong vòng 30 phút.
                   </p>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-2 flex-wrap">
                     <Button
                       variant="success"
+                      className="rounded-pill px-4 fw-semibold d-inline-flex align-items-center gap-1.5"
+                      onClick={() => {
+                        setOrderSuccess(null);
+                        navigate('/orders');
+                      }}
+                    >
+                      <i className="bi bi-receipt"></i>
+                      <span>Xem Đơn Hàng Của Bạn</span>
+                    </Button>
+                    <Button
+                      variant="outline-success"
                       className="rounded-pill px-4"
                       onClick={() => {
                         setOrderSuccess(null);
