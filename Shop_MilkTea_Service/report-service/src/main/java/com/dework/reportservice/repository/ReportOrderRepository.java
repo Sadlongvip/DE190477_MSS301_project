@@ -63,7 +63,7 @@ public interface ReportOrderRepository extends JpaRepository<ReportOrder, Long> 
               AND o.created_at BETWEEN :startDateTime AND :endDateTime
             GROUP BY i.milk_tea_id, i.milk_tea_name
             ORDER BY totalQuantitySold DESC
-            LIMIT :limit
+            LIMIT :#{#limit}
             """, nativeQuery = true)
     List<TopSellingItemProjection> getTopSellingProducts(
             @Param("startDateTime") LocalDateTime startDateTime,
