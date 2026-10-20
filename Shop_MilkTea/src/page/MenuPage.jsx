@@ -71,14 +71,13 @@ export function MenuPage() {
   };
 
   // Lấy icon trực quan tương ứng với tên danh mục
-  const getCategoryIcon = (categoryName = '', isSelected = false) => {
+  const getCategoryIcon = (categoryName = '') => {
     const name = categoryName.toLowerCase();
-    const activeColor = isSelected ? 'text-dark' : 'text-amber-600';
-    if (name.includes('truyền thống')) return `bi bi-cup-hot-fill ${activeColor}`;
-    if (name.includes('trái cây') || name.includes('hoa quả')) return `bi bi-droplet-half ${activeColor}`;
-    if (name.includes('ô long') || name.includes('olong') || name.includes('macchiato')) return `bi bi-cup-straw ${activeColor}`;
-    if (name.includes('sữa tươi') || name.includes('trân châu')) return `bi bi-circle-fill ${activeColor}`;
-    return `bi bi-cup-straw ${activeColor}`;
+    if (name.includes('truyền thống')) return 'bi bi-cup-hot-fill';
+    if (name.includes('trái cây') || name.includes('hoa quả')) return 'bi bi-droplet-half';
+    if (name.includes('ô long') || name.includes('olong') || name.includes('macchiato')) return 'bi bi-cup-straw';
+    if (name.includes('sữa tươi') || name.includes('trân châu')) return 'bi bi-circle-fill';
+    return 'bi bi-cup-straw';
   };
 
   return (
@@ -154,25 +153,19 @@ export function MenuPage() {
                   </span>
                 </div>
 
-                {/* Danh sách lọc Category - Gộp thành 1 khối duy nhất bo viền tròn */}
-                <div className="category-unified-list overflow-hidden bg-white shadow-2xs mb-1">
+                {/* Danh sách các danh mục Trà Sữa - Tách thành các thẻ nút bấm thoáng đãng, rộng rãi */}
+                <div className="d-flex flex-column gap-2 mb-3">
                   {/* Mục: Tất Cả Sản Phẩm */}
                   <button
                     type="button"
                     onClick={() => filterByCategory(null)}
-                    className={`w-100 text-start d-flex align-items-center justify-content-between py-2.5 px-3 border-0 transition-all ${
-                      selectedCategoryId === null
-                        ? 'btn-category-active fw-bold'
-                        : 'category-item-row text-secondary fw-semibold'
-                    }`}
-                    style={{
-                      fontSize: '0.9rem',
-                      borderBottom: categories.length > 0 ? '1px solid #f0eae1' : 'none',
-                    }}
+                    className={`category-menu-btn ${selectedCategoryId === null ? 'active' : ''}`}
                   >
-                    <span className="d-flex align-items-center gap-2">
-                      <i className={`bi bi-grid-fill ${selectedCategoryId === null ? 'text-dark' : 'text-warning'}`}></i>
-                      <span>Tất Cả Sản Phẩm</span>
+                    <span className="d-flex align-items-center gap-2 text-truncate">
+                      <span className="category-icon-box">
+                        <i className="bi bi-grid-fill"></i>
+                      </span>
+                      <span className="text-truncate">Tất Cả Sản Phẩm</span>
                     </span>
                     <Badge
                       pill
@@ -186,26 +179,19 @@ export function MenuPage() {
                   </button>
 
                   {/* Danh sách từng Category từ API */}
-                  {categories.map((cat, idx) => {
+                  {categories.map((cat) => {
                     const isSelected = selectedCategoryId === cat.id;
-                    const isLast = idx === categories.length - 1;
                     return (
                       <button
                         key={cat.id}
                         type="button"
                         onClick={() => filterByCategory(cat.id)}
-                        className={`w-100 text-start d-flex align-items-center justify-content-between py-2.5 px-3 border-0 transition-all ${
-                          isSelected
-                            ? 'btn-category-active fw-bold'
-                            : 'category-item-row text-secondary fw-semibold'
-                        }`}
-                        style={{
-                          fontSize: '0.9rem',
-                          borderBottom: !isLast ? '1px solid #f0eae1' : 'none',
-                        }}
+                        className={`category-menu-btn ${isSelected ? 'active' : ''}`}
                       >
                         <span className="d-flex align-items-center gap-2 text-truncate">
-                          <i className={getCategoryIcon(cat.name, isSelected)}></i>
+                          <span className="category-icon-box">
+                            <i className={getCategoryIcon(cat.name)}></i>
+                          </span>
                           <span className="text-truncate">{cat.name}</span>
                         </span>
                         {cat.milkTeaCount > 0 && (
@@ -224,58 +210,54 @@ export function MenuPage() {
                   })}
                 </div>
 
-                {/* Phần Topping gợi ý ở sidebar */}
+                {/* Phần Topping tham khảo ở sidebar - Thu nhỏ, hiển thị đúng 1 row duy nhất cuộn ngang, không hiệu ứng hover */}
                 {toppings && toppings.length > 0 && (
-                  <div className="mt-4 pt-4 border-top">
-                    {/* Header chủ đề Topping - Tách khoảng cách rộng rãi mb-3 */}
-                    <div className="d-flex align-items-center justify-content-between mb-3 pb-1">
-                      <h6 className="fw-bold mb-0 text-dark small d-flex align-items-center">
-                        <i className="bi bi-plus-circle-fill text-success fs-6 me-2"></i>
-                        <span>Topping Hấp Dẫn</span>
+                  <div className="pt-3 border-top">
+                    {/* Header chủ đề Topping - Tinh gọn */}
+                    <div className="d-flex align-items-center justify-content-between mb-2">
+                      <h6 className="fw-bold mb-0 text-dark small d-flex align-items-center gap-2" style={{ fontSize: '0.82rem' }}>
+                        <i className="bi bi-plus-circle text-success"></i>
+                        <span>Topping Tham Khảo</span>
                       </h6>
                       <span
-                        className="badge bg-light text-muted border rounded-pill px-2.5 py-1"
-                        style={{ fontSize: '0.7rem' }}
+                        className="badge bg-light text-muted border rounded-pill px-2 py-0.5"
+                        style={{ fontSize: '0.68rem' }}
                       >
                         {toppings.length} loại
                       </span>
                     </div>
 
-                    {/* Danh sách topping dạng thẻ micro-card thông thoáng */}
-                    <div
-                      className="d-flex flex-column gap-2 mt-1"
-                      style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}
-                    >
-                      {toppings.map((top) => (
-                        <div
-                          key={top.id}
-                          className="topping-item-card d-flex align-items-center justify-content-between p-2 px-2.5 rounded-3 border bg-white shadow-sm transition-all"
-                          style={{
-                            borderColor: '#e5e7eb',
-                            fontSize: '0.82rem',
-                          }}
-                        >
-                          <div className="d-flex align-items-center gap-2 text-truncate me-2">
-                            <span
-                              className="rounded-circle bg-warning flex-shrink-0"
-                              style={{ width: 7, height: 7 }}
-                            ></span>
-                            <span className="text-dark fw-semibold text-truncate">{top.name}</span>
-                          </div>
-                          {/* Chữ đen nền trắng viền xám rõ ràng, dễ đọc */}
-                          <span
-                            className="badge bg-white text-dark border rounded-pill fw-bold px-2.5 py-1 flex-shrink-0 shadow-sm"
-                            style={{
-                              fontSize: '0.75rem',
-                              color: '#111827',
-                              backgroundColor: '#ffffff',
-                              borderColor: '#e5e7eb',
-                            }}
+                    {/* Khung Topping hợp nhất duy nhất - Không bị lặp viền hộp, khoảng đệm thông thoáng */}
+                    <div className="topping-unified-box rounded-3 p-2">
+                      <div
+                        className="topping-vertical-list d-flex flex-column"
+                        style={{
+                          maxHeight: '135px',
+                          overflowY: 'auto',
+                          paddingRight: '6px',
+                        }}
+                      >
+                        {toppings.map((top) => (
+                          <div
+                            key={top.id}
+                            className="topping-row-item d-flex align-items-center justify-content-between py-1.5 px-2"
+                            title={`${top.name} (+${formatVND(top.price)})`}
                           >
-                            +{formatVND(top.price)}
-                          </span>
-                        </div>
-                      ))}
+                            <div className="d-flex align-items-center gap-2 text-truncate me-2">
+                              <span
+                                className="rounded-circle bg-warning flex-shrink-0"
+                                style={{ width: 5, height: 5 }}
+                              ></span>
+                              <span className="text-dark fw-medium text-truncate" style={{ fontSize: '0.75rem' }}>
+                                {top.name}
+                              </span>
+                            </div>
+                            <span className="text-muted fw-semibold flex-shrink-0" style={{ fontSize: '0.71rem' }}>
+                              +{formatVND(top.price)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
