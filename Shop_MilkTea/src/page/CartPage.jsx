@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
 import useCart from '../hook/useCart';
 import useAuth from '../hook/useAuth';
+import useOrder from '../hook/useOrder';
 import CartItemRow from '../component/cart/CartItemRow';
 import CartSummaryCard from '../component/cart/CartSummaryCard';
 import LoginModal from '../component/auth/LoginModal';
@@ -39,6 +40,7 @@ export function CartPage() {
 
 
   const { user, isAuthenticated } = useAuth();
+  const { addNewOrder } = useOrder();
 
   // State quản lý Checkout & Modal
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -101,6 +103,10 @@ export function CartPage() {
       });
 
       if (result.success) {
+        if (result.order) {
+          // Cập nhật tức thì đơn mới vào Order state (0ms latency, không cần chờ reload)
+          addNewOrder(result.order);
+        }
         setOrderSuccess(result.order);
         setShowCheckoutModal(false);
       } else {
@@ -190,9 +196,20 @@ export function CartPage() {
                     Cảm ơn bạn đã lựa chọn Shop MilkTea! Nhân viên quầy pha chế đang chuẩn bị đơn và sẽ giao tới địa chỉ
                     của bạn trong vòng 30 phút.
                   </p>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-2 flex-wrap">
                     <Button
                       variant="success"
+                      className="rounded-pill px-4 fw-semibold d-inline-flex align-items-center gap-1.5"
+                      onClick={() => {
+                        setOrderSuccess(null);
+                        navigate('/orders');
+                      }}
+                    >
+                      <i className="bi bi-receipt"></i>
+                      <span>Xem Đơn Hàng Của Bạn</span>
+                    </Button>
+                    <Button
+                      variant="outline-success"
                       className="rounded-pill px-4"
                       onClick={() => {
                         setOrderSuccess(null);

@@ -400,3 +400,32 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px dashed #e5e7eb !important;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+/* Header Navigation Links */
+.hover-link {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-link:hover {
+  background-color: rgba(217, 119, 6, 0.08) !important;
+  color: #b45309 !important;
+}
+
+.active-nav {
+  background-color: rgba(217, 119, 6, 0.12) !important;
+  color: #b45309 !important;
+}
+
