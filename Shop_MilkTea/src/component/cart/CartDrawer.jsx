@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Offcanvas, Button, Badge, Form, InputGroup, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import useCart from '../../hook/useCart';
 
 /**
  * CartDrawer - Ngăn kéo xem giỏ hàng phong cách Offcanvas
@@ -7,11 +9,20 @@ import { Offcanvas, Button, Badge, Form, InputGroup, Alert } from 'react-bootstr
 export function CartDrawer({
   show,
   onHide,
-  cartItems,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
+  cartItems: propCartItems,
+  onUpdateQuantity: propUpdateQuantity,
+  onRemoveItem: propRemoveItem,
+  onClearCart: propClearCart,
 }) {
+  const navigate = useNavigate();
+  const cartContext = useCart();
+
+  // Ưu tiên lấy từ useCart nếu không truyền props
+  const cartItems = propCartItems !== undefined ? propCartItems : cartContext.cartItems;
+  const onUpdateQuantity = propUpdateQuantity || cartContext.updateQuantity;
+  const onRemoveItem = propRemoveItem || cartContext.removeItem;
+  const onClearCart = propClearCart || cartContext.clearCart;
+
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   // Tính tạm tính & phí ship
@@ -21,12 +32,13 @@ export function CartDrawer({
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
-    setOrderSuccess(true);
-    setTimeout(() => {
-      onClearCart();
-      setOrderSuccess(false);
-      onHide();
-    }, 2500);
+    onHide();
+    navigate('/cart');
+  };
+
+  const handleGoToCartPage = () => {
+    onHide();
+    navigate('/cart');
   };
 
   return (
@@ -156,14 +168,24 @@ export function CartDrawer({
                 </div>
               </div>
 
-              {/* Nút đặt hàng */}
-              <Button
-                onClick={handleCheckout}
-                className="w-100 btn-tea-primary py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
-              >
-                <i className="bi bi-lightning-fill"></i>
-                <span>Đặt Hàng Ngay ({finalTotal.toLocaleString('vi-VN')}đ)</span>
-              </Button>
+              {/* Nút tác vụ giỏ hàng */}
+              <div className="d-flex flex-column gap-2">
+                <Button
+                  onClick={handleCheckout}
+                  className="w-100 btn-tea-primary py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                >
+                  <i className="bi bi-lightning-fill"></i>
+                  <span>Thanh Toán Ngay ({finalTotal.toLocaleString('vi-VN')}đ)</span>
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleGoToCartPage}
+                  className="w-100 py-1.5 small fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2"
+                >
+                  <i className="bi bi-cart3"></i>
+                  <span>Xem Chi Tiết Giỏ Hàng</span>
+                </Button>
+              </div>
             </div>
           </>
         )}
@@ -171,5 +193,6 @@ export function CartDrawer({
     </Offcanvas>
   );
 }
+
 
 export default CartDrawer;
