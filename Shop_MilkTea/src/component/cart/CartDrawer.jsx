@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Offcanvas, Button, Badge, Form, InputGroup, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import useCart from '../../hook/useCart';
 
 /**
  * CartDrawer - Ngăn kéo xem giỏ hàng phong cách Offcanvas
@@ -7,52 +9,36 @@ import { Offcanvas, Button, Badge, Form, InputGroup, Alert } from 'react-bootstr
 export function CartDrawer({
   show,
   onHide,
-  cartItems,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
+  cartItems: propCartItems,
+  onUpdateQuantity: propUpdateQuantity,
+  onRemoveItem: propRemoveItem,
+  onClearCart: propClearCart,
 }) {
-  const [promoCode, setPromoCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
-  const [promoMessage, setPromoMessage] = useState({ text: '', isError: false });
+  const navigate = useNavigate();
+  const cartContext = useCart();
+
+  // Ưu tiên lấy từ useCart nếu không truyền props
+  const cartItems = propCartItems !== undefined ? propCartItems : cartContext.cartItems;
+  const onUpdateQuantity = propUpdateQuantity || cartContext.updateQuantity;
+  const onRemoveItem = propRemoveItem || cartContext.removeItem;
+  const onClearCart = propClearCart || cartContext.clearCart;
+
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // Tính tạm tính
+  // Tính tạm tính & phí ship
   const subTotal = cartItems.reduce((sum, item) => sum + (item.totalPrice || item.price * item.quantity), 0);
   const shippingFee = subTotal > 120000 || cartItems.length === 0 ? 0 : 20000;
-  const finalTotal = Math.max(0, subTotal + shippingFee - appliedDiscount);
-
-  const handleApplyPromo = (e) => {
-    e.preventDefault();
-    const code = promoCode.trim().toUpperCase();
-
-    if (code === 'CHAO2026') {
-      if (subTotal >= 80000) {
-        setAppliedDiscount(25000);
-        setPromoMessage({ text: 'Áp dụng mã CHAO2026 thành công: Giảm 25.000đ!', isError: false });
-      } else {
-        setPromoMessage({ text: 'Mã CHAO2026 yêu cầu đơn tối thiểu 80.000đ!', isError: true });
-      }
-    } else if (code === 'FREESHIP') {
-      setAppliedDiscount(shippingFee);
-      setPromoMessage({ text: 'Áp dụng mã FREESHIP thành công: Miễn phí vận chuyển!', isError: false });
-    } else if (code === 'COMBO2LY') {
-      const discount = Math.round(subTotal * 0.2);
-      setAppliedDiscount(discount);
-      setPromoMessage({ text: `Áp dụng mã COMBO2LY: Giảm 20% (${discount.toLocaleString('vi-VN')}đ)!`, isError: false });
-    } else {
-      setPromoMessage({ text: 'Mã giảm giá không hợp lệ hoặc đã hết hạn!', isError: true });
-    }
-  };
+  const finalTotal = subTotal + shippingFee;
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
-    setOrderSuccess(true);
-    setTimeout(() => {
-      onClearCart();
-      setOrderSuccess(false);
-      onHide();
-    }, 2500);
+    onHide();
+    navigate('/cart');
+  };
+
+  const handleGoToCartPage = () => {
+    onHide();
+    navigate('/cart');
   };
 
   return (
@@ -164,27 +150,8 @@ export function CartDrawer({
               ))}
             </div>
 
-            {/* Khuyến mãi & Thanh toán */}
+            {/* Tóm tắt chi phí & Thanh toán */}
             <div className="p-3 border-top bg-white">
-              {/* Nhập mã giảm giá */}
-              <Form onSubmit={handleApplyPromo} className="mb-3">
-                <InputGroup size="sm">
-                  <Form.Control
-                    placeholder="Nhập mã ưu đãi (VD: CHAO2026)"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                  />
-                  <Button variant="outline-warning" type="submit" className="text-dark fw-bold">
-                    Áp Dụng
-                  </Button>
-                </InputGroup>
-                {promoMessage.text && (
-                  <small className={`d-block mt-1 ${promoMessage.isError ? 'text-danger' : 'text-success'}`}>
-                    {promoMessage.text}
-                  </small>
-                )}
-              </Form>
-
               {/* Tóm tắt chi phí */}
               <div className="d-flex flex-column gap-1 mb-3 small">
                 <div className="d-flex justify-content-between text-muted">
@@ -195,26 +162,30 @@ export function CartDrawer({
                   <span>Phí giao hàng:</span>
                   <span>{shippingFee === 0 ? <strong className="text-success">Miễn phí</strong> : `${shippingFee.toLocaleString('vi-VN')} đ`}</span>
                 </div>
-                {appliedDiscount > 0 && (
-                  <div className="d-flex justify-content-between text-success fw-bold">
-                    <span>Mã giảm giá:</span>
-                    <span>-{appliedDiscount.toLocaleString('vi-VN')} đ</span>
-                  </div>
-                )}
                 <div className="d-flex justify-content-between fw-bold fs-6 pt-2 border-top text-dark">
                   <span>Tổng thanh toán:</span>
                   <span className="text-danger fs-5">{finalTotal.toLocaleString('vi-VN')} đ</span>
                 </div>
               </div>
 
-              {/* Nút đặt hàng */}
-              <Button
-                onClick={handleCheckout}
-                className="w-100 btn-tea-primary py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
-              >
-                <i className="bi bi-lightning-fill"></i>
-                <span>Đặt Hàng Ngay ({finalTotal.toLocaleString('vi-VN')}đ)</span>
-              </Button>
+              {/* Nút tác vụ giỏ hàng */}
+              <div className="d-flex flex-column gap-2">
+                <Button
+                  onClick={handleCheckout}
+                  className="w-100 btn-tea-primary py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                >
+                  <i className="bi bi-lightning-fill"></i>
+                  <span>Thanh Toán Ngay ({finalTotal.toLocaleString('vi-VN')}đ)</span>
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleGoToCartPage}
+                  className="w-100 py-1.5 small fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2"
+                >
+                  <i className="bi bi-cart3"></i>
+                  <span>Xem Chi Tiết Giỏ Hàng</span>
+                </Button>
+              </div>
             </div>
           </>
         )}
@@ -222,5 +193,6 @@ export function CartDrawer({
     </Offcanvas>
   );
 }
+
 
 export default CartDrawer;

@@ -81,6 +81,36 @@ export function InventoryProvider({ children }) {
   }, []);
 
   /**
+   * Tải danh sách Kích cỡ ly (Sizes)
+   */
+  const fetchSizes = useCallback(async () => {
+    try {
+      const data = await inventoryService.getSizes();
+      dispatch({
+        type: INVENTORY_ACTION_TYPES.SET_SIZES,
+        payload: data || [],
+      });
+      return { success: true, data };
+    } catch (err) {
+      const msg = err.message || 'Không thể tải danh sách kích cỡ';
+      // Không block UI nếu API sizes chưa sẵn sàng
+      return { success: false, error: msg };
+    }
+  }, []);
+
+  /**
+   * Làm mới toàn bộ dữ liệu (sau khi Admin Thêm/Sửa/Xóa)
+   */
+  const refreshAll = useCallback(async () => {
+    await Promise.allSettled([
+      fetchCategories(),
+      fetchMilkTeas(),
+      fetchToppings(),
+      fetchSizes(),
+    ]);
+  }, [fetchCategories, fetchMilkTeas, fetchToppings, fetchSizes]);
+
+  /**
    * Lọc sản phẩm theo Category (kết hợp với từ khóa hiện tại)
    */
   const filterByCategory = useCallback(
@@ -126,13 +156,15 @@ export function InventoryProvider({ children }) {
     fetchCategories();
     fetchMilkTeas();
     fetchToppings();
-  }, [fetchCategories, fetchMilkTeas, fetchToppings]);
+    fetchSizes();
+  }, [fetchCategories, fetchMilkTeas, fetchToppings, fetchSizes]);
 
   const value = {
     // Trạng thái từ Reducer
     categories: state.categories,
     milkTeas: state.milkTeas,
     toppings: state.toppings,
+    sizes: state.sizes,
     selectedCategoryId: state.selectedCategoryId,
     searchKeyword: state.searchKeyword,
     loading: state.loading,
@@ -142,6 +174,8 @@ export function InventoryProvider({ children }) {
     fetchCategories,
     fetchMilkTeas,
     fetchToppings,
+    fetchSizes,
+    refreshAll,
     filterByCategory,
     searchProducts,
     clearError,

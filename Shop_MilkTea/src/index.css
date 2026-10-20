@@ -219,37 +219,213 @@ h1, h2, h3, h4, h5, h6 {
   background: #b8a087;
 }
 
-/* Sidebar Category Unified List */
-.category-unified-list {
-  border: 1px solid #e8e2d9 !important;
+/* Sidebar Category Item Styling - Rộng rãi, nổi bật */
+.category-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
   border-radius: 12px;
-}
-
-.category-item-row {
+  border: 1px solid #efe9df;
   background-color: #ffffff;
-  color: #4b5563;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
   cursor: pointer;
+  text-align: left;
 }
 
-.category-item-row:hover {
-  background-color: #faf5ed !important;
-  color: var(--tea-primary) !important;
+.category-menu-btn:hover {
+  background-color: #fef8ee;
+  border-color: #fcd34d;
+  color: #92400e;
+  transform: translateY(-1px);
 }
 
-.btn-category-active {
-  background-color: #ffc107 !important;
-  color: #212529 !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+.category-menu-btn.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #d97706;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
 }
 
-/* Sidebar Topping Item Card */
-.topping-item-card {
+.category-menu-btn.active .category-icon-box {
+  background-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.category-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background-color: #fef3c7;
+  color: #b45309;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+/* Sidebar Topping - Hợp nhất trong 1 khung duy nhất, không lặp lại viền hộp */
+.topping-unified-box {
+  border: 1px solid #eee7dc !important;
+  background-color: #faf8f5;
+}
+
+.topping-vertical-list {
+  scrollbar-width: thin;
+  scrollbar-color: #ded7cc transparent;
+}
+
+.topping-vertical-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.topping-vertical-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.topping-vertical-list::-webkit-scrollbar-thumb {
+  background-color: #ded7cc;
+  border-radius: 9999px;
+}
+
+.topping-vertical-list::-webkit-scrollbar-thumb:hover {
+  background-color: #c7beaf;
+}
+
+.topping-row-item {
+  cursor: default;
+  user-select: none;
+  transition: none;
+  border-bottom: 1px solid #f2ede5;
+}
+
+.topping-row-item:last-child {
+  border-bottom: none;
+}
+
+/* ========================================================
+   CART PAGE (Trang Giỏ Hàng) STYLES
+   ======================================================== */
+.cart-page-wrapper {
+  background-color: #faf9f6;
+  min-height: 80vh;
+}
+
+/* Thẻ món đồ uống trong giỏ */
+.cart-item-card {
+  background-color: #ffffff;
+  border-color: #f1ede7 !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.cart-item-card:hover {
+  border-color: #fcd34d !important;
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.08);
+  transform: translateY(-2px);
+}
+
+.cart-item-img {
+  transition: transform 0.3s ease;
+}
+
+.cart-item-card:hover .cart-item-img {
+  transform: scale(1.04);
+}
+
+.cart-delete-btn {
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.cart-delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* Bộ nút tăng giảm số lượng (+ / -) */
+.cart-stepper {
+  border-color: #e5e7eb !important;
+  user-select: none;
+}
+
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  color: #374151 !important;
+  transition: all 0.15s ease;
+}
+
+.stepper-btn:hover {
+  background-color: #f3f4f6;
+  color: #d97706 !important;
+}
+
+/* Khối tóm tắt đơn hàng */
+.cart-summary-card {
+  background: #ffffff;
+  border: 1px solid #f1ede7 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+.free-shipping-box {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+}
+
+/* Nút đặt hàng CTA */
+.checkout-btn {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  border: none !important;
+  transition: all 0.25s ease;
+}
+
+.checkout-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(180, 83, 9, 0.25) !important;
+}
+
+.checkout-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Trạng thái giỏ rỗng */
+.empty-cart-box {
+  border: 1px dashed #e5e7eb !important;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+/* Header Navigation Links */
+.hover-link {
   transition: all 0.2s ease-in-out;
 }
 
-.topping-item-card:hover {
-  background-color: #ffffff !important;
-  border-color: #f59e0b !important;
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.12);
-  transform: translateX(2px);
+.hover-link:hover {
+  background-color: rgba(217, 119, 6, 0.08) !important;
+  color: #b45309 !important;
 }
+
+.active-nav {
+  background-color: rgba(217, 119, 6, 0.12) !important;
+  color: #b45309 !important;
+}
+
