@@ -58,7 +58,8 @@ public class SecurityConfig {
 
                         // ---------- order-service / inventory-service (Quản trị sản phẩm, đơn hàng) ----------
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/orders/my/**").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/my", "/api/orders/my/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/*/cancel").hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers("/api/orders/**").hasRole("ADMIN")
                         .requestMatchers("/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**", "/api/sizes/**").hasRole("ADMIN")
 
