@@ -5,6 +5,8 @@ import com.dework.orderservice.dto.cart.CartResponse;
 import com.dework.orderservice.model.Cart;
 import com.dework.orderservice.model.CartItem;
 import com.dework.orderservice.repository.CartRepository;
+import com.dework.orderservice.service.PriceVerificationService;
+import com.dework.orderservice.service.PriceVerificationService.VerifiedProductInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,11 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +31,9 @@ class CartServiceTest {
 
     @Mock
     private CartRepository cartRepository;
+
+    @Mock
+    private PriceVerificationService priceVerificationService;
 
     @InjectMocks
     private CartService cartService;
@@ -49,6 +56,15 @@ class CartServiceTest {
     @Test
     @DisplayName("Thêm món mới vào giỏ hàng thành công")
     void addToCart_NewItem_Success() {
+        when(priceVerificationService.getAllSizes()).thenReturn(List.of());
+        when(priceVerificationService.getAllToppings()).thenReturn(List.of());
+        when(priceVerificationService.verifyItemPrice(any(), any(), any(), anyDouble(), any(), any()))
+                .thenReturn(VerifiedProductInfo.builder()
+                        .milkTeaId(1L)
+                        .milkTeaName("Trà Sữa Matcha")
+                        .verifiedUnitPrice(30000.0)
+                        .build());
+
         Cart cart = Cart.builder()
                 .id(1L)
                 .userId(5L)
@@ -69,6 +85,15 @@ class CartServiceTest {
     @Test
     @DisplayName("Thêm món đã có trong giỏ hàng sẽ cộng dồn số lượng")
     void addToCart_ExistingItem_MergesQuantity() {
+        when(priceVerificationService.getAllSizes()).thenReturn(List.of());
+        when(priceVerificationService.getAllToppings()).thenReturn(List.of());
+        when(priceVerificationService.verifyItemPrice(any(), any(), any(), anyDouble(), any(), any()))
+                .thenReturn(VerifiedProductInfo.builder()
+                        .milkTeaId(1L)
+                        .milkTeaName("Trà Sữa Matcha")
+                        .verifiedUnitPrice(30000.0)
+                        .build());
+
         CartItem existing = CartItem.builder()
                 .milkTeaId(1L)
                 .milkTeaName("Trà Sữa Matcha")
