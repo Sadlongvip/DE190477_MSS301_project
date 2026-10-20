@@ -270,10 +270,15 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.2s ease;
 }
 
-/* Sidebar Topping 1 Hàng Dọc Duy Nhất (Danh sách 1 cột thanh mảnh, không hover) */
+/* Sidebar Topping - Hợp nhất trong 1 khung duy nhất, không lặp lại viền hộp */
+.topping-unified-box {
+  border: 1px solid #eee7dc !important;
+  background-color: #faf8f5;
+}
+
 .topping-vertical-list {
   scrollbar-width: thin;
-  scrollbar-color: #e2ded8 transparent;
+  scrollbar-color: #ded7cc transparent;
 }
 
 .topping-vertical-list::-webkit-scrollbar {
@@ -285,7 +290,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .topping-vertical-list::-webkit-scrollbar-thumb {
-  background-color: #e2ded8;
+  background-color: #ded7cc;
   border-radius: 9999px;
 }
 
@@ -293,12 +298,15 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #c7beaf;
 }
 
-.topping-vertical-item {
-  background-color: #ffffff;
-  border: 1px solid #f0eee9;
+.topping-row-item {
   cursor: default;
   user-select: none;
   transition: none;
+  border-bottom: 1px solid #f2ede5;
+}
+
+.topping-row-item:last-child {
+  border-bottom: none;
 }
 
 /* ========================================================

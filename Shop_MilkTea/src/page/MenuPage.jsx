@@ -227,35 +227,37 @@ export function MenuPage() {
                       </span>
                     </div>
 
-                    {/* Danh sách topping dạng 1 hàng dọc duy nhất (danh sách 1 cột thanh mảnh) */}
-                    <div
-                      className="topping-vertical-list d-flex flex-column gap-1.5"
-                      style={{
-                        maxHeight: '140px',
-                        overflowY: 'auto',
-                        paddingRight: '3px',
-                      }}
-                    >
-                      {toppings.map((top) => (
-                        <div
-                          key={top.id}
-                          className="topping-vertical-item d-flex align-items-center justify-content-between py-1 px-2.5 rounded-2"
-                          title={`${top.name} (+${formatVND(top.price)})`}
-                        >
-                          <div className="d-flex align-items-center gap-2 text-truncate me-2">
-                            <span
-                              className="rounded-circle bg-warning flex-shrink-0"
-                              style={{ width: 6, height: 6 }}
-                            ></span>
-                            <span className="text-dark fw-medium text-truncate" style={{ fontSize: '0.8rem' }}>
-                              {top.name}
+                    {/* Khung Topping hợp nhất duy nhất - Không bị lặp viền hộp, khoảng đệm thông thoáng */}
+                    <div className="topping-unified-box rounded-3 p-2">
+                      <div
+                        className="topping-vertical-list d-flex flex-column"
+                        style={{
+                          maxHeight: '135px',
+                          overflowY: 'auto',
+                          paddingRight: '6px',
+                        }}
+                      >
+                        {toppings.map((top) => (
+                          <div
+                            key={top.id}
+                            className="topping-row-item d-flex align-items-center justify-content-between py-1.5 px-2"
+                            title={`${top.name} (+${formatVND(top.price)})`}
+                          >
+                            <div className="d-flex align-items-center gap-2 text-truncate me-2">
+                              <span
+                                className="rounded-circle bg-warning flex-shrink-0"
+                                style={{ width: 5, height: 5 }}
+                              ></span>
+                              <span className="text-dark fw-medium text-truncate" style={{ fontSize: '0.75rem' }}>
+                                {top.name}
+                              </span>
+                            </div>
+                            <span className="text-muted fw-semibold flex-shrink-0" style={{ fontSize: '0.71rem' }}>
+                              +{formatVND(top.price)}
                             </span>
                           </div>
-                          <span className="text-muted fw-semibold flex-shrink-0" style={{ fontSize: '0.74rem' }}>
-                            +{formatVND(top.price)}
-                          </span>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
