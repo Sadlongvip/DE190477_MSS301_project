@@ -67,42 +67,42 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             {/* 1. Trang Chủ */}
             <Nav.Link
               onClick={() => handleNavigate('/')}
-              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                 isHome ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}
               style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              <i className="bi bi-house-door"></i>
+              <i className="bi bi-house-door me-2 fs-6"></i>
               <span>Trang Chủ</span>
             </Nav.Link>
 
             {/* 2. Thực Đơn */}
             <Nav.Link
               onClick={() => handleNavigate('/menu')}
-              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                 isMenu ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}
               style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              <i className="bi bi-cup-hot"></i>
+              <i className="bi bi-cup-hot me-2 fs-6"></i>
               <span>Thực Đơn</span>
             </Nav.Link>
 
             {/* 3. Giỏ Hàng */}
             <Nav.Link
               onClick={() => handleNavigate('/cart')}
-              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                 isCart ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}
               style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              <i className="bi bi-bag-heart"></i>
+              <i className="bi bi-bag-heart me-2 fs-6"></i>
               <span>Giỏ Hàng</span>
               {displayCartCount > 0 && (
                 <Badge
                   pill
                   bg="danger"
-                  className="ms-1 px-1.5 py-0.5"
+                  className="ms-2 px-1.5 py-0.5"
                   style={{ fontSize: '0.68rem' }}
                 >
                   {displayCartCount}
@@ -113,12 +113,12 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             {/* 4. Đơn Hàng (Lịch sử đặt món) */}
             <Nav.Link
               onClick={() => handleNavigate('/orders')}
-              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                 isOrders ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}
               style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              <i className="bi bi-receipt"></i>
+              <i className="bi bi-receipt me-2 fs-6"></i>
               <span>Đơn Hàng</span>
             </Nav.Link>
 
@@ -126,12 +126,12 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             {user?.role === 'ADMIN' && (
               <Nav.Link
                 onClick={() => handleNavigate('/admin/menu')}
-                className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                   location.pathname.startsWith('/admin') ? 'fw-bold text-danger active-nav' : 'text-danger fw-semibold'
                 }`}
                 style={{ fontSize: '0.88rem', cursor: 'pointer' }}
               >
-                <i className="bi bi-shield-lock-fill"></i>
+                <i className="bi bi-shield-lock-fill me-2 fs-6"></i>
                 <span>Quản Trị</span>
               </Nav.Link>
             )}
