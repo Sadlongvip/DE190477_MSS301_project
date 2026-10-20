@@ -63,6 +63,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").hasRole("ADMIN")
                         .requestMatchers("/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**", "/api/sizes/**").hasRole("ADMIN")
 
+                        // ---------- report-service (Báo cáo Thống kê - Chỉ dành cho ADMIN) ----------
+                        .requestMatchers("/api/reports/**").hasRole("ADMIN")
+
                         .anyRequest().denyAll())
 
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt

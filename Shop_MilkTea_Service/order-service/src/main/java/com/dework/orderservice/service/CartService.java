@@ -2,15 +2,19 @@ package com.dework.orderservice.service;
 
 import com.dework.orderservice.dto.cart.AddToCartRequest;
 import com.dework.orderservice.dto.cart.CartResponse;
+import com.dework.orderservice.dto.inventory.TeaSizeClientDto;
+import com.dework.orderservice.dto.inventory.ToppingClientDto;
 import com.dework.orderservice.exception.ApiException;
 import com.dework.orderservice.model.Cart;
 import com.dework.orderservice.model.CartItem;
 import com.dework.orderservice.repository.CartRepository;
+import com.dework.orderservice.service.PriceVerificationService.VerifiedProductInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -20,6 +24,7 @@ import java.util.Objects;
 public class CartService {
 
     private final CartRepository cartRepository;
+    private final PriceVerificationService priceVerificationService;
 
     public CartResponse getCart(Long userId, String sessionId) {
         Cart cart = findCart(userId, sessionId);
@@ -40,12 +45,24 @@ public class CartService {
             throw ApiException.badRequest("Cần cung cấp thông tin người dùng hoặc sessionId để thêm vào giỏ hàng");
         }
 
+        List<TeaSizeClientDto> allSizes = priceVerificationService.getAllSizes();
+        List<ToppingClientDto> allToppings = priceVerificationService.getAllToppings();
+        VerifiedProductInfo verified = priceVerificationService.verifyItemPrice(
+                request.getMilkTeaId(),
+                request.getSize(),
+                request.getToppings(),
+                request.getUnitPrice(),
+                allSizes,
+                allToppings
+        );
+
         boolean matched = false;
         for (CartItem existingItem : cart.getItems()) {
             if (isSameItem(existingItem, request)) {
                 int newQuantity = existingItem.getQuantity() + request.getQuantity();
                 existingItem.setQuantity(newQuantity);
-                existingItem.setTotalPrice(existingItem.getUnitPrice() * newQuantity);
+                existingItem.setUnitPrice(verified.getVerifiedUnitPrice());
+                existingItem.setTotalPrice(verified.getVerifiedUnitPrice() * newQuantity);
                 matched = true;
                 break;
             }
@@ -53,16 +70,16 @@ public class CartService {
 
         if (!matched) {
             CartItem newItem = CartItem.builder()
-                    .milkTeaId(request.getMilkTeaId())
-                    .milkTeaName(request.getMilkTeaName().trim())
+                    .milkTeaId(verified.getMilkTeaId())
+                    .milkTeaName(verified.getMilkTeaName())
                     .size(request.getSize())
                     .sugar(request.getSugar())
                     .ice(request.getIce())
                     .toppings(request.getToppings())
                     .quantity(request.getQuantity())
-                    .unitPrice(request.getUnitPrice())
-                    .totalPrice(request.getUnitPrice() * request.getQuantity())
-                    .image(request.getImage())
+                    .unitPrice(verified.getVerifiedUnitPrice())
+                    .totalPrice(verified.getVerifiedUnitPrice() * request.getQuantity())
+                    .image(request.getImage() != null && !request.getImage().isBlank() ? request.getImage() : verified.getImage())
                     .note(request.getNote())
                     .build();
             cart.getItems().add(newItem);

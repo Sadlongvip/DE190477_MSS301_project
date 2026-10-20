@@ -27,6 +27,9 @@ public class Routes {
     @Value("${services.payment.url:http://localhost:8084}")
     private String paymentServiceUrl;
 
+    @Value("${services.report.url:http://localhost:8085}")
+    private String reportServiceUrl;
+
     /**
      * Định tuyến các API liên quan đến Authentication và Quản lý tài khoản sang customer-service (port 8081)
      */
@@ -74,6 +77,18 @@ public class Routes {
         return route("payment_service")
                 .route(path("/api/payments/**"), http())
                 .before(uri(paymentServiceUrl))
+                .before(forwardUserInfo())
+                .build();
+    }
+
+    /**
+     * Định tuyến các API liên quan đến Báo cáo và Thống kê sang report-service (port 8085)
+     */
+    @Bean
+    public RouterFunction<ServerResponse> reportServiceRoute() {
+        return route("report_service")
+                .route(path("/api/reports/**"), http())
+                .before(uri(reportServiceUrl))
                 .before(forwardUserInfo())
                 .build();
     }

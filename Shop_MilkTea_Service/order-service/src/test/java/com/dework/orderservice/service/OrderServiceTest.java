@@ -12,6 +12,8 @@ import com.dework.orderservice.model.PaymentMethod;
 import com.dework.orderservice.model.PaymentStatus;
 import com.dework.orderservice.repository.CartRepository;
 import com.dework.orderservice.repository.OrderRepository;
+import com.dework.orderservice.service.PriceVerificationService;
+import com.dework.orderservice.service.PriceVerificationService.VerifiedProductInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +42,9 @@ class OrderServiceTest {
 
     @Mock
     private CartRepository cartRepository;
+
+    @Mock
+    private PriceVerificationService priceVerificationService;
 
     @InjectMocks
     private OrderService orderService;
@@ -71,6 +77,15 @@ class OrderServiceTest {
     @Test
     @DisplayName("Tạo đơn hàng thành công và tính đúng tổng tiền")
     void createOrder_Success() {
+        when(priceVerificationService.getAllSizes()).thenReturn(List.of());
+        when(priceVerificationService.getAllToppings()).thenReturn(List.of());
+        when(priceVerificationService.verifyItemPrice(any(), any(), any(), anyDouble(), any(), any()))
+                .thenReturn(VerifiedProductInfo.builder()
+                        .milkTeaId(1L)
+                        .milkTeaName("Trà Sữa Trân Châu Hoàng Kim")
+                        .verifiedUnitPrice(35000.0)
+                        .build());
+
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order saved = invocation.getArgument(0);
             saved.setId(100L);
@@ -89,6 +104,17 @@ class OrderServiceTest {
         assertNotNull(response.getOrderCode());
 
         verify(orderRepository).save(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("Ném lỗi khi đơn giá client gửi lên sai lệch so với inventory-service (chống gian lận 0 đồng)")
+    void createOrder_PriceMismatch_ThrowsBadRequest() {
+        when(priceVerificationService.getAllSizes()).thenReturn(List.of());
+        when(priceVerificationService.getAllToppings()).thenReturn(List.of());
+        when(priceVerificationService.verifyItemPrice(any(), any(), any(), anyDouble(), any(), any()))
+                .thenThrow(ApiException.badRequest("Đơn giá của món 'Trà Sữa Trân Châu Hoàng Kim' không chính xác. Vui lòng làm mới giỏ hàng!"));
+
+        assertThrows(ApiException.class, () -> orderService.createOrder(sampleRequest, 1L));
     }
 
     @Test
