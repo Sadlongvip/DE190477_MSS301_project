@@ -17,22 +17,12 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
   const isHome = location.pathname === '/';
   const isMenu = location.pathname === '/menu';
   const isCart = location.pathname === '/cart';
+  const isOrders = location.pathname === '/orders';
 
   const displayCartCount = cartCount !== undefined ? cartCount : totalQuantity;
 
   const handleNavigate = (path) => {
     navigate(path);
-  };
-
-  const handleSectionClick = (hash) => {
-    if (location.pathname !== '/') {
-      navigate('/' + hash);
-    } else {
-      const element = document.querySelector(hash);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
   };
 
   return (
@@ -72,98 +62,86 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
         </Navbar.Toggle>
 
         <Navbar.Collapse id="main-navbar-nav">
-          {/* Navigation Links */}
+          {/* Navigation Links: Chức năng chính của hệ thống */}
           <Nav className="mx-auto my-2 my-lg-0 gap-lg-1 gap-xl-2 fw-semibold align-items-center">
+            {/* 1. Trang Chủ */}
             <Nav.Link
               onClick={() => handleNavigate('/')}
-              className={`px-2.5 py-1.5 rounded-pill hover-link text-nowrap ${
-                isHome ? 'fw-bold text-warning' : 'text-dark'
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+                isHome ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}
-              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
+              style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              Trang Chủ
+              <i className="bi bi-house-door"></i>
+              <span>Trang Chủ</span>
             </Nav.Link>
+
+            {/* 2. Thực Đơn */}
             <Nav.Link
               onClick={() => handleNavigate('/menu')}
-              className={`px-2.5 py-1.5 rounded-pill hover-link text-nowrap ${
-                isMenu ? 'fw-bold text-warning' : 'text-dark'
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+                isMenu ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}
-              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
+              style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              Thực Đơn
+              <i className="bi bi-cup-hot"></i>
+              <span>Thực Đơn</span>
             </Nav.Link>
+
+            {/* 3. Giỏ Hàng */}
             <Nav.Link
-              onClick={() => handleSectionClick('#promo')}
-              className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
+              onClick={() => handleNavigate('/cart')}
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+                isCart ? 'fw-bold text-warning active-nav' : 'text-dark'
+              }`}
+              style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              Ưu Đãi
+              <i className="bi bi-bag-heart"></i>
+              <span>Giỏ Hàng</span>
+              {displayCartCount > 0 && (
+                <Badge
+                  pill
+                  bg="danger"
+                  className="ms-1 px-1.5 py-0.5"
+                  style={{ fontSize: '0.68rem' }}
+                >
+                  {displayCartCount}
+                </Badge>
+              )}
             </Nav.Link>
+
+            {/* 4. Đơn Hàng (Lịch sử đặt món) */}
             <Nav.Link
-              onClick={() => handleSectionClick('#about')}
-              className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
+              onClick={() => handleNavigate('/orders')}
+              className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+                isOrders ? 'fw-bold text-warning active-nav' : 'text-dark'
+              }`}
+              style={{ fontSize: '0.88rem', cursor: 'pointer' }}
             >
-              Về Chúng Tôi
+              <i className="bi bi-receipt"></i>
+              <span>Đơn Hàng</span>
             </Nav.Link>
-            <Nav.Link
-              onClick={() => handleSectionClick('#reviews')}
-              className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
-            >
-              Đánh Giá
-            </Nav.Link>
-            <Nav.Link
-              onClick={() => handleSectionClick('#faq')}
-              className="text-dark px-2.5 py-1.5 rounded-pill hover-link text-nowrap"
-              style={{ fontSize: '0.85rem', cursor: 'pointer' }}
-            >
-              Hỏi Đáp
-            </Nav.Link>
+
+            {/* 5. Quản Trị (Chỉ hiển thị cho ADMIN) */}
             {user?.role === 'ADMIN' && (
               <Nav.Link
                 onClick={() => handleNavigate('/admin/menu')}
-                className={`px-2.5 py-1.5 rounded-pill hover-link text-nowrap ${
-                  location.pathname.startsWith('/admin') ? 'fw-bold text-danger' : 'text-danger fw-semibold'
+                className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center gap-1.5 ${
+                  location.pathname.startsWith('/admin') ? 'fw-bold text-danger active-nav' : 'text-danger fw-semibold'
                 }`}
-                style={{ fontSize: '0.85rem', cursor: 'pointer' }}
+                style={{ fontSize: '0.88rem', cursor: 'pointer' }}
               >
-                <i className="bi bi-shield-lock-fill me-1"></i> Quản Trị
+                <i className="bi bi-shield-lock-fill"></i>
+                <span>Quản Trị</span>
               </Nav.Link>
             )}
           </Nav>
 
-          {/* Action Buttons: Cart & Auth - Bám về sát bên phải */}
+          {/* Action Buttons: Auth - Bám về sát bên phải */}
           <div
             className="d-flex align-items-center gap-3 mt-2 mt-lg-0 flex-nowrap ms-auto justify-content-end"
             style={{ gap: '12px' }}
           >
-            {/* Nút Giỏ Hàng - Hiển thị khi đã đăng nhập hoặc giỏ có món */}
-            {(isAuthenticated || displayCartCount > 0) && (
-              <Button
-                variant="light"
-                onClick={() => handleNavigate('/cart')}
-                className={`position-relative border shadow-sm rounded-pill px-3 py-1.5 d-flex align-items-center text-nowrap ${
-                  isCart ? 'border-warning bg-warning bg-opacity-10' : ''
-                }`}
-                style={{ backgroundColor: isCart ? '#fef3c7' : '#fff', borderColor: isCart ? '#fcd34d' : '#e5e7eb', fontSize: '0.82rem' }}
-                title="Xem giỏ hàng"
-              >
-                <i className="bi bi-bag-heart-fill text-danger fs-6 me-2"></i>
-                <span className="fw-bold d-none d-sm-inline text-dark">Giỏ Hàng</span>
-                {displayCartCount > 0 && (
-                  <Badge
-                    pill
-                    bg="danger"
-                    className="position-absolute top-0 start-100 translate-middle shadow-sm px-1.5 py-0.5"
-                    style={{ fontSize: '0.68rem' }}
-                  >
-                    {displayCartCount}
-                  </Badge>
-                )}
-              </Button>
-            )}
-
             {/* Tài Khoản / Đăng Nhập / Tạo Tài Khoản */}
             {isAuthenticated && user ? (
               <Dropdown align="end">
@@ -193,7 +171,7 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                   <Dropdown.Item onClick={() => handleNavigate('/cart')} className="rounded-3 py-1.5 small">
                     <i className="bi bi-cart3 me-2 text-warning"></i> Giỏ hàng ({displayCartCount})
                   </Dropdown.Item>
-                  <Dropdown.Item href="#orders" className="rounded-3 py-1.5 small">
+                  <Dropdown.Item onClick={() => handleNavigate('/orders')} className="rounded-3 py-1.5 small">
                     <i className="bi bi-receipt me-2 text-primary"></i> Đơn hàng của tôi
                   </Dropdown.Item>
                   <Dropdown.Item href="#favorites" className="rounded-3 py-1.5 small">
