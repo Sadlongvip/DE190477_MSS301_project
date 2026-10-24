@@ -105,4 +105,27 @@ export function validateAccountForm(form, isEdit = false) {
   };
 }
 
+/**
+ * Kiểm tra xác thực khi đổi mật khẩu tài khoản
+ */
+export function validateNewPassword(password, confirmPassword) {
+  const errors = {};
+  if (!password || !password.trim()) {
+    errors.password = 'Mật khẩu mới không được để trống';
+  } else if (password.length < 6) {
+    errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+  }
+
+  if (!confirmPassword || !confirmPassword.trim()) {
+    errors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới';
+  } else if (password !== confirmPassword) {
+    errors.confirmPassword = 'Mật khẩu xác nhận không khớp với mật khẩu mới';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
 export default validateAccountForm;
