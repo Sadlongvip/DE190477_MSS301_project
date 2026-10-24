@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/milkteas/**", "/api/toppings/**", "/api/sizes/**").permitAll()
                         .requestMatchers("/api/carts", "/api/carts/**").permitAll()
                         .requestMatchers("/api/payments/vnpay-ipn").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/orders/*/saga-logs").permitAll()
 
                         // ---------- customer-service (Account Management) ----------
                         .requestMatchers("/api/accounts/me", "/api/accounts/me/**").hasRole("CUSTOMER")
