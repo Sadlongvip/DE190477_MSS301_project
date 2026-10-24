@@ -247,9 +247,11 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   isInvalid={Boolean(loginErrors.username)}
                   className="border-start-0 ps-0"
                 />
-                <Form.Control.Feedback type="invalid" className="d-block small">
-                  {loginErrors.username}
-                </Form.Control.Feedback>
+                {loginErrors.username && (
+                  <Form.Control.Feedback type="invalid" className="d-block small">
+                    {loginErrors.username}
+                  </Form.Control.Feedback>
+                )}
               </div>
             </Form.Group>
 
@@ -269,9 +271,11 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
                   isInvalid={Boolean(loginErrors.password)}
                   className="border-start-0 ps-0"
                 />
-                <Form.Control.Feedback type="invalid" className="d-block small">
-                  {loginErrors.password}
-                </Form.Control.Feedback>
+                {loginErrors.password && (
+                  <Form.Control.Feedback type="invalid" className="d-block small">
+                    {loginErrors.password}
+                  </Form.Control.Feedback>
+                )}
               </div>
             </Form.Group>
 

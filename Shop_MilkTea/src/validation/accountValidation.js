@@ -70,7 +70,7 @@ export function validateAccountPhone(phone) {
  */
 export function validateAccountRole(role) {
   if (!role || !['ADMIN', 'CUSTOMER', 'STAFF'].includes(role)) {
-    return 'Vui lòng chọn vai trò hợp lệ (ADMIN hoặc CUSTOMER)';
+    return 'Vui lòng chọn vai trò hợp lệ (ADMIN, STAFF hoặc CUSTOMER)';
   }
   return '';
 }

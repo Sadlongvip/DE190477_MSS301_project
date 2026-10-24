@@ -8,7 +8,7 @@ import { AuthContext } from '../context/AuthContext';
  * Bao gồm Sidebar điều hướng, Topbar với nút Xem Báo Cáo Nhanh và khu vực nội dung chính.
  */
 export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,10 +45,13 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
         style={{
           width: '260px',
           background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-          position: 'sticky',
+          position: 'fixed',
           top: 0,
+          left: 0,
+          bottom: 0,
           height: '100vh',
           zIndex: 1020,
+          overflowY: 'auto',
         }}
       >
         {/* Brand */}
@@ -139,22 +142,11 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
             <i className="bi bi-shop"></i>
             <span>Về Cửa Hàng Khách</span>
           </Button>
-
-          <Button
-            variant="outline-danger"
-            size="sm"
-            onClick={logout}
-            className="d-flex align-items-center justify-content-center gap-2 rounded-3 py-2 border-opacity-25"
-            style={{ fontSize: '0.82rem' }}
-          >
-            <i className="bi bi-box-arrow-right"></i>
-            <span>Đăng Xuất</span>
-          </Button>
         </div>
       </aside>
 
       {/* 2. KHU VỰC NỘI DUNG CHÍNH (MAIN CONTENT) */}
-      <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
+      <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0, marginLeft: '260px' }}>
         {/* TOPBAR */}
         <Navbar
           bg="white"

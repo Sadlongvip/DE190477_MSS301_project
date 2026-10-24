@@ -122,8 +122,8 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
               <span>Đơn Hàng</span>
             </Nav.Link>
 
-            {/* 5. Quản Trị (Chỉ hiển thị cho ADMIN) */}
-            {user?.role === 'ADMIN' && (
+            {/* 5. Quản Trị (Hiển thị cho ADMIN và STAFF) */}
+            {['ADMIN', 'STAFF'].includes(user?.role) && (
               <Nav.Link
                 onClick={() => handleNavigate('/admin/dashboard')}
                 className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
@@ -160,7 +160,7 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                     <p className="fw-bold mb-0 text-dark small">{user.username}</p>
                     <small className="text-muted" style={{ fontSize: '0.75rem' }}>{user.email || 'Khách hàng thân thiết'}</small>
                   </div>
-                  {user?.role === 'ADMIN' && (
+                  {['ADMIN', 'STAFF'].includes(user?.role) && (
                     <>
                       <Dropdown.Item onClick={() => handleNavigate('/admin/dashboard')} className="rounded-3 py-1.5 small text-danger fw-bold">
                         <i className="bi bi-speedometer2 me-2"></i> Báo Cáo & Quản Trị
