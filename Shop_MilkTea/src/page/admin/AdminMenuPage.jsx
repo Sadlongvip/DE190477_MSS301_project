@@ -533,17 +533,17 @@ export function AdminMenuPage() {
                 <Card className="border-0 rounded-4 shadow-sm overflow-hidden">
                   <Card.Header className="bg-white p-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div className="d-flex flex-wrap align-items-center gap-2 flex-grow-1" style={{ maxWidth: '600px' }}>
-                      <InputGroup size="sm" className="rounded-pill overflow-hidden border">
-                        <InputGroup.Text className="bg-white border-0 ps-3">
+                      <div className="unified-input-group rounded-pill shadow-sm bg-white flex-grow-1">
+                        <span className="unified-input-icon">
                           <i className="bi bi-search text-muted"></i>
-                        </InputGroup.Text>
-                        <Form.Control
+                        </span>
+                        <input
                           placeholder="Tìm kiếm món theo tên hoặc mô tả..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="border-0 shadow-none py-2"
+                          className="unified-input-control"
                         />
-                      </InputGroup>
+                      </div>
 
                       <Form.Select
                         size="sm"

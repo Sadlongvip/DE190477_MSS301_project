@@ -38,33 +38,45 @@ export function AdminDashboardPage() {
           </p>
         </div>
 
-        {/* Nút lọc ngày */}
-        <ButtonGroup className="shadow-sm rounded-pill overflow-hidden">
+        {/* Nút lọc ngày - Đã fix lỗi viền khung */}
+        <div
+          className="d-inline-flex align-items-center p-1 bg-light border rounded-pill shadow-sm"
+          style={{ gap: '4px' }}
+        >
           <Button
-            variant={dateFilter === 'today' ? 'warning' : 'outline-secondary'}
+            variant={dateFilter === 'today' ? 'warning' : 'light'}
             size="sm"
-            className="px-3 fw-semibold"
+            className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
+              dateFilter === 'today' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+            }`}
+            style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
             onClick={() => changeDateFilter('today')}
           >
             Hôm nay
           </Button>
           <Button
-            variant={dateFilter === '7days' ? 'warning' : 'outline-secondary'}
+            variant={dateFilter === '7days' ? 'warning' : 'light'}
             size="sm"
-            className="px-3 fw-semibold"
+            className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
+              dateFilter === '7days' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+            }`}
+            style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
             onClick={() => changeDateFilter('7days')}
           >
             7 ngày qua
           </Button>
           <Button
-            variant={dateFilter === '30days' ? 'warning' : 'outline-secondary'}
+            variant={dateFilter === '30days' ? 'warning' : 'light'}
             size="sm"
-            className="px-3 fw-semibold"
+            className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
+              dateFilter === '30days' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+            }`}
+            style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
             onClick={() => changeDateFilter('30days')}
           >
             30 ngày qua
           </Button>
-        </ButtonGroup>
+        </div>
       </div>
 
       {loading && !dashboardData ? (
@@ -167,57 +179,76 @@ export function AdminDashboardPage() {
 
           {/* 3. NÚT ĐIỀU HƯỚNG NHANH (QUICK ACTIONS CTA) */}
           <Row className="g-3 mb-4">
-            <Col xs={12} md={4}>
+            <Col xs={12} sm={6} lg={3}>
               <Card
                 className="border-0 shadow-sm rounded-4 p-3 bg-white h-100"
                 style={{ cursor: 'pointer', transition: 'all 0.2s' }}
                 onClick={() => navigate('/admin/orders')}
               >
                 <div className="d-flex align-items-center gap-3">
-                  <div className="p-3 rounded-circle bg-primary bg-opacity-10 text-primary">
-                    <i className="bi bi-box-seam-fill fs-4"></i>
+                  <div className="p-2.5 rounded-circle bg-primary bg-opacity-10 text-primary">
+                    <i className="bi bi-box-seam-fill fs-5"></i>
                   </div>
                   <div>
-                    <h6 className="fw-bold mb-1 text-dark">Quản Lý Đơn Hàng</h6>
-                    <small className="text-muted d-block">Xem đơn, duyệt trạng thái & Saga logs</small>
+                    <h6 className="fw-bold mb-0.5 text-dark" style={{ fontSize: '0.9rem' }}>Quản Lý Đơn Hàng</h6>
+                    <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Duyệt đơn & logs</small>
                   </div>
                   <i className="bi bi-arrow-right ms-auto text-muted"></i>
                 </div>
               </Card>
             </Col>
 
-            <Col xs={12} md={4}>
+            <Col xs={12} sm={6} lg={3}>
               <Card
                 className="border-0 shadow-sm rounded-4 p-3 bg-white h-100"
                 style={{ cursor: 'pointer', transition: 'all 0.2s' }}
                 onClick={() => navigate('/admin/menu')}
               >
                 <div className="d-flex align-items-center gap-3">
-                  <div className="p-3 rounded-circle bg-warning bg-opacity-10 text-warning">
-                    <i className="bi bi-cup-straw fs-4"></i>
+                  <div className="p-2.5 rounded-circle bg-warning bg-opacity-10 text-warning">
+                    <i className="bi bi-cup-straw fs-5"></i>
                   </div>
                   <div>
-                    <h6 className="fw-bold mb-1 text-dark">Quản Lý Thực Đơn</h6>
-                    <small className="text-muted d-block">Thêm/sửa/xóa trà sữa, topping, size</small>
+                    <h6 className="fw-bold mb-0.5 text-dark" style={{ fontSize: '0.9rem' }}>Quản Lý Thực Đơn</h6>
+                    <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Kho trà & topping</small>
                   </div>
                   <i className="bi bi-arrow-right ms-auto text-muted"></i>
                 </div>
               </Card>
             </Col>
 
-            <Col xs={12} md={4}>
+            <Col xs={12} sm={6} lg={3}>
               <Card
                 className="border-0 shadow-sm rounded-4 p-3 bg-white h-100"
                 style={{ cursor: 'pointer', transition: 'all 0.2s' }}
                 onClick={() => navigate('/admin/accounts')}
               >
                 <div className="d-flex align-items-center gap-3">
-                  <div className="p-3 rounded-circle bg-success bg-opacity-10 text-success">
-                    <i className="bi bi-person-badge fs-4"></i>
+                  <div className="p-2.5 rounded-circle bg-success bg-opacity-10 text-success">
+                    <i className="bi bi-person-badge fs-5"></i>
                   </div>
                   <div>
-                    <h6 className="fw-bold mb-1 text-dark">Quản Lý Tài Khoản</h6>
-                    <small className="text-muted d-block">Phân quyền, quản lý Admin & Khách</small>
+                    <h6 className="fw-bold mb-0.5 text-dark" style={{ fontSize: '0.9rem' }}>Quản Lý Tài Khoản</h6>
+                    <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Phân quyền Admin/Staff</small>
+                  </div>
+                  <i className="bi bi-arrow-right ms-auto text-muted"></i>
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={12} sm={6} lg={3}>
+              <Card
+                className="border-0 shadow-sm rounded-4 p-3 bg-white h-100"
+                style={{ cursor: 'pointer', transition: 'all 0.2s' }}
+                onClick={() => navigate('/admin/report')}
+              >
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-2.5 rounded-circle bg-danger bg-opacity-10 text-danger">
+                    <i className="bi bi-pie-chart-fill fs-5"></i>
+                  </div>
+                  <div>
+                    <h6 className="fw-bold mb-0.5 text-dark" style={{ fontSize: '0.9rem' }}>Báo Cáo & Biểu Đồ</h6>
+                    <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Biểu đồ cột & bánh kem</small>
                   </div>
                   <i className="bi bi-arrow-right ms-auto text-muted"></i>
                 </div>

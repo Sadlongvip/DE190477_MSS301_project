@@ -109,6 +109,25 @@ export function AccountProvider({ children }) {
   }, [fetchAccounts]);
 
   /**
+   * Đổi mật khẩu tài khoản
+   */
+  const changePassword = useCallback(async (id, newPassword) => {
+    dispatch({ type: ACCOUNT_ACTION_TYPES.ACCOUNT_MUTATE_START });
+    try {
+      const data = await accountService.changePassword(id, newPassword);
+      dispatch({ type: ACCOUNT_ACTION_TYPES.ACCOUNT_MUTATE_SUCCESS });
+      return { success: true, data };
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Lỗi khi đổi mật khẩu';
+      dispatch({
+        type: ACCOUNT_ACTION_TYPES.ACCOUNT_MUTATE_FAILURE,
+        payload: msg,
+      });
+      return { success: false, error: msg };
+    }
+  }, []);
+
+  /**
    * Xóa thông báo lỗi
    */
   const clearError = useCallback(() => {
@@ -129,6 +148,7 @@ export function AccountProvider({ children }) {
     createAccount,
     updateAccount,
     deleteAccount,
+    changePassword,
     setKeyword,
     clearError,
   };

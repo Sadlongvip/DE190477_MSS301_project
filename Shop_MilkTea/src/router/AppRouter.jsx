@@ -5,8 +5,10 @@ import MenuPage from '../page/MenuPage';
 import CartPage from '../page/CartPage';
 import AdminMenuPage from '../page/admin/AdminMenuPage';
 import AdminDashboardPage from '../page/admin/AdminDashboardPage';
+import AdminReportPage from '../page/admin/AdminReportPage';
 import AdminOrderPage from '../page/admin/AdminOrderPage';
 import AdminAccountPage from '../page/admin/AdminAccountPage';
+import AdminChangePasswordPage from '../page/admin/AdminChangePasswordPage';
 import AdminRoute from '../component/auth/AdminRoute';
 import ProtectedRoute from '../component/auth/ProtectedRoute';
 import OrderPage from '../page/OrderPage';
@@ -22,6 +24,7 @@ import OrderPage from '../page/OrderPage';
  * - /admin/menu : Quản Lý Thực Đơn & Kho Hàng
  * - /admin/orders : Quản Lý Đơn Hàng Toàn Hệ Thống & Saga Logs
  * - /admin/accounts : Quản Lý Tài Khoản (CRUD + Verification riêng)
+ * - /admin/accounts/:id/change-password : Trang Đổi Mật Khẩu Riêng Biệt Cho Tài Khoản
  * - * : Mặc định chuyển hướng về Trang Chủ
  */
 export function AppRouter() {
@@ -50,6 +53,14 @@ export function AppRouter() {
           }
         />
         <Route
+          path="/admin/report"
+          element={
+            <AdminRoute>
+              <AdminReportPage />
+            </AdminRoute>
+          }
+        />
+        <Route
           path="/admin/menu"
           element={
             <AdminRoute>
@@ -70,6 +81,14 @@ export function AppRouter() {
           element={
             <AdminRoute>
               <AdminAccountPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/accounts/:id/change-password"
+          element={
+            <AdminRoute>
+              <AdminChangePasswordPage />
             </AdminRoute>
           }
         />

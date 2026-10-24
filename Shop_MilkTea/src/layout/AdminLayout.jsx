@@ -15,10 +15,15 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
   const navItems = [
     {
       path: '/admin/dashboard',
-      label: 'Báo Cáo & Thống Kê',
+      label: 'Tổng Quan Hệ Thống',
       icon: 'bi-speedometer2',
-      badge: 'Report',
-      badgeBg: 'primary',
+    },
+    {
+      path: '/admin/report',
+      label: 'Báo Cáo & Biểu Đồ',
+      icon: 'bi-pie-chart-fill',
+      badge: 'Biểu đồ',
+      badgeBg: 'warning',
     },
     {
       path: '/admin/menu',
@@ -78,23 +83,7 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
           </div>
         </div>
 
-        {/* Nút Xem Báo Cáo Nổi Bật Trên Sidebar */}
-        <div className="mb-3">
-          <Button
-            variant="warning"
-            size="sm"
-            onClick={() => navigate('/admin/dashboard')}
-            className="w-100 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3 py-2 text-dark"
-            style={{
-              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-              border: 'none',
-              fontSize: '0.85rem',
-            }}
-          >
-            <i className="bi bi-graph-up-arrow"></i>
-            <span>Xem Báo Cáo Doanh Thu</span>
-          </Button>
-        </div>
+
 
         {/* Danh sách điều hướng */}
         <Nav className="nav-pills flex-column mb-auto gap-1">
@@ -158,19 +147,7 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
           </div>
 
           <div className="d-flex align-items-center gap-3">
-            {/* Nút Xem Báo Cáo trên Topbar */}
-            {location.pathname !== '/admin/dashboard' && (
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={() => navigate('/admin/dashboard')}
-                className="d-flex align-items-center gap-1.5 rounded-pill px-3 py-1 shadow-sm fw-semibold"
-                style={{ fontSize: '0.82rem' }}
-              >
-                <i className="bi bi-graph-up text-primary"></i>
-                <span>Xem Báo Cáo Nhanh</span>
-              </Button>
-            )}
+
 
             {/* Thông tin Quản trị viên */}
             <div className="d-flex align-items-center gap-2 border-start ps-3">

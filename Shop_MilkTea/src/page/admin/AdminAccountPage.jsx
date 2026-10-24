@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Row,
   Col,
@@ -33,6 +34,7 @@ import {
  * 3. Không dùng alert() hay popup mặc định của browser/input box (dùng inline error + Toast/Banner riêng).
  */
 export function AdminAccountPage() {
+  const navigate = useNavigate();
   const {
     accounts,
     loading,
@@ -141,14 +143,15 @@ export function AdminAccountPage() {
 
     // 1. Kiểm tra validation bằng accountValidation
     const isEdit = Boolean(editingAccount);
-    const { isValid, errors } = validateAccountForm(form, isEdit);
+    const formToValidate = isEdit ? { ...form, password: '' } : form;
+    const { isValid, errors } = validateAccountForm(formToValidate, isEdit);
 
     if (!isValid) {
       setFormErrors(errors);
       return; // Dừng lại, lỗi đã được hiển thị bên dưới từng ô input
     }
 
-    // 2. Chuẩn bị payload
+    // 2. Chuẩn bị payload (khi sửa tài khoản, không gửi password để tránh ghi đè)
     const payload = {
       username: form.username.trim(),
       email: form.email.trim(),
@@ -156,7 +159,7 @@ export function AdminAccountPage() {
       role: form.role,
       status: form.status || 'ACTIVE',
     };
-    if (form.password && form.password.trim()) {
+    if (!isEdit && form.password && form.password.trim()) {
       payload.password = form.password;
     }
 
@@ -209,18 +212,18 @@ export function AdminAccountPage() {
         <Card.Body className="p-3 p-md-4">
           <Row className="g-3 align-items-center justify-content-between">
             <Col xs={12} md={6} lg={4}>
-              <InputGroup>
-                <InputGroup.Text className="bg-light border-end-0 text-muted">
+              <div className="unified-input-group rounded-pill shadow-sm">
+                <span className="unified-input-icon">
                   <i className="bi bi-search"></i>
-                </InputGroup.Text>
-                <Form.Control
+                </span>
+                <input
                   type="text"
                   placeholder="Tìm theo username, email, SĐT..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-light border-start-0"
+                  className="unified-input-control"
                 />
-              </InputGroup>
+              </div>
             </Col>
 
             <Col xs={12} md="auto">
@@ -340,10 +343,21 @@ export function AdminAccountPage() {
                           size="sm"
                           onClick={() => handleOpenModal(acc)}
                           className="rounded-pill px-3 d-flex align-items-center gap-1"
-                          title="Chỉnh sửa tài khoản"
+                          title="Chỉnh sửa thông tin tài khoản"
                         >
                           <i className="bi bi-pencil-square"></i>
                           <span>Sửa</span>
+                        </Button>
+
+                        <Button
+                          variant="outline-warning"
+                          size="sm"
+                          onClick={() => navigate(`/admin/accounts/${acc.id}/change-password`)}
+                          className="rounded-pill px-3 d-flex align-items-center gap-1 text-dark fw-semibold"
+                          title="Đổi mật khẩu tài khoản"
+                        >
+                          <i className="bi bi-key-fill text-warning"></i>
+                          <span>Đổi MK</span>
                         </Button>
 
                         <Button
@@ -434,27 +448,53 @@ export function AdminAccountPage() {
               )}
             </Form.Group>
 
-            {/* 3. Mật khẩu */}
-            <Form.Group className="mb-3" controlId="accountPassword">
-              <Form.Label className="small fw-semibold text-dark">
-                Mật khẩu {editingAccount ? <span className="text-muted">(để trống nếu không đổi)</span> : <span className="text-danger">*</span>}
-              </Form.Label>
-              <Form.Control
-                type="password"
-                placeholder={editingAccount ? 'Nhập mật khẩu mới (nếu muốn đổi)' : 'Tối thiểu 6 ký tự'}
-                value={form.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                onBlur={() => handleInputBlur('password')}
-                isInvalid={Boolean(formErrors.password)}
-                className="rounded-3"
-              />
-              {formErrors.password && (
-                <Form.Control.Feedback type="invalid" className="d-block small">
-                  <i className="bi bi-exclamation-circle-fill me-1"></i>
-                  {formErrors.password}
-                </Form.Control.Feedback>
-              )}
-            </Form.Group>
+            {/* 3. Mật khẩu (Chỉ hiển thị khi thêm mới, khi sửa có trang riêng biệt) */}
+            {!editingAccount ? (
+              <Form.Group className="mb-3" controlId="accountPassword">
+                <Form.Label className="small fw-semibold text-dark">
+                  Mật khẩu <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Tối thiểu 6 ký tự"
+                  value={form.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onBlur={() => handleInputBlur('password')}
+                  isInvalid={Boolean(formErrors.password)}
+                  className="rounded-3"
+                />
+                {formErrors.password && (
+                  <Form.Control.Feedback type="invalid" className="d-block small">
+                    <i className="bi bi-exclamation-circle-fill me-1"></i>
+                    {formErrors.password}
+                  </Form.Control.Feedback>
+                )}
+              </Form.Group>
+            ) : (
+              <div className="mb-3 p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="fw-semibold small text-dark d-flex align-items-center gap-1.5">
+                    <i className="bi bi-shield-lock-fill text-warning"></i>
+                    <span>Bảo mật & Mật khẩu</span>
+                  </div>
+                  <div className="text-muted" style={{ fontSize: '0.78rem' }}>
+                    Mật khẩu được quản lý tại trang riêng biệt.
+                  </div>
+                </div>
+                <Button
+                  variant="outline-warning"
+                  size="sm"
+                  className="rounded-pill text-dark fw-bold px-3 py-1 shadow-sm"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate(`/admin/accounts/${editingAccount.id}/change-password`);
+                  }}
+                >
+                  <i className="bi bi-key-fill text-warning me-1"></i>
+                  Đổi Mật Khẩu
+                </Button>
+              </div>
+            )}
 
             {/* 4. Số điện thoại */}
             <Form.Group className="mb-3" controlId="accountPhoneNumber">
