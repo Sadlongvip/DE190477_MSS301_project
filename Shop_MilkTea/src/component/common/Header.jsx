@@ -125,7 +125,7 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
             {/* 5. Quản Trị (Chỉ hiển thị cho ADMIN) */}
             {user?.role === 'ADMIN' && (
               <Nav.Link
-                onClick={() => handleNavigate('/admin/menu')}
+                onClick={() => handleNavigate('/admin/dashboard')}
                 className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                   location.pathname.startsWith('/admin') ? 'fw-bold text-danger active-nav' : 'text-danger fw-semibold'
                 }`}
@@ -162,8 +162,8 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
                   </div>
                   {user?.role === 'ADMIN' && (
                     <>
-                      <Dropdown.Item onClick={() => handleNavigate('/admin/menu')} className="rounded-3 py-1.5 small text-danger fw-bold">
-                        <i className="bi bi-sliders me-2"></i> Quản Trị Thực Đơn
+                      <Dropdown.Item onClick={() => handleNavigate('/admin/dashboard')} className="rounded-3 py-1.5 small text-danger fw-bold">
+                        <i className="bi bi-speedometer2 me-2"></i> Báo Cáo & Quản Trị
                       </Dropdown.Item>
                       <Dropdown.Divider />
                     </>

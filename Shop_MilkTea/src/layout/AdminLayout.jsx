@@ -1,0 +1,214 @@
+import React, { useContext } from 'react';
+import { Container, Navbar, Nav, Button, Badge } from 'react-bootstrap';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+
+/**
+ * AdminLayout - Bố cục chuyên biệt dành riêng cho phân hệ Quản Trị Viên (Admin Portal)
+ * Bao gồm Sidebar điều hướng, Topbar với nút Xem Báo Cáo Nhanh và khu vực nội dung chính.
+ */
+export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const navItems = [
+    {
+      path: '/admin/dashboard',
+      label: 'Báo Cáo & Thống Kê',
+      icon: 'bi-speedometer2',
+      badge: 'Report',
+      badgeBg: 'primary',
+    },
+    {
+      path: '/admin/menu',
+      label: 'Quản Lý Thực Đơn',
+      icon: 'bi-cup-hot-fill',
+    },
+    {
+      path: '/admin/orders',
+      label: 'Quản Lý Đơn Hàng',
+      icon: 'bi-receipt-cutoff',
+    },
+    {
+      path: '/admin/accounts',
+      label: 'Quản Lý Tài Khoản',
+      icon: 'bi-people-fill',
+    },
+  ];
+
+  return (
+    <div className="d-flex min-vh-100 bg-light" style={{ overflowX: 'hidden' }}>
+      {/* 1. SIDEBAR BÊN TRÁI */}
+      <aside
+        className="text-white d-flex flex-column flex-shrink-0 p-3 shadow"
+        style={{
+          width: '260px',
+          background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          zIndex: 1020,
+        }}
+      >
+        {/* Brand */}
+        <div
+          className="d-flex align-items-center gap-2 pb-3 mb-3 border-bottom border-secondary border-opacity-25"
+          onClick={() => navigate('/admin/dashboard')}
+          style={{ cursor: 'pointer' }}
+        >
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center text-white"
+            style={{
+              width: '38px',
+              height: '38px',
+              background: 'linear-gradient(135deg, #d97706, #b45309)',
+            }}
+          >
+            <i className="bi bi-shield-check fs-5"></i>
+          </div>
+          <div>
+            <span className="fw-bold fs-6 text-white d-block lh-1">MilkTea Admin</span>
+            <small className="text-warning" style={{ fontSize: '0.7rem' }}>
+              PORTAL QUẢN TRỊ VIÊN
+            </small>
+          </div>
+        </div>
+
+        {/* Nút Xem Báo Cáo Nổi Bật Trên Sidebar */}
+        <div className="mb-3">
+          <Button
+            variant="warning"
+            size="sm"
+            onClick={() => navigate('/admin/dashboard')}
+            className="w-100 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3 py-2 text-dark"
+            style={{
+              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+              border: 'none',
+              fontSize: '0.85rem',
+            }}
+          >
+            <i className="bi bi-graph-up-arrow"></i>
+            <span>Xem Báo Cáo Doanh Thu</span>
+          </Button>
+        </div>
+
+        {/* Danh sách điều hướng */}
+        <Nav className="nav-pills flex-column mb-auto gap-1">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Nav.Item key={item.path}>
+                <Nav.Link
+                  onClick={() => navigate(item.path)}
+                  className={`d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3 text-nowrap ${
+                    isActive
+                      ? 'bg-warning text-dark fw-bold shadow-sm'
+                      : 'text-light opacity-75 hover-opacity-100'
+                  }`}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '0.88rem',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div className="d-flex align-items-center gap-2.5">
+                    <i className={`bi ${item.icon} fs-5`}></i>
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <Badge bg={item.badgeBg || 'secondary'} pill style={{ fontSize: '0.65rem' }}>
+                      {item.badge}
+                    </Badge>
+                  )}
+                </Nav.Link>
+              </Nav.Item>
+            );
+          })}
+        </Nav>
+
+        {/* Bottom Actions */}
+        <div className="pt-3 mt-auto border-top border-secondary border-opacity-25 d-flex flex-column gap-2">
+          <Button
+            variant="outline-light"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="d-flex align-items-center justify-content-center gap-2 rounded-3 text-start py-2 border-opacity-25"
+            style={{ fontSize: '0.82rem' }}
+          >
+            <i className="bi bi-shop"></i>
+            <span>Về Cửa Hàng Khách</span>
+          </Button>
+
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={logout}
+            className="d-flex align-items-center justify-content-center gap-2 rounded-3 py-2 border-opacity-25"
+            style={{ fontSize: '0.82rem' }}
+          >
+            <i className="bi bi-box-arrow-right"></i>
+            <span>Đăng Xuất</span>
+          </Button>
+        </div>
+      </aside>
+
+      {/* 2. KHU VỰC NỘI DUNG CHÍNH (MAIN CONTENT) */}
+      <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
+        {/* TOPBAR */}
+        <Navbar
+          bg="white"
+          className="border-bottom px-4 py-2.5 d-flex align-items-center justify-content-between shadow-sm sticky-top"
+          style={{ zIndex: 1010 }}
+        >
+          <div className="d-flex align-items-center gap-3">
+            <h5 className="mb-0 fw-bold text-dark">{pageTitle}</h5>
+          </div>
+
+          <div className="d-flex align-items-center gap-3">
+            {/* Nút Xem Báo Cáo trên Topbar */}
+            {location.pathname !== '/admin/dashboard' && (
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => navigate('/admin/dashboard')}
+                className="d-flex align-items-center gap-1.5 rounded-pill px-3 py-1 shadow-sm fw-semibold"
+                style={{ fontSize: '0.82rem' }}
+              >
+                <i className="bi bi-graph-up text-primary"></i>
+                <span>Xem Báo Cáo Nhanh</span>
+              </Button>
+            )}
+
+            {/* Thông tin Quản trị viên */}
+            <div className="d-flex align-items-center gap-2 border-start ps-3">
+              <div
+                className="rounded-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center shadow-sm"
+                style={{ width: '34px', height: '34px', fontSize: '0.85rem' }}
+              >
+                {user?.username ? user.username.charAt(0).toUpperCase() : 'A'}
+              </div>
+              <div className="d-none d-sm-block text-start lh-1">
+                <span className="fw-bold text-dark d-block" style={{ fontSize: '0.85rem' }}>
+                  {user?.username || 'Admin'}
+                </span>
+                <Badge bg="danger" style={{ fontSize: '0.65rem' }}>
+                  ADMIN
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </Navbar>
+
+        {/* PAGE CONTENT */}
+        <main className="flex-grow-1 p-3 p-lg-4" style={{ backgroundColor: '#f8fafc' }}>
+          <Container fluid className="px-0">
+            {children}
+          </Container>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default AdminLayout;
