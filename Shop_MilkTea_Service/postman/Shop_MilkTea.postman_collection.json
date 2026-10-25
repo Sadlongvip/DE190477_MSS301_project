@@ -1043,6 +1043,29 @@
           "name": "06. Đặt được đơn nhưng bị lỗi lúc đặt - Vượt quá tồn kho (201 Created -> Kafka Rollback)",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('validMilkTeaId')) {",
+                  "    pm.environment.set('validMilkTeaId', 1);",
+                  "}",
+                  "if (!pm.environment.get('validMilkTeaName')) {",
+                  "    pm.environment.set('validMilkTeaName', 'Trà Sữa Truyền Thống');",
+                  "}",
+                  "if (!pm.environment.get('validSizeCode')) {",
+                  "    pm.environment.set('validSizeCode', 'M');",
+                  "}",
+                  "if (!pm.environment.get('validToppingName')) {",
+                  "    pm.environment.set('validToppingName', 'Trân Châu Đen');",
+                  "}",
+                  "if (!pm.environment.get('validUnitPrice')) {",
+                  "    pm.environment.set('validUnitPrice', 40000);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
@@ -1075,7 +1098,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customerName\": \"Test Kịch Bản Kho Thất Bại\",\n  \"phoneNumber\": \"0901234567\",\n  \"shippingAddress\": \"123 Đường Test, Quận 1, TP.HCM\",\n  \"shippingFee\": 15000,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{validMilkTeaId}},\n      \"milkTeaName\": \"{{validMilkTeaName}}\",\n      \"size\": \"{{validSizeCode}}\",\n      \"sugar\": \"100%\",\n      \"ice\": \"100%\",\n      \"toppings\": \"{{validToppingName}}\",\n      \"quantity\": 99999,\n      \"unitPrice\": {{validUnitPrice}}\n    }\n  ]\n}",
+              "raw": "{\n  \"customerName\": \"Test Kịch Bản Kho Thất Bại\",\n  \"phoneNumber\": \"0901234567\",\n  \"shippingAddress\": \"123 Đường Test, Quận 1, TP.HCM\",\n  \"shippingFee\": 15000,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{validMilkTeaId}},\n      \"milkTeaName\": \"{{validMilkTeaName}}\",\n      \"size\": \"{{validSizeCode}}\",\n      \"sugar\": \"100%\",\n      \"ice\": \"100%\",\n      \"toppings\": \"{{validToppingName}}\",\n      \"quantity\": 99999,\n      \"unitPrice\": {{validUnitPrice}}\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"

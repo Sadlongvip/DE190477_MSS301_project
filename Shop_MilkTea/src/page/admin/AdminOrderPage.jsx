@@ -424,7 +424,9 @@ export function AdminOrderPage() {
           ) : (
             <div className="timeline-wrapper px-2">
               {sagaLogs.map((log, index) => {
-                const isFail = log.status === 'FAILED' || log.status === 'COMPENSATED';
+                const status = log.result || log.status || 'SUCCESS';
+                const isFail = status === 'FAILED' || status === 'COMPENSATED' || status === 'CANCELLED';
+                const logTime = log.time || log.createdAt;
                 return (
                   <div
                     key={log.id || index}
@@ -443,12 +445,12 @@ export function AdminOrderPage() {
                       <div className="d-flex justify-content-between align-items-center mb-1">
                         <span className="fw-bold text-dark">{log.step || log.eventType}</span>
                         <Badge bg={isFail ? 'danger' : 'success'} style={{ fontSize: '0.7rem' }}>
-                          {log.status}
+                          {status}
                         </Badge>
                       </div>
-                      <p className="text-muted small mb-1">{log.payload || log.message || 'Thực hiện sự kiện microservices thành công'}</p>
+                      <p className="text-muted small mb-1">{log.message || log.payload || 'Thực hiện sự kiện microservices thành công'}</p>
                       <small className="text-muted" style={{ fontSize: '0.72rem' }}>
-                        {log.createdAt ? new Date(log.createdAt).toLocaleString('vi-VN') : '---'}
+                        {logTime ? new Date(logTime).toLocaleString('vi-VN') : '---'}
                       </small>
                     </div>
                   </div>
