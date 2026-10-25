@@ -514,6 +514,20 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
+                  "// Đảm bảo có giá trị mẫu nếu người dùng chạy kiểm thử lẻ request này",
+                  "if (!pm.environment.get('validMilkTeaId')) {",
+                  "    pm.environment.set('validMilkTeaId', '1');",
+                  "}",
+                  "if (!pm.environment.get('validMilkTeaName')) {",
+                  "    pm.environment.set('validMilkTeaName', 'Trà sữa trân châu hoàng gia');",
+                  "}",
+                  "if (!pm.environment.get('validSizeCode')) {",
+                  "    pm.environment.set('validSizeCode', 'M');",
+                  "}",
+                  "if (!pm.environment.get('validToppingName')) {",
+                  "    pm.environment.set('validToppingName', 'Trân châu đen');",
+                  "}",
+                  "",
                   "const base = Number(pm.environment.get('validMilkTeaBasePrice')) || 35000;",
                   "const sizeExtra = Number(pm.environment.get('validSizeExtraPrice')) || 0;",
                   "const topPrice = Number(pm.environment.get('validToppingPrice')) || 5000;",
@@ -531,14 +545,17 @@
                   "    pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "pm.test(\"Giỏ hàng cập nhật số lượng và tổng tiền chuẩn xác\", function () {",
+                  "pm.test(\"Giỏ hàng cập nhật số lượng và tổng giá tiền totalPrice chuẩn xác\", function () {",
                   "    const response = pm.response.json();",
-                  "    pm.expect(response.totalQuantity).to.be.at.least(2);",
-                  "    pm.expect(response.totalAmount).to.be.above(0);",
+                  "    pm.expect(response.totalQuantity, \"totalQuantity phải >= 2\").to.be.at.least(2);",
+                  "    pm.expect(response.totalPrice, \"totalPrice của giỏ hàng phải lớn hơn 0\").to.be.above(0);",
                   "    pm.expect(response.items).to.be.an('array').and.not.empty;",
                   "    ",
                   "    const addedItem = response.items.find(i => i.milkTeaId == pm.environment.get('validMilkTeaId'));",
-                  "    pm.expect(addedItem, \"Món vừa thêm phải tồn tại trong items của giỏ hàng\").to.exist;",
+                  "    pm.expect(addedItem, \"Món vừa thêm phải tồn tại trong danh sách items\").to.exist;",
+                  "    pm.expect(addedItem.quantity).to.be.at.least(2);",
+                  "    pm.expect(addedItem.unitPrice).to.be.above(0);",
+                  "    pm.expect(addedItem.totalPrice).to.be.above(0);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -559,7 +576,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"milkTeaId\": {{validMilkTeaId}},\n  \"milkTeaName\": \"{{validMilkTeaName}}\",\n  \"size\": \"{{validSizeCode}}\",\n  \"sugar\": \"100%\",\n  \"ice\": \"100%\",\n  \"toppings\": \"{{validToppingName}}\",\n  \"quantity\": 2,\n  \"unitPrice\": {{validUnitPrice}},\n  \"note\": \"Cho nhiều đá và trân châu\"\n}",
+              "raw": "{\n  \"milkTeaId\": {{validMilkTeaId}},\n  \"milkTeaName\": \"{{validMilkTeaName}}\",\n  \"size\": \"{{validSizeCode}}\",\n  \"sugar\": \"100%\",\n  \"ice\": \"100%\",\n  \"toppings\": \"{{validToppingName}}\",\n  \"quantity\": 2,\n  \"unitPrice\": {{validUnitPrice}},\n  \"sessionId\": \"postman-cart-session\",\n  \"note\": \"Cho nhiều đá và trân châu\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -707,7 +724,7 @@
                   "    const response = pm.response.json();",
                   "    pm.expect(response.userId).to.eql(Number(pm.environment.get('customerUserId')));",
                   "    pm.expect(response.items).to.be.an('array').and.not.empty;",
-                  "    pm.expect(response.totalAmount).to.be.above(0);",
+                  "    pm.expect(response.totalPrice).to.be.above(0);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -805,6 +822,18 @@
           "name": "02. Kiểm tra Kafka Saga Logs - Happy Path COD (200 OK)",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Chờ 1.5 giây để đảm bảo Kafka consumer và Saga Choreography đã tiêu thụ xong event",
+                  "const delayMs = 1500;",
+                  "const start = Date.now();",
+                  "while (Date.now() - start < delayMs) {}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
@@ -824,17 +853,15 @@
                   "    ",
                   "    // 2. Kiểm tra bước Reserve Inventory (Inventory Service -> Kafka)",
                   "    const reserveStep = logs.find(l => l.step === 'RESERVE_INVENTORY');",
-                  "    if (reserveStep) {",
-                  "        pm.expect(reserveStep.result).to.eql('SUCCESS');",
-                  "        pm.expect(reserveStep.message).to.include('Kho đã giữ hàng thành công');",
-                  "    }",
+                  "    pm.expect(reserveStep, \"Phải có bước RESERVE_INVENTORY được phản hồi từ Kafka\").to.exist;",
+                  "    pm.expect(reserveStep.result).to.eql('SUCCESS');",
+                  "    pm.expect(reserveStep.message).to.include('Kho đã giữ hàng thành công');",
                   "    ",
                   "    // 3. Kiểm tra bước Saga Completed",
                   "    const completedStep = logs.find(l => l.step === 'SAGA_COMPLETED');",
-                  "    if (completedStep) {",
-                  "        pm.expect(completedStep.result).to.eql('CONFIRMED');",
-                  "        pm.expect(completedStep.message).to.include('Đơn hàng COD được xác nhận thành công');",
-                  "    }",
+                  "    pm.expect(completedStep, \"Phải có bước SAGA_COMPLETED từ chuỗi Saga\").to.exist;",
+                  "    pm.expect(completedStep.result).to.eql('CONFIRMED');",
+                  "    pm.expect(completedStep.message).to.include('Đơn hàng COD được xác nhận thành công');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -870,10 +897,22 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Trạng thái đơn hàng chuyển sang CONFIRMED qua Kafka Event\", function () {",
+                  "pm.test(\"Mã đơn hàng khớp với đơn vừa tạo\", function () {",
                   "    const response = pm.response.json();",
                   "    pm.expect(response.orderCode).to.eql(pm.environment.get('createdOrderCode'));",
-                  "    pm.expect(response.status).to.be.oneOf(['CONFIRMED', 'PENDING']);",
+                  "});",
+                  "",
+                  "pm.test(\"Trạng thái đơn hàng sau khi Kafka hoàn tất BẮT BUỘC là CONFIRMED\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.status, \"Sau khi chuỗi Kafka Saga hoàn tất, trạng thái đơn COD phải là CONFIRMED\").to.eql('CONFIRMED');",
+                  "});",
+                  "",
+                  "pm.test(\"Kiểm tra phương thức thanh toán và trạng thái thanh toán\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.paymentMethod).to.eql('COD');",
+                  "    pm.expect(response.paymentStatus).to.eql('UNPAID');",
+                  "    pm.expect(response.items).to.be.an('array').and.not.empty;",
+                  "    pm.expect(response.totalAmount).to.be.above(0);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -917,7 +956,7 @@
                   "    const response = pm.response.json();",
                   "    pm.expect(response.items.length).to.eql(0);",
                   "    pm.expect(response.totalQuantity).to.eql(0);",
-                  "    pm.expect(response.totalAmount).to.eql(0);",
+                  "    pm.expect(response.totalPrice).to.eql(0);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1060,6 +1099,18 @@
           "name": "07. Kiểm tra Kafka Saga Logs trường hợp lỗi kho - Saga Rollback (200 OK)",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Chờ 1.5 giây để Kafka gửi event sang kho và nhận event thất bại về thực hiện bù trừ Rollback",
+                  "const delayMs = 1500;",
+                  "const start = Date.now();",
+                  "while (Date.now() - start < delayMs) {}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
@@ -1077,16 +1128,14 @@
                   "    ",
                   "    // 2. InventoryFailedEvent từ Kho phản hồi",
                   "    const reserveFailedLog = logs.find(l => l.step === 'RESERVE_INVENTORY' && l.result === 'FAILED');",
-                  "    if (reserveFailedLog) {",
-                  "        pm.expect(reserveFailedLog.message).to.include('không đủ số lượng tồn kho');",
-                  "    }",
+                  "    pm.expect(reserveFailedLog, \"Phải có bước RESERVE_INVENTORY báo FAILED\").to.exist;",
+                  "    pm.expect(reserveFailedLog.message).to.include('không đủ số lượng tồn kho');",
                   "    ",
                   "    // 3. Compensation Rollback",
                   "    const compLog = logs.find(l => l.step === 'COMPENSATION');",
-                  "    if (compLog) {",
-                  "        pm.expect(compLog.result).to.eql('CANCELLED');",
-                  "        pm.expect(compLog.message).to.include('Saga Rollback');",
-                  "    }",
+                  "    pm.expect(compLog, \"Phải có bước COMPENSATION Rollback\").to.exist;",
+                  "    pm.expect(compLog.result).to.eql('CANCELLED');",
+                  "    pm.expect(compLog.message).to.include('Saga Rollback');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1122,13 +1171,11 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Đơn hàng được chuyển trạng thái CANCELLED kèm cancelReason chi tiết\", function () {",
+                  "pm.test(\"Đơn hàng BẮT BUỘC chuyển trạng thái CANCELLED kèm cancelReason chi tiết\", function () {",
                   "    const response = pm.response.json();",
                   "    pm.expect(response.orderCode).to.eql(pm.environment.get('failedOrderCode'));",
-                  "    pm.expect(response.status).to.be.oneOf(['CANCELLED', 'PENDING']);",
-                  "    if (response.status === 'CANCELLED') {",
-                  "        pm.expect(response.cancelReason).to.include('Kho không thể đáp ứng');",
-                  "    }",
+                  "    pm.expect(response.status, \"Trạng thái đơn hàng sau Saga Rollback phải là CANCELLED\").to.eql('CANCELLED');",
+                  "    pm.expect(response.cancelReason).to.include('Kho không thể đáp ứng');",
                   "});"
                 ],
                 "type": "text/javascript"
