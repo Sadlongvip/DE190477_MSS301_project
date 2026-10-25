@@ -533,17 +533,17 @@ export function AdminMenuPage() {
                 <Card className="border-0 rounded-4 shadow-sm overflow-hidden">
                   <Card.Header className="bg-white p-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div className="d-flex flex-wrap align-items-center gap-2 flex-grow-1" style={{ maxWidth: '600px' }}>
-                      <InputGroup size="sm" className="rounded-pill overflow-hidden border">
-                        <InputGroup.Text className="bg-white border-0 ps-3">
+                      <div className="unified-input-group rounded-pill shadow-sm bg-white flex-grow-1">
+                        <span className="unified-input-icon">
                           <i className="bi bi-search text-muted"></i>
-                        </InputGroup.Text>
-                        <Form.Control
+                        </span>
+                        <input
                           placeholder="Tìm kiếm món theo tên hoặc mô tả..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="border-0 shadow-none py-2"
+                          className="unified-input-control"
                         />
-                      </InputGroup>
+                      </div>
 
                       <Form.Select
                         size="sm"
@@ -955,10 +955,12 @@ export function AdminMenuPage() {
                     }}
                     isInvalid={Boolean(teaErrors.name)}
                   />
-                  <Form.Control.Feedback type="invalid" className="d-block small">
-                    <i className="bi bi-exclamation-circle-fill me-1"></i>
-                    {teaErrors.name}
-                  </Form.Control.Feedback>
+                  {teaErrors.name && (
+                    <Form.Control.Feedback type="invalid" className="d-block small">
+                      <i className="bi bi-exclamation-circle-fill me-1"></i>
+                      {teaErrors.name}
+                    </Form.Control.Feedback>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={4}>
@@ -976,10 +978,12 @@ export function AdminMenuPage() {
                     }}
                     isInvalid={Boolean(teaErrors.price)}
                   />
-                  <Form.Control.Feedback type="invalid" className="d-block small">
-                    <i className="bi bi-exclamation-circle-fill me-1"></i>
-                    {teaErrors.price}
-                  </Form.Control.Feedback>
+                  {teaErrors.price && (
+                    <Form.Control.Feedback type="invalid" className="d-block small">
+                      <i className="bi bi-exclamation-circle-fill me-1"></i>
+                      {teaErrors.price}
+                    </Form.Control.Feedback>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -1001,10 +1005,12 @@ export function AdminMenuPage() {
                       </option>
                     ))}
                   </Form.Select>
-                  <Form.Control.Feedback type="invalid" className="d-block small">
-                    <i className="bi bi-exclamation-circle-fill me-1"></i>
-                    {teaErrors.categoryId}
-                  </Form.Control.Feedback>
+                  {teaErrors.categoryId && (
+                    <Form.Control.Feedback type="invalid" className="d-block small">
+                      <i className="bi bi-exclamation-circle-fill me-1"></i>
+                      {teaErrors.categoryId}
+                    </Form.Control.Feedback>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -1076,10 +1082,12 @@ export function AdminMenuPage() {
                 }}
                 isInvalid={Boolean(categoryErrors.name)}
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {categoryErrors.name}
-              </Form.Control.Feedback>
+              {categoryErrors.name && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {categoryErrors.name}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
@@ -1113,10 +1121,12 @@ export function AdminMenuPage() {
                 }}
                 isInvalid={Boolean(toppingErrors.name)}
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {toppingErrors.name}
-              </Form.Control.Feedback>
+              {toppingErrors.name && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {toppingErrors.name}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
             <Form.Group className="mb-3" controlId="toppingPrice">
               <Form.Label className="fw-semibold small">Giá Tiền (VNĐ) *</Form.Label>
@@ -1132,10 +1142,12 @@ export function AdminMenuPage() {
                 }}
                 isInvalid={Boolean(toppingErrors.price)}
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {toppingErrors.price}
-              </Form.Control.Feedback>
+              {toppingErrors.price && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {toppingErrors.price}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
             <Form.Group controlId="toppingIsAvailable">
               <Form.Check
@@ -1178,10 +1190,12 @@ export function AdminMenuPage() {
                 }}
                 isInvalid={Boolean(sizeErrors.name)}
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {sizeErrors.name}
-              </Form.Control.Feedback>
+              {sizeErrors.name && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {sizeErrors.name}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
             <Row className="g-3 mb-3">
               <Col md={6}>
@@ -1196,10 +1210,12 @@ export function AdminMenuPage() {
                     }}
                     isInvalid={Boolean(sizeErrors.code)}
                   />
-                  <Form.Control.Feedback type="invalid" className="d-block small">
-                    <i className="bi bi-exclamation-circle-fill me-1"></i>
-                    {sizeErrors.code}
-                  </Form.Control.Feedback>
+                  {sizeErrors.code && (
+                    <Form.Control.Feedback type="invalid" className="d-block small">
+                      <i className="bi bi-exclamation-circle-fill me-1"></i>
+                      {sizeErrors.code}
+                    </Form.Control.Feedback>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -1217,10 +1233,12 @@ export function AdminMenuPage() {
                     }}
                     isInvalid={Boolean(sizeErrors.extraPrice)}
                   />
-                  <Form.Control.Feedback type="invalid" className="d-block small">
-                    <i className="bi bi-exclamation-circle-fill me-1"></i>
-                    {sizeErrors.extraPrice}
-                  </Form.Control.Feedback>
+                  {sizeErrors.extraPrice && (
+                    <Form.Control.Feedback type="invalid" className="d-block small">
+                      <i className="bi bi-exclamation-circle-fill me-1"></i>
+                      {sizeErrors.extraPrice}
+                    </Form.Control.Feedback>
+                  )}
                 </Form.Group>
               </Col>
             </Row>

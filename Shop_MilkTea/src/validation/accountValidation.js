@@ -70,7 +70,7 @@ export function validateAccountPhone(phone) {
  */
 export function validateAccountRole(role) {
   if (!role || !['ADMIN', 'CUSTOMER', 'STAFF'].includes(role)) {
-    return 'Vui lòng chọn vai trò hợp lệ (ADMIN hoặc CUSTOMER)';
+    return 'Vui lòng chọn vai trò hợp lệ (ADMIN, STAFF hoặc CUSTOMER)';
   }
   return '';
 }
@@ -98,6 +98,29 @@ export function validateAccountForm(form, isEdit = false) {
 
   const roleErr = validateAccountRole(form.role);
   if (roleErr) errors.role = roleErr;
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
+/**
+ * Kiểm tra xác thực khi đổi mật khẩu tài khoản
+ */
+export function validateNewPassword(password, confirmPassword) {
+  const errors = {};
+  if (!password || !password.trim()) {
+    errors.password = 'Mật khẩu mới không được để trống';
+  } else if (password.length < 6) {
+    errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+  }
+
+  if (!confirmPassword || !confirmPassword.trim()) {
+    errors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới';
+  } else if (password !== confirmPassword) {
+    errors.confirmPassword = 'Mật khẩu xác nhận không khớp với mật khẩu mới';
+  }
 
   return {
     isValid: Object.keys(errors).length === 0,

@@ -106,27 +106,28 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
 
           {/* Ô tìm kiếm món */}
           <div style={{ maxWidth: '280px', width: '100%' }}>
-            <InputGroup size="sm" className="shadow-sm rounded-pill overflow-hidden border">
-              <InputGroup.Text className="bg-white border-0 ps-3">
+            <div className="unified-input-group rounded-pill shadow-sm bg-white">
+              <span className="unified-input-icon">
                 <i className="bi bi-search text-muted"></i>
-              </InputGroup.Text>
-              <Form.Control
+              </span>
+              <input
                 type="text"
                 placeholder="Tìm món trà sữa..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="border-0 shadow-none py-2"
+                className="unified-input-control"
               />
               {searchKeyword && (
-                <Button
-                  variant="white"
-                  className="border-0 pe-3 text-muted"
+                <button
+                  type="button"
+                  className="unified-input-btn text-muted"
                   onClick={() => setSearchKeyword('')}
+                  title="Xóa tìm kiếm"
                 >
                   <i className="bi bi-x-circle-fill"></i>
-                </Button>
+                </button>
               )}
-            </InputGroup>
+            </div>
           </div>
         </div>
 

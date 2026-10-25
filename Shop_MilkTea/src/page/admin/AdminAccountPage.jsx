@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Row,
   Col,
@@ -33,6 +34,7 @@ import {
  * 3. Không dùng alert() hay popup mặc định của browser/input box (dùng inline error + Toast/Banner riêng).
  */
 export function AdminAccountPage() {
+  const navigate = useNavigate();
   const {
     accounts,
     loading,
@@ -60,6 +62,7 @@ export function AdminAccountPage() {
     password: '',
     phoneNumber: '',
     role: 'CUSTOMER',
+    status: 'ACTIVE',
   });
 
   // State lưu lỗi validation từng trường
@@ -90,6 +93,7 @@ export function AdminAccountPage() {
         password: '', // Khi edit không bắt buộc nhập mật khẩu
         phoneNumber: account.phoneNumber || '',
         role: account.role || 'CUSTOMER',
+        status: account.status || 'ACTIVE',
       });
     } else {
       setEditingAccount(null);
@@ -99,6 +103,7 @@ export function AdminAccountPage() {
         password: '',
         phoneNumber: '',
         role: 'CUSTOMER',
+        status: 'ACTIVE',
       });
     }
     setShowModal(true);
@@ -138,21 +143,23 @@ export function AdminAccountPage() {
 
     // 1. Kiểm tra validation bằng accountValidation
     const isEdit = Boolean(editingAccount);
-    const { isValid, errors } = validateAccountForm(form, isEdit);
+    const formToValidate = isEdit ? { ...form, password: '' } : form;
+    const { isValid, errors } = validateAccountForm(formToValidate, isEdit);
 
     if (!isValid) {
       setFormErrors(errors);
       return; // Dừng lại, lỗi đã được hiển thị bên dưới từng ô input
     }
 
-    // 2. Chuẩn bị payload
+    // 2. Chuẩn bị payload (khi sửa tài khoản, không gửi password để tránh ghi đè)
     const payload = {
       username: form.username.trim(),
       email: form.email.trim(),
       phoneNumber: form.phoneNumber.trim() || null,
       role: form.role,
+      status: form.status || 'ACTIVE',
     };
-    if (form.password && form.password.trim()) {
+    if (!isEdit && form.password && form.password.trim()) {
       payload.password = form.password;
     }
 
@@ -205,18 +212,18 @@ export function AdminAccountPage() {
         <Card.Body className="p-3 p-md-4">
           <Row className="g-3 align-items-center justify-content-between">
             <Col xs={12} md={6} lg={4}>
-              <InputGroup>
-                <InputGroup.Text className="bg-light border-end-0 text-muted">
+              <div className="unified-input-group rounded-pill shadow-sm">
+                <span className="unified-input-icon">
                   <i className="bi bi-search"></i>
-                </InputGroup.Text>
-                <Form.Control
+                </span>
+                <input
                   type="text"
                   placeholder="Tìm theo username, email, SĐT..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-light border-start-0"
+                  className="unified-input-control"
                 />
-              </InputGroup>
+              </div>
             </Col>
 
             <Col xs={12} md="auto">
@@ -254,6 +261,7 @@ export function AdminAccountPage() {
                   <th>Email</th>
                   <th>Số Điện Thoại</th>
                   <th>Vai Trò</th>
+                  <th>Trạng Thái</th>
                   <th className="text-end pe-4">Thao Tác</th>
                 </tr>
               </thead>
@@ -267,7 +275,12 @@ export function AdminAccountPage() {
                           style={{
                             width: '36px',
                             height: '36px',
-                            background: acc.role === 'ADMIN' ? '#ef4444' : '#f59e0b',
+                            background:
+                              acc.role === 'ADMIN'
+                                ? '#ef4444'
+                                : acc.role === 'STAFF'
+                                ? '#3b82f6'
+                                : '#f59e0b',
                             fontSize: '0.85rem',
                           }}
                         >
@@ -292,11 +305,34 @@ export function AdminAccountPage() {
 
                     <td>
                       <Badge
-                        bg={acc.role === 'ADMIN' ? 'danger' : 'info'}
+                        bg={
+                          acc.role === 'ADMIN'
+                            ? 'danger'
+                            : acc.role === 'STAFF'
+                            ? 'primary'
+                            : 'warning'
+                        }
                         className="px-2.5 py-1 text-uppercase rounded-pill"
                         style={{ fontSize: '0.72rem' }}
                       >
                         {acc.role || 'CUSTOMER'}
+                      </Badge>
+                    </td>
+
+                    <td>
+                      <Badge
+                        bg={acc.status === 'ACTIVE' ? 'success' : 'secondary'}
+                        className="px-2.5 py-1 text-uppercase rounded-pill"
+                        style={{ fontSize: '0.72rem' }}
+                      >
+                        <i
+                          className={`bi ${
+                            acc.status === 'ACTIVE'
+                              ? 'bi-check-circle-fill'
+                              : 'bi-dash-circle-fill'
+                          } me-1`}
+                        ></i>
+                        {acc.status === 'ACTIVE' ? 'Hoạt Động' : 'Đã Khóa'}
                       </Badge>
                     </td>
 
@@ -307,10 +343,21 @@ export function AdminAccountPage() {
                           size="sm"
                           onClick={() => handleOpenModal(acc)}
                           className="rounded-pill px-3 d-flex align-items-center gap-1"
-                          title="Chỉnh sửa tài khoản"
+                          title="Chỉnh sửa thông tin tài khoản"
                         >
                           <i className="bi bi-pencil-square"></i>
                           <span>Sửa</span>
+                        </Button>
+
+                        <Button
+                          variant="outline-warning"
+                          size="sm"
+                          onClick={() => navigate(`/admin/accounts/${acc.id}/change-password`)}
+                          className="rounded-pill px-3 d-flex align-items-center gap-1 text-dark fw-semibold"
+                          title="Đổi mật khẩu tài khoản"
+                        >
+                          <i className="bi bi-key-fill text-warning"></i>
+                          <span>Đổi MK</span>
                         </Button>
 
                         <Button
@@ -371,10 +418,12 @@ export function AdminAccountPage() {
                 className="rounded-3"
                 disabled={Boolean(editingAccount)} // Không cho sửa username sau khi tạo
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {formErrors.username}
-              </Form.Control.Feedback>
+              {formErrors.username && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {formErrors.username}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
 
             {/* 2. Email */}
@@ -391,31 +440,61 @@ export function AdminAccountPage() {
                 isInvalid={Boolean(formErrors.email)}
                 className="rounded-3"
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {formErrors.email}
-              </Form.Control.Feedback>
+              {formErrors.email && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {formErrors.email}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
 
-            {/* 3. Mật khẩu */}
-            <Form.Group className="mb-3" controlId="accountPassword">
-              <Form.Label className="small fw-semibold text-dark">
-                Mật khẩu {editingAccount ? <span className="text-muted">(để trống nếu không đổi)</span> : <span className="text-danger">*</span>}
-              </Form.Label>
-              <Form.Control
-                type="password"
-                placeholder={editingAccount ? 'Nhập mật khẩu mới (nếu muốn đổi)' : 'Tối thiểu 6 ký tự'}
-                value={form.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                onBlur={() => handleInputBlur('password')}
-                isInvalid={Boolean(formErrors.password)}
-                className="rounded-3"
-              />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {formErrors.password}
-              </Form.Control.Feedback>
-            </Form.Group>
+            {/* 3. Mật khẩu (Chỉ hiển thị khi thêm mới, khi sửa có trang riêng biệt) */}
+            {!editingAccount ? (
+              <Form.Group className="mb-3" controlId="accountPassword">
+                <Form.Label className="small fw-semibold text-dark">
+                  Mật khẩu <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Tối thiểu 6 ký tự"
+                  value={form.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onBlur={() => handleInputBlur('password')}
+                  isInvalid={Boolean(formErrors.password)}
+                  className="rounded-3"
+                />
+                {formErrors.password && (
+                  <Form.Control.Feedback type="invalid" className="d-block small">
+                    <i className="bi bi-exclamation-circle-fill me-1"></i>
+                    {formErrors.password}
+                  </Form.Control.Feedback>
+                )}
+              </Form.Group>
+            ) : (
+              <div className="mb-3 p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="fw-semibold small text-dark d-flex align-items-center gap-1.5">
+                    <i className="bi bi-shield-lock-fill text-warning"></i>
+                    <span>Bảo mật & Mật khẩu</span>
+                  </div>
+                  <div className="text-muted" style={{ fontSize: '0.78rem' }}>
+                    Mật khẩu được quản lý tại trang riêng biệt.
+                  </div>
+                </div>
+                <Button
+                  variant="outline-warning"
+                  size="sm"
+                  className="rounded-pill text-dark fw-bold px-3 py-1 shadow-sm"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate(`/admin/accounts/${editingAccount.id}/change-password`);
+                  }}
+                >
+                  <i className="bi bi-key-fill text-warning me-1"></i>
+                  Đổi Mật Khẩu
+                </Button>
+              </div>
+            )}
 
             {/* 4. Số điện thoại */}
             <Form.Group className="mb-3" controlId="accountPhoneNumber">
@@ -429,14 +508,16 @@ export function AdminAccountPage() {
                 isInvalid={Boolean(formErrors.phoneNumber)}
                 className="rounded-3"
               />
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {formErrors.phoneNumber}
-              </Form.Control.Feedback>
+              {formErrors.phoneNumber && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {formErrors.phoneNumber}
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
 
             {/* 5. Vai trò (Role) */}
-            <Form.Group className="mb-2" controlId="accountRole">
+            <Form.Group className="mb-3" controlId="accountRole">
               <Form.Label className="small fw-semibold text-dark">
                 Vai trò hệ thống <span className="text-danger">*</span>
               </Form.Label>
@@ -448,12 +529,30 @@ export function AdminAccountPage() {
                 className="rounded-3"
               >
                 <option value="CUSTOMER">CUSTOMER (Khách hàng)</option>
+                <option value="STAFF">STAFF (Nhân viên)</option>
                 <option value="ADMIN">ADMIN (Quản trị viên)</option>
               </Form.Select>
-              <Form.Control.Feedback type="invalid" className="d-block small">
-                <i className="bi bi-exclamation-circle-fill me-1"></i>
-                {formErrors.role}
-              </Form.Control.Feedback>
+              {formErrors.role && (
+                <Form.Control.Feedback type="invalid" className="d-block small">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {formErrors.role}
+                </Form.Control.Feedback>
+              )}
+            </Form.Group>
+
+            {/* 6. Trạng thái (Status) */}
+            <Form.Group className="mb-2" controlId="accountStatus">
+              <Form.Label className="small fw-semibold text-dark">
+                Trạng thái hoạt động <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Select
+                value={form.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                className="rounded-3"
+              >
+                <option value="ACTIVE">ACTIVE (Đang hoạt động)</option>
+                <option value="INACTIVE">INACTIVE (Đã khóa / Ngừng hoạt động)</option>
+              </Form.Select>
             </Form.Group>
           </Modal.Body>
 

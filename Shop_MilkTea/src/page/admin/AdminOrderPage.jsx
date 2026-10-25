@@ -144,22 +144,25 @@ export function AdminOrderPage() {
         <Card.Body className="p-3 p-md-4">
           <Row className="g-3 align-items-center justify-content-between">
             <Col xs={12} lg={4}>
-              <InputGroup>
-                <InputGroup.Text className="bg-light border-end-0 text-muted">
+              <div className="unified-input-group rounded-pill shadow-sm">
+                <span className="unified-input-icon">
                   <i className="bi bi-search"></i>
-                </InputGroup.Text>
-                <Form.Control
+                </span>
+                <input
                   type="text"
                   placeholder="Tìm theo mã đơn, tên khách, SĐT..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-light border-start-0"
+                  className="unified-input-control"
                 />
-              </InputGroup>
+              </div>
             </Col>
 
             <Col xs={12} lg={8} className="d-flex justify-content-lg-end overflow-auto">
-              <ButtonGroup className="shadow-sm rounded-pill overflow-hidden flex-nowrap">
+              <div
+                className="d-inline-flex align-items-center p-1 bg-light border rounded-pill shadow-sm flex-nowrap"
+                style={{ gap: '3px' }}
+              >
                 {[
                   { key: 'ALL', label: 'Tất cả' },
                   { key: 'PENDING', label: 'Chờ duyệt' },
@@ -171,15 +174,18 @@ export function AdminOrderPage() {
                 ].map((tab) => (
                   <Button
                     key={tab.key}
-                    variant={statusFilter === tab.key ? 'warning' : 'outline-secondary'}
+                    variant={statusFilter === tab.key ? 'warning' : 'light'}
                     size="sm"
-                    className="px-3 fw-semibold text-nowrap"
+                    className={`px-3 py-1.5 rounded-pill fw-semibold text-nowrap border-0 ${
+                      statusFilter === tab.key ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+                    }`}
+                    style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
                     onClick={() => setStatusFilter(tab.key)}
                   >
                     {tab.label}
                   </Button>
                 ))}
-              </ButtonGroup>
+              </div>
             </Col>
           </Row>
         </Card.Body>
@@ -418,7 +424,9 @@ export function AdminOrderPage() {
           ) : (
             <div className="timeline-wrapper px-2">
               {sagaLogs.map((log, index) => {
-                const isFail = log.status === 'FAILED' || log.status === 'COMPENSATED';
+                const status = log.result || log.status || 'SUCCESS';
+                const isFail = status === 'FAILED' || status === 'COMPENSATED' || status === 'CANCELLED';
+                const logTime = log.time || log.createdAt;
                 return (
                   <div
                     key={log.id || index}
@@ -437,12 +445,12 @@ export function AdminOrderPage() {
                       <div className="d-flex justify-content-between align-items-center mb-1">
                         <span className="fw-bold text-dark">{log.step || log.eventType}</span>
                         <Badge bg={isFail ? 'danger' : 'success'} style={{ fontSize: '0.7rem' }}>
-                          {log.status}
+                          {status}
                         </Badge>
                       </div>
-                      <p className="text-muted small mb-1">{log.payload || log.message || 'Thực hiện sự kiện microservices thành công'}</p>
+                      <p className="text-muted small mb-1">{log.message || log.payload || 'Thực hiện sự kiện microservices thành công'}</p>
                       <small className="text-muted" style={{ fontSize: '0.72rem' }}>
-                        {log.createdAt ? new Date(log.createdAt).toLocaleString('vi-VN') : '---'}
+                        {logTime ? new Date(logTime).toLocaleString('vi-VN') : '---'}
                       </small>
                     </div>
                   </div>
