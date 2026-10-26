@@ -46,6 +46,28 @@ const reportService = {
   getPaymentMethodBreakdown: (params = {}) => {
     return axiosClient.get('/api/reports/payment-methods', { params });
   },
+
+  /**
+   * Tải file CSV báo cáo danh sách đơn hàng (UTF-8 BOM mở bằng Excel không lỗi font)
+   */
+  exportOrdersReportCsv: async (params = {}) => {
+    const response = await axiosClient.get('/api/reports/export/orders/csv', {
+      params,
+      responseType: 'blob',
+    });
+    const blob = new Blob([response], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `milktea_orders_report_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return true;
+  },
 };
+
 
 export default reportService;

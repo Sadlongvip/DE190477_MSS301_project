@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useCallback, useMemo, useContext } from 'react';
+import React, { useState, useReducer, useEffect, useCallback, useMemo, useContext } from 'react';
 import CartContext from './CartContext';
 import { AuthContext } from './AuthContext';
 import {
@@ -13,7 +13,7 @@ import orderService from '../service/orderService';
 const CART_STORAGE_KEY = 'milktea_cart';
 const SESSION_STORAGE_KEY = 'milktea_session_id';
 const FREE_SHIPPING_THRESHOLD = 120000;
-const STANDARD_SHIPPING_FEE = 1000;
+const STANDARD_SHIPPING_FEE = 20000;
 
 // Khởi tạo hoặc lấy sessionId định danh cho khách vãng lai
 function getOrCreateSessionId() {
@@ -36,10 +36,12 @@ function getOrCreateSessionId() {
  */
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const [lastCompletedOrder, setLastCompletedOrder] = useState(null);
 
   const authContext = useContext(AuthContext);
   const isAuthenticated = authContext?.isAuthenticated;
   const user = authContext?.user;
+
 
   // Tự động lưu giỏ hàng vào localStorage mỗi khi state.items thay đổi
   useEffect(() => {
@@ -331,6 +333,9 @@ export function CartProvider({ children }) {
 
         const response = await orderService.createOrder(orderPayload);
 
+        // Lưu đơn hàng vừa hoàn tất để hiển thị phí ship và chi tiết đơn trong Cart Sidebar
+        setLastCompletedOrder(response);
+
         // Đặt hàng thành công -> Xóa sạch giỏ hàng
         dispatch({ type: CART_ACTION_TYPES.CLEAR_CART });
         localStorage.removeItem(CART_STORAGE_KEY);
@@ -348,6 +353,10 @@ export function CartProvider({ children }) {
     [state.items, state.appliedVoucher, shippingFee, discountAmount, user?.username]
   );
 
+  const clearLastCompletedOrder = useCallback(() => {
+    setLastCompletedOrder(null);
+  }, []);
+
   const value = {
     // Trạng thái từ Reducer
     cartItems: state.items,
@@ -355,6 +364,7 @@ export function CartProvider({ children }) {
     error: state.error,
     appliedVoucher: state.appliedVoucher,
     voucherError: state.voucherError,
+    lastCompletedOrder,
 
     // Các chỉ số tính toán
     totalQuantity,
@@ -377,9 +387,11 @@ export function CartProvider({ children }) {
     clearError,
     refreshCart: fetchCart,
     checkout,
+    clearLastCompletedOrder,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
+
 
 export default CartProvider;

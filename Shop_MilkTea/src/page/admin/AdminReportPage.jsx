@@ -470,12 +470,20 @@ function RevenueTrendChart({ trends = [] }) {
  * AdminReportPage - Trang Báo Cáo & Thống Kê Phân Tích Doanh Thu Hệ Thống
  */
 export function AdminReportPage() {
-  const { dashboardData, summary, dateFilter, loading, fetchDashboardReport, changeDateFilter } = useReport();
+  const { dashboardData, summary, dateFilter, loading, fetchDashboardReport, changeDateFilter, exportOrdersReportCsv } = useReport();
   const [activeTab, setActiveTab] = useState('daily');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchDashboardReport(dateFilter);
   }, [fetchDashboardReport, dateFilter]);
+
+  const handleExportCsv = async () => {
+    setExporting(true);
+    await exportOrdersReportCsv(dateFilter);
+    setExporting(false);
+  };
+
 
   // Trích xuất dữ liệu xu hướng doanh thu
   const trends = useMemo(() => {
@@ -548,46 +556,71 @@ export function AdminReportPage() {
           </p>
         </div>
 
-        {/* Nút lọc thời gian - Đã fix viền khung tuyệt đối */}
-        <div
-          className="d-inline-flex align-items-center p-1 bg-light border rounded-pill shadow-sm"
-          style={{ gap: '4px' }}
-        >
-          <Button
-            variant={dateFilter === 'today' ? 'warning' : 'light'}
-            size="sm"
-            className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
-              dateFilter === 'today' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
-            }`}
-            style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
-            onClick={() => changeDateFilter('today')}
+        {/* Nút lọc thời gian & Xuất file báo cáo */}
+        <div className="d-flex align-items-center flex-wrap gap-2">
+          <div
+            className="d-inline-flex align-items-center p-1 bg-light border rounded-pill shadow-sm"
+            style={{ gap: '4px' }}
           >
-            Hôm nay
-          </Button>
+            <Button
+              variant={dateFilter === 'today' ? 'warning' : 'light'}
+              size="sm"
+              className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
+                dateFilter === 'today' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+              }`}
+              style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
+              onClick={() => changeDateFilter('today')}
+            >
+              Hôm nay
+            </Button>
+            <Button
+              variant={dateFilter === '7days' ? 'warning' : 'light'}
+              size="sm"
+              className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
+                dateFilter === '7days' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+              }`}
+              style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
+              onClick={() => changeDateFilter('7days')}
+            >
+              7 ngày qua
+            </Button>
+            <Button
+              variant={dateFilter === '30days' ? 'warning' : 'light'}
+              size="sm"
+              className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
+                dateFilter === '30days' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
+              }`}
+              style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
+              onClick={() => changeDateFilter('30days')}
+            >
+              30 ngày qua
+            </Button>
+          </div>
+
           <Button
-            variant={dateFilter === '7days' ? 'warning' : 'light'}
+            variant="outline-success"
             size="sm"
-            className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
-              dateFilter === '7days' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
-            }`}
-            style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
-            onClick={() => changeDateFilter('7days')}
+            className="rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm bg-white"
+            style={{ fontSize: '0.82rem' }}
+            disabled={exporting}
+            onClick={handleExportCsv}
+            title="Tải file CSV danh sách đơn hàng để mở trong Excel"
           >
-            7 ngày qua
-          </Button>
-          <Button
-            variant={dateFilter === '30days' ? 'warning' : 'light'}
-            size="sm"
-            className={`px-3 py-1.5 rounded-pill fw-semibold border-0 ${
-              dateFilter === '30days' ? 'text-dark shadow-sm' : 'text-muted bg-transparent'
-            }`}
-            style={{ fontSize: '0.82rem', transition: 'all 0.2s ease' }}
-            onClick={() => changeDateFilter('30days')}
-          >
-            30 ngày qua
+            {exporting ? (
+              <>
+                <Spinner animation="border" size="sm" />
+                <span>Đang xuất file...</span>
+              </>
+            ) : (
+              <>
+                <i className="bi bi-file-earmark-excel-fill text-success fs-6"></i>
+                <span>Xuất Báo Cáo (CSV)</span>
+              </>
+            )}
           </Button>
         </div>
       </div>
+
 
       {loading && !dashboardData ? (
         <div className="text-center py-5">

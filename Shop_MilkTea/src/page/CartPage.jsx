@@ -201,20 +201,75 @@ export function CartPage() {
           </div>
 
           {/* Thông báo đặt hàng thành công */}
+          {/* Thông báo đặt hàng thành công */}
           {orderSuccess && (
             <Alert variant="success" className="rounded-4 p-4 mb-4 shadow-sm border-0 bg-success bg-opacity-10">
-              <div className="d-flex align-items-start gap-3">
+              <div className="d-flex align-items-start gap-3 flex-wrap flex-md-nowrap">
                 <div className="fs-1 text-success lh-1">
                   <i className="bi bi-check-circle-fill"></i>
                 </div>
-                <div>
+                <div className="flex-grow-1">
                   <h4 className="fw-bold text-success mb-1">Đặt Hàng Thành Công!</h4>
-                  <p className="mb-2 text-dark">
+                  <p className="mb-3 text-dark">
                     Mã đơn hàng của bạn là:{' '}
                     <strong className="badge bg-success fs-6 ms-1">{orderSuccess.orderCode || 'ORD-SUCCESS'}</strong>
                   </p>
+
+                  {/* Bảng tóm tắt chi phí đơn hàng vừa đặt */}
+                  <div className="bg-white p-3 rounded-4 border border-success-subtle mb-3 small" style={{ maxWidth: '480px' }}>
+                    <div className="d-flex justify-content-between text-muted mb-1.5">
+                      <span>Người nhận:</span>
+                      <strong className="text-dark">{orderSuccess.customerName} ({orderSuccess.phoneNumber})</strong>
+                    </div>
+                    {orderSuccess.shippingAddress && (
+                      <div className="d-flex justify-content-between text-muted mb-1.5">
+                        <span>Địa chỉ:</span>
+                        <span className="text-dark text-end fw-semibold" style={{ maxWidth: '280px' }}>
+                          {orderSuccess.shippingAddress}
+                        </span>
+                      </div>
+                    )}
+                    <div className="d-flex justify-content-between text-muted mb-1.5">
+                      <span>Tạm tính tiền món:</span>
+                      <span className="fw-semibold text-dark">
+                        {Number(orderSuccess.subtotal || 0).toLocaleString('vi-VN')} đ
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between text-muted mb-1.5 py-1 px-2 rounded-2 bg-light">
+                      <span className="fw-semibold text-dark d-flex align-items-center gap-1">
+                        <i className="bi bi-truck text-success"></i>
+                        <span>Phí giao hàng:</span>
+                      </span>
+                      <span>
+                        {Number(orderSuccess.shippingFee || 0) === 0 ? (
+                          <strong className="text-success">Miễn phí (0đ)</strong>
+                        ) : (
+                          <strong className="text-dark">
+                            {Number(orderSuccess.shippingFee).toLocaleString('vi-VN')} đ
+                          </strong>
+                        )}
+                      </span>
+                    </div>
+                    {orderSuccess.discountAmount > 0 && (
+                      <div className="d-flex justify-content-between text-success mb-1.5">
+                        <span>Giảm giá voucher:</span>
+                        <span>-{Number(orderSuccess.discountAmount).toLocaleString('vi-VN')} đ</span>
+                      </div>
+                    )}
+                    <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                      <span className="fw-bold text-dark fs-6">Tổng thanh toán:</span>
+                      <span className="fw-bold text-danger fs-5">
+                        {Number(orderSuccess.totalAmount || 0).toLocaleString('vi-VN')} đ
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between text-muted mt-1" style={{ fontSize: '0.75rem' }}>
+                      <span>Phương thức thanh toán:</span>
+                      <span className="badge bg-secondary">{orderSuccess.paymentMethod}</span>
+                    </div>
+                  </div>
+
                   <p className="text-muted small mb-3">
-                    Cảm ơn bạn đã lựa chọn Shop MilkTea! Nhân viên quầy pha chế đang chuẩn bị đơn và sẽ giao tới địa chỉ
+                    Cảm ơn bạn đã lựa chọn Shop MilkTea! Quầy pha chế đang chuẩn bị đơn và sẽ giao tới địa chỉ
                     của bạn trong vòng 30 phút.
                   </p>
                   <div className="d-flex gap-2 flex-wrap">
@@ -227,7 +282,7 @@ export function CartPage() {
                       }}
                     >
                       <i className="bi bi-receipt"></i>
-                      <span>Xem Đơn Hàng Của Bạn</span>
+                      <span>Xem Lịch Sử Đơn Hàng</span>
                     </Button>
                     <Button
                       variant="outline-success"
@@ -237,7 +292,7 @@ export function CartPage() {
                         navigate('/menu');
                       }}
                     >
-                      Tiếp Tục Mua Hàng
+                      Tiếp Tục Đặt Món Khác
                     </Button>
                   </div>
                 </div>
@@ -246,38 +301,41 @@ export function CartPage() {
           )}
 
           {/* Thân trang: Giỏ trống vs Giỏ có hàng */}
-          {cartItems.length === 0 && !orderSuccess ? (
-            /* TRẠNG THÁI GIỎ HÀNG TRỐNG */
-            <div className="text-center py-5 px-3 bg-white rounded-5 shadow-sm border empty-cart-box my-4">
-              <div
-                className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow-sm"
-                style={{
-                  width: '120px',
-                  height: '120px',
-                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                  color: '#d97706',
-                  fontSize: '3.5rem',
-                }}
-              >
-                <i className="bi bi-cup-straw"></i>
-              </div>
-              <h3 className="fw-bold text-dark mb-2">Giỏ Hàng Của Bạn Đang Trống</h3>
-              <p className="text-muted mx-auto mb-4" style={{ maxWidth: '460px' }}>
-                Có vẻ như bạn chưa chọn ly trà sữa nào. Hãy ghé xem thực đơn phong phú với hàng chục hương vị đậm đà và
-                topping giòn dai đang chờ bạn nhé!
-              </p>
-              <div className="d-flex justify-content-center gap-3">
-                <Button
-                  className="btn-tea-primary rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center gap-2 shadow"
-                  onClick={() => navigate('/menu')}
+          {cartItems.length === 0 ? (
+            !orderSuccess && (
+              /* TRẠNG THÁI GIỎ HÀNG TRỐNG */
+              <div className="text-center py-5 px-3 bg-white rounded-5 shadow-sm border empty-cart-box my-4">
+                <div
+                  className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow-sm"
+                  style={{
+                    width: '120px',
+                    height: '120px',
+                    background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                    color: '#d97706',
+                    fontSize: '3.5rem',
+                  }}
                 >
-                  <i className="bi bi-compass"></i>
-                  <span>Khám Phá Thực Đơn Ngay</span>
-                </Button>
+                  <i className="bi bi-cup-straw"></i>
+                </div>
+                <h3 className="fw-bold text-dark mb-2">Giỏ Hàng Của Bạn Đang Trống</h3>
+                <p className="text-muted mx-auto mb-4" style={{ maxWidth: '460px' }}>
+                  Có vẻ như bạn chưa chọn ly trà sữa nào. Hãy ghé xem thực đơn phong phú với hàng chục hương vị đậm đà và
+                  topping giòn dai đang chờ bạn nhé!
+                </p>
+                <div className="d-flex justify-content-center gap-3">
+                  <Button
+                    className="btn-tea-primary rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center gap-2 shadow"
+                    onClick={() => navigate('/menu')}
+                  >
+                    <i className="bi bi-compass"></i>
+                    <span>Khám Phá Thực Đơn Ngay</span>
+                  </Button>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             /* DANH SÁCH MÓN & TỔNG KẾT */
+
             <Row className="g-4">
               {/* Cột trái: Danh sách các món trong giỏ */}
               <Col lg={8}>

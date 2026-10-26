@@ -77,6 +77,23 @@ export function ReportProvider({ children }) {
   }, [fetchDashboardReport]);
 
   /**
+   * Xuất file CSV báo cáo đơn hàng
+   */
+  const exportOrdersReportCsv = useCallback(async (filter = state.dateFilter, status = null) => {
+    try {
+      const { startDate, endDate } = getDateRange(filter);
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (status && status !== 'ALL') params.status = status;
+      await reportService.exportOrdersReportCsv(params);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message || 'Lỗi khi xuất file báo cáo đơn hàng' };
+    }
+  }, [state.dateFilter]);
+
+  /**
    * Xóa thông báo lỗi
    */
   const clearError = useCallback(() => {
@@ -94,8 +111,10 @@ export function ReportProvider({ children }) {
     // Cổng duy nhất gọi API
     fetchDashboardReport,
     changeDateFilter,
+    exportOrdersReportCsv,
     clearError,
   };
+
 
   return (
     <ReportContext.Provider value={value}>

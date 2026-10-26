@@ -16,6 +16,7 @@ import {
 } from 'react-bootstrap';
 import AdminLayout from '../../layout/AdminLayout';
 import useOrder from '../../hook/useOrder';
+import reportService from '../../service/reportService';
 import { formatPrice } from '../../util/formatPrice';
 
 /**
@@ -35,12 +36,28 @@ export function AdminOrderPage() {
 
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+  const [exportingCsv, setExportingCsv] = useState(false);
 
   // Toast feedback
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
   const showToast = (message, variant = 'success') => {
     setToast({ show: true, message, variant });
   };
+
+  const handleExportOrdersCsv = async () => {
+    try {
+      setExportingCsv(true);
+      const params = {};
+      if (statusFilter !== 'ALL') params.status = statusFilter;
+      await reportService.exportOrdersReportCsv(params);
+      showToast('Đã xuất file báo cáo đơn hàng (CSV) thành công!');
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi xuất file báo cáo đơn hàng', 'danger');
+    } finally {
+      setExportingCsv(false);
+    }
+  };
+
 
   // Modal Chi tiết Đơn hàng & Đổi trạng thái
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -158,9 +175,9 @@ export function AdminOrderPage() {
               </div>
             </Col>
 
-            <Col xs={12} lg={8} className="d-flex justify-content-lg-end overflow-auto">
+            <Col xs={12} lg={8} className="d-flex justify-content-lg-end align-items-center flex-wrap gap-2">
               <div
-                className="d-inline-flex align-items-center p-1 bg-light border rounded-pill shadow-sm flex-nowrap"
+                className="d-inline-flex align-items-center p-1 bg-light border rounded-pill shadow-sm flex-nowrap overflow-x-auto"
                 style={{ gap: '3px' }}
               >
                 {[
@@ -186,10 +203,33 @@ export function AdminOrderPage() {
                   </Button>
                 ))}
               </div>
+
+              <Button
+                variant="outline-success"
+                size="sm"
+                className="rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm bg-white text-nowrap"
+                style={{ fontSize: '0.82rem' }}
+                disabled={exportingCsv}
+                onClick={handleExportOrdersCsv}
+                title="Tải file CSV danh sách đơn hàng để mở trong Excel"
+              >
+                {exportingCsv ? (
+                  <>
+                    <Spinner animation="border" size="sm" />
+                    <span>Đang xuất...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-file-earmark-excel-fill text-success fs-6"></i>
+                    <span>Xuất CSV</span>
+                  </>
+                )}
+              </Button>
             </Col>
           </Row>
         </Card.Body>
       </Card>
+
 
       {/* 2. BẢNG DANH SÁCH ĐƠN HÀNG */}
       <Card className="border-0 shadow-sm rounded-4 bg-white overflow-hidden">
