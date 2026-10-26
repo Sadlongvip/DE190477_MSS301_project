@@ -13,7 +13,7 @@ import orderService from '../service/orderService';
 const CART_STORAGE_KEY = 'milktea_cart';
 const SESSION_STORAGE_KEY = 'milktea_session_id';
 const FREE_SHIPPING_THRESHOLD = 120000;
-const STANDARD_SHIPPING_FEE = 20000;
+const STANDARD_SHIPPING_FEE = 1000;
 
 // Khởi tạo hoặc lấy sessionId định danh cho khách vãng lai
 function getOrCreateSessionId() {
@@ -238,43 +238,14 @@ export function CartProvider({ children }) {
   }, [isAuthenticated]);
 
   /**
-   * Áp dụng mã giảm giá
+   * Áp dụng mã giảm giá (Đã xóa toàn bộ voucher theo yêu cầu)
    */
-  const applyVoucher = useCallback((code) => {
-    if (!code || !code.trim()) {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER_ERROR,
-        payload: 'Vui lòng nhập mã giảm giá',
-      });
-      return false;
-    }
-
-    const upper = code.trim().toUpperCase();
-    if (upper === 'FREESHIP') {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER,
-        payload: { code: upper, name: 'Miễn phí vận chuyển', discountType: 'FREESHIP', value: 20000 },
-      });
-      return true;
-    } else if (upper === 'MILKTEA10') {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER,
-        payload: { code: upper, name: 'Giảm 10% tổng đơn trà sữa', discountType: 'PERCENT', value: 0.1 },
-      });
-      return true;
-    } else if (upper === 'SALE20K') {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER,
-        payload: { code: upper, name: 'Giảm 20.000đ trực tiếp', discountType: 'FIXED', value: 20000 },
-      });
-      return true;
-    } else {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER_ERROR,
-        payload: 'Mã ưu đãi không hợp lệ hoặc đã hết hạn',
-      });
-      return false;
-    }
+  const applyVoucher = useCallback(() => {
+    dispatch({
+      type: CART_ACTION_TYPES.SET_VOUCHER_ERROR,
+      payload: 'Hiện tại hệ thống không còn chương trình voucher nào khả dụng.',
+    });
+    return false;
   }, []);
 
   const removeVoucher = useCallback(() => {

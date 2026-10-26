@@ -57,6 +57,7 @@ export function CartPage() {
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [orderError, setOrderError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(null);
+  const [validated, setValidated] = useState(false);
 
   const handleOpenAuth = (tab = 'login') => {
     setAuthTab(tab);
@@ -69,7 +70,10 @@ export function CartPage() {
       handleOpenAuth('login');
       return;
     }
-    setCustomerName(user?.username || '');
+    setCustomerName(user?.fullName || user?.username || '');
+    if (user?.phoneNumber) setPhoneNumber(user.phoneNumber);
+    if (user?.address) setShippingAddress(user.address);
+    setValidated(false);
     setOrderError('');
     setShowCheckoutModal(true);
   };
@@ -77,16 +81,23 @@ export function CartPage() {
   // Xử lý gửi đơn hàng (thông qua hàm checkout từ useCart, không gọi axios trực tiếp)
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    if (!customerName.trim()) {
-      setOrderError('Vui lòng nhập họ tên người nhận');
-      return;
-    }
-    if (!phoneNumber.trim()) {
-      setOrderError('Vui lòng nhập số điện thoại liên hệ');
-      return;
-    }
-    if (!shippingAddress.trim()) {
-      setOrderError('Vui lòng nhập địa chỉ nhận hàng chi tiết');
+    e.stopPropagation();
+
+    const isNameValid = !!customerName.trim();
+    const isPhoneValid = /^[0-9]{9,11}$/.test(phoneNumber.trim());
+    const isAddressValid = !!shippingAddress.trim();
+
+    if (!isNameValid || !isPhoneValid || !isAddressValid) {
+      setValidated(true);
+      if (!isNameValid) {
+        setOrderError('Vui lòng nhập họ tên người nhận');
+      } else if (!phoneNumber.trim()) {
+        setOrderError('Vui lòng nhập số điện thoại liên hệ');
+      } else if (!isPhoneValid) {
+        setOrderError('Số điện thoại không hợp lệ (gồm 9 - 11 chữ số)');
+      } else if (!isAddressValid) {
+        setOrderError('Vui lòng nhập địa chỉ giao hàng chi tiết');
+      }
       return;
     }
 
@@ -107,8 +118,18 @@ export function CartPage() {
           // Cập nhật tức thì đơn mới vào Order state (0ms latency, không cần chờ reload)
           addNewOrder(result.order);
         }
-        setOrderSuccess(result.order);
         setShowCheckoutModal(false);
+        setValidated(false);
+
+        if (paymentMethod === 'VNPAY' && result.order?.orderCode) {
+          // Chuyển hướng trực tiếp sang trang Quét mã QR thanh toán (payment-service)
+          navigate(`/payment/${result.order.orderCode}`, {
+            state: { order: result.order },
+          });
+          return;
+        }
+
+        setOrderSuccess(result.order);
       } else {
         setOrderError(result.error || 'Không thể tạo đơn hàng, vui lòng thử lại sau.');
       }
@@ -342,7 +363,13 @@ export function CartPage() {
       {/* Modal Đặt Hàng Nhanh (Checkout Modal) */}
       <Modal
         show={showCheckoutModal}
-        onHide={() => !submittingOrder && setShowCheckoutModal(false)}
+        onHide={() => {
+          if (!submittingOrder) {
+            setShowCheckoutModal(false);
+            setValidated(false);
+            setOrderError('');
+          }
+        }}
         centered
         size="lg"
         className="rounded-4"
@@ -354,7 +381,7 @@ export function CartPage() {
           </Modal.Title>
         </Modal.Header>
 
-        <Form onSubmit={handleSubmitOrder}>
+        <Form noValidate onSubmit={handleSubmitOrder}>
           <Modal.Body className="p-4">
             {orderError && (
               <Alert variant="danger" className="rounded-3 py-2 small mb-3">
@@ -369,12 +396,19 @@ export function CartPage() {
                   <Form.Label className="small fw-bold">Họ và tên người nhận *</Form.Label>
                   <Form.Control
                     type="text"
-                    required
                     placeholder="Ví dụ: Nguyễn Văn A"
                     value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
+                    onChange={(e) => {
+                      setCustomerName(e.target.value);
+                      if (orderError) setOrderError('');
+                    }}
+                    isValid={validated && !!customerName.trim()}
+                    isInvalid={validated && !customerName.trim()}
                     className="rounded-3"
                   />
+                  <Form.Control.Feedback type="invalid">
+                    Vui lòng nhập họ và tên người nhận.
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -382,12 +416,19 @@ export function CartPage() {
                   <Form.Label className="small fw-bold">Số điện thoại liên hệ *</Form.Label>
                   <Form.Control
                     type="tel"
-                    required
                     placeholder="Ví dụ: 0912345678"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                      if (orderError) setOrderError('');
+                    }}
+                    isValid={validated && /^[0-9]{9,11}$/.test(phoneNumber.trim())}
+                    isInvalid={validated && (!phoneNumber.trim() || !/^[0-9]{9,11}$/.test(phoneNumber.trim()))}
                     className="rounded-3"
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {phoneNumber.trim() ? 'Số điện thoại không hợp lệ (gồm 9 - 11 chữ số).' : 'Vui lòng nhập số điện thoại liên hệ.'}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -396,12 +437,19 @@ export function CartPage() {
               <Form.Label className="small fw-bold">Địa chỉ giao hàng chi tiết *</Form.Label>
               <Form.Control
                 type="text"
-                required
                 placeholder="Số nhà, tên đường, phường/xã, quận/huyện, TP..."
                 value={shippingAddress}
-                onChange={(e) => setShippingAddress(e.target.value)}
+                onChange={(e) => {
+                  setShippingAddress(e.target.value);
+                  if (orderError) setOrderError('');
+                }}
+                isValid={validated && !!shippingAddress.trim()}
+                isInvalid={validated && !shippingAddress.trim()}
                 className="rounded-3"
               />
+              <Form.Control.Feedback type="invalid">
+                Vui lòng nhập địa chỉ nhận hàng chi tiết.
+              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group controlId="orderNote" className="mb-3">
@@ -470,7 +518,11 @@ export function CartPage() {
             <Button
               variant="light"
               className="rounded-pill px-4"
-              onClick={() => setShowCheckoutModal(false)}
+              onClick={() => {
+                setShowCheckoutModal(false);
+                setValidated(false);
+                setOrderError('');
+              }}
               disabled={submittingOrder}
             >
               Hủy

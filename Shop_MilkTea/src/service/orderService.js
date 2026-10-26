@@ -43,6 +43,15 @@ const orderService = {
   },
 
   /**
+   * Alias: Xem chi tiết đơn hàng theo mã đơn
+   * @param {string} orderCode
+   * @returns {Promise<any>}
+   */
+  getOrderDetail: (orderCode) => {
+    return axiosClient.get(`/api/orders/${orderCode}`);
+  },
+
+  /**
    * Hủy đơn hàng
    * @param {string} orderCode
    * @param {string} [reason]

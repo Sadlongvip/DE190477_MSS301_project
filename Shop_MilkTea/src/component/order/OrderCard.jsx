@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, Row, Col } from 'react-bootstrap';
 import {
   ORDER_STATUS_CONFIG,
@@ -15,6 +16,7 @@ const DEFAULT_IMAGE =
  * OrderCard - Thẻ hiển thị tóm tắt một đơn hàng trong danh sách
  */
 export function OrderCard({ order, onViewDetail, onCancelOrder, onReorder }) {
+  const navigate = useNavigate();
   const statusCfg = ORDER_STATUS_CONFIG[order.status] || {
     label: order.status,
     badgeClass: 'bg-secondary text-white',
@@ -173,6 +175,19 @@ export function OrderCard({ order, onViewDetail, onCancelOrder, onReorder }) {
 
         {/* Các nút hành động */}
         <div className="d-flex align-items-center gap-2 flex-wrap">
+          {/* Nút Quét QR Thanh Toán nếu là đơn VNPay chưa thanh toán */}
+          {!isCancelled && order.paymentMethod === 'VNPAY' && order.paymentStatus !== 'PAID' && (
+            <Button
+              variant="warning"
+              size="sm"
+              className="rounded-pill px-3 fw-bold text-dark d-inline-flex align-items-center gap-1 shadow-sm"
+              onClick={() => navigate(`/payment/${order.orderCode}`)}
+            >
+              <i className="bi bi-qr-code-scan"></i>
+              <span>Quét QR Thanh Toán</span>
+            </Button>
+          )}
+
           {/* Nút Hủy đơn hàng: Chỉ khi đơn PENDING */}
           {isPending && (
             <Button

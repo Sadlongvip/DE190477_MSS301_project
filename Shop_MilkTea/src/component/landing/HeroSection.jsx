@@ -67,12 +67,12 @@ export function HeroSection({ onOpenCart }) {
                 <span>Xem Thực Đơn Ngay</span>
               </Button>
               <Button
-                href="#promo"
+                href="#why-us"
                 variant="outline-secondary"
                 className="btn-tea-secondary px-4 py-3 fs-6 d-flex align-items-center gap-2"
               >
-                <i className="bi bi-ticket-perforated fs-5"></i>
-                <span>Săn Voucher 25k</span>
+                <i className="bi bi-stars fs-5"></i>
+                <span>Vì Sao Chọn Chúng Tôi</span>
               </Button>
             </div>
 
