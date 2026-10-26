@@ -9,6 +9,7 @@ import AdminReportPage from '../page/admin/AdminReportPage';
 import AdminOrderPage from '../page/admin/AdminOrderPage';
 import AdminAccountPage from '../page/admin/AdminAccountPage';
 import AdminChangePasswordPage from '../page/admin/AdminChangePasswordPage';
+import StaffPosPage from '../page/staff/StaffPosPage';
 import AdminRoute from '../component/auth/AdminRoute';
 import ProtectedRoute from '../component/auth/ProtectedRoute';
 import OrderPage from '../page/OrderPage';
@@ -21,6 +22,7 @@ import PaymentReturnPage from '../page/PaymentReturnPage';
  * - /menu : Trang Thực Đơn
  * - /cart : Trang Giỏ Hàng
  * - /orders : Lịch Sử Đơn Hàng Của Khách
+ * - /staff/pos : Trang Gọi Món Tại Quầy cho Nhân viên (POS)
  * - /payment/:orderCode : Trang Quét Mã QR Thanh Toán
  * - /payment/vnpay-return : Trang Tiếp Nhận Kết Quả Thanh Toán VNPay
  * - /admin : Chuyển hướng tới /admin/dashboard
@@ -49,6 +51,16 @@ export function AppRouter() {
         <Route path="/payment/vnpay-return" element={<PaymentReturnPage />} />
         <Route path="/payment/:orderCode" element={<PaymentPage />} />
 
+        {/* Tuyến đường Bán hàng tại quầy cho Nhân viên & Admin */}
+        <Route
+          path="/staff/pos"
+          element={
+            <AdminRoute>
+              <StaffPosPage />
+            </AdminRoute>
+          }
+        />
+
         {/* Các tuyến đường dành riêng cho ADMIN (Bảo vệ bởi AdminRoute) */}
         <Route
           path="/admin/dashboard"
@@ -58,6 +70,7 @@ export function AppRouter() {
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/report"
           element={

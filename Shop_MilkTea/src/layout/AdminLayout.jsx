@@ -19,6 +19,13 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
       icon: 'bi-speedometer2',
     },
     {
+      path: '/staff/pos',
+      label: 'Bán Hàng Tại Quầy (POS)',
+      icon: 'bi-shop',
+      badge: 'POS',
+      badgeBg: 'success',
+    },
+    {
       path: '/admin/report',
       label: 'Báo Cáo & Biểu Đồ',
       icon: 'bi-pie-chart-fill',
@@ -41,6 +48,7 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
       icon: 'bi-people-fill',
     },
   ];
+
 
   return (
     <div className="d-flex min-vh-100 bg-light" style={{ overflowX: 'hidden' }}>
