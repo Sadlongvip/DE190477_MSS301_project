@@ -12,6 +12,8 @@ import AdminChangePasswordPage from '../page/admin/AdminChangePasswordPage';
 import AdminRoute from '../component/auth/AdminRoute';
 import ProtectedRoute from '../component/auth/ProtectedRoute';
 import OrderPage from '../page/OrderPage';
+import PaymentPage from '../page/PaymentPage';
+import PaymentReturnPage from '../page/PaymentReturnPage';
 
 /**
  * AppRouter - Cấu hình định tuyến trang cho toàn bộ ứng dụng Shop_MilkTea
@@ -19,6 +21,8 @@ import OrderPage from '../page/OrderPage';
  * - /menu : Trang Thực Đơn
  * - /cart : Trang Giỏ Hàng
  * - /orders : Lịch Sử Đơn Hàng Của Khách
+ * - /payment/:orderCode : Trang Quét Mã QR Thanh Toán
+ * - /payment/vnpay-return : Trang Tiếp Nhận Kết Quả Thanh Toán VNPay
  * - /admin : Chuyển hướng tới /admin/dashboard
  * - /admin/dashboard : Báo Cáo & Thống Kê Tổng Quan (Admin Landing Page)
  * - /admin/menu : Quản Lý Thực Đơn & Kho Hàng
@@ -42,6 +46,8 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route path="/payment/vnpay-return" element={<PaymentReturnPage />} />
+        <Route path="/payment/:orderCode" element={<PaymentPage />} />
 
         {/* Các tuyến đường dành riêng cho ADMIN (Bảo vệ bởi AdminRoute) */}
         <Route

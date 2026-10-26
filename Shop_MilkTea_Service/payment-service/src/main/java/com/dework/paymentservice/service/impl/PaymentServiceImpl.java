@@ -111,8 +111,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 3. Kiểm tra số tiền
         long vnpAmount = Long.parseLong(params.get("vnp_Amount")) / 100;
-        if (vnpAmount != (long) transaction.getAmount()) {
-            log.warn("Invalid amount for TxnRef {}. Expected: {}, Received: {}", transactionCode, transaction.getAmount(), vnpAmount);
+        long expectedAmount = transaction.getAmount() != null ? transaction.getAmount().longValue() : 0L;
+        if (vnpAmount != expectedAmount) {
+            log.warn("Invalid amount for TxnRef {}. Expected: {}, Received: {}", transactionCode, expectedAmount, vnpAmount);
             response.put("RspCode", "04");
             response.put("Message", "Invalid Amount");
             return response;

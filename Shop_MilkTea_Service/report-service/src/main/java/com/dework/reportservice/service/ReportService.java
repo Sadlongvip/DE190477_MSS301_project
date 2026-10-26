@@ -89,11 +89,11 @@ public class ReportService {
         SummaryStatsProjection stats = reportOrderRepository.getSummaryStats(range.startDateTime(), range.endDateTime());
         if (stats == null) {
             return DashboardSummaryDto.builder()
-                    .totalOrders(0)
+                    .totalOrders(0L)
                     .totalRevenue(0.0)
-                    .completedOrders(0)
-                    .cancelledOrders(0)
-                    .pendingOrders(0)
+                    .completedOrders(0L)
+                    .cancelledOrders(0L)
+                    .pendingOrders(0L)
                     .averageOrderValue(0.0)
                     .totalDiscountAmount(0.0)
                     .build();
