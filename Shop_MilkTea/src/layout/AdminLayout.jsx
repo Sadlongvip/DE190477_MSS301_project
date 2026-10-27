@@ -20,14 +20,14 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
     },
     {
       path: '/staff/pos',
-      label: 'Bán Hàng Tại Quầy (POS)',
+      label: 'Bán Hàng Tại Quầy',
       icon: 'bi-shop',
       badge: 'POS',
       badgeBg: 'success',
     },
     {
       path: '/admin/report',
-      label: 'Báo Cáo & Biểu Đồ',
+      label: 'Báo Cáo & Thống Kê',
       icon: 'bi-pie-chart-fill',
       badge: 'Biểu đồ',
       badgeBg: 'warning',
@@ -56,7 +56,7 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
       <aside
         className="text-white d-flex flex-column flex-shrink-0 p-3 shadow"
         style={{
-          width: '260px',
+          width: '280px',
           background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
           position: 'fixed',
           top: 0,
@@ -69,15 +69,15 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
       >
         {/* Brand */}
         <div
-          className="d-flex align-items-center gap-2 pb-3 mb-3 border-bottom border-secondary border-opacity-25"
+          className="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom border-secondary border-opacity-25"
           onClick={() => navigate('/admin/dashboard')}
           style={{ cursor: 'pointer' }}
         >
           <div
-            className="rounded-circle d-flex align-items-center justify-content-center text-white"
+            className="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-sm"
             style={{
-              width: '38px',
-              height: '38px',
+              width: '40px',
+              height: '40px',
               background: 'linear-gradient(135deg, #d97706, #b45309)',
             }}
           >
@@ -85,23 +85,21 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
           </div>
           <div>
             <span className="fw-bold fs-6 text-white d-block lh-1">MilkTea Admin</span>
-            <small className="text-warning" style={{ fontSize: '0.7rem' }}>
+            <small className="text-warning fw-semibold" style={{ fontSize: '0.68rem', letterSpacing: '0.5px' }}>
               PORTAL QUẢN TRỊ VIÊN
             </small>
           </div>
         </div>
 
-
-
         {/* Danh sách điều hướng */}
-        <Nav className="nav-pills flex-column mb-auto gap-1">
+        <Nav className="nav-pills flex-column mb-auto gap-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Nav.Item key={item.path}>
                 <Nav.Link
                   onClick={() => navigate(item.path)}
-                  className={`d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3 text-nowrap ${
+                  className={`d-flex align-items-center justify-content-between px-3 py-2 rounded-3 text-nowrap ${
                     isActive
                       ? 'bg-warning text-dark fw-bold shadow-sm'
                       : 'text-light opacity-75 hover-opacity-100'
@@ -112,12 +110,19 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
                     transition: 'all 0.2s ease',
                   }}
                 >
-                  <div className="d-flex align-items-center gap-2.5">
-                    <i className={`bi ${item.icon} fs-5`}></i>
-                    <span>{item.label}</span>
+                  <div className="d-flex align-items-center">
+                    <div
+                      className={`rounded-2 d-flex align-items-center justify-content-center me-3 flex-shrink-0 ${
+                        isActive ? 'bg-dark bg-opacity-10' : 'bg-white bg-opacity-10'
+                      }`}
+                      style={{ width: '32px', height: '32px' }}
+                    >
+                      <i className={`bi ${item.icon} fs-6`}></i>
+                    </div>
+                    <span className="fw-medium">{item.label}</span>
                   </div>
                   {item.badge && (
-                    <Badge bg={item.badgeBg || 'secondary'} pill style={{ fontSize: '0.65rem' }}>
+                    <Badge bg={item.badgeBg || 'secondary'} pill style={{ fontSize: '0.68rem', padding: '4px 8px' }}>
                       {item.badge}
                     </Badge>
                   )}
@@ -133,17 +138,17 @@ export function AdminLayout({ children, pageTitle = 'Trang Quản Trị' }) {
             variant="outline-light"
             size="sm"
             onClick={() => navigate('/')}
-            className="d-flex align-items-center justify-content-center gap-2 rounded-3 text-start py-2 border-opacity-25"
-            style={{ fontSize: '0.82rem' }}
+            className="d-flex align-items-center justify-content-center gap-2 rounded-3 text-start py-2.5 border-opacity-25"
+            style={{ fontSize: '0.84rem' }}
           >
-            <i className="bi bi-shop"></i>
+            <i className="bi bi-shop fs-6"></i>
             <span>Về Cửa Hàng Khách</span>
           </Button>
         </div>
       </aside>
 
       {/* 2. KHU VỰC NỘI DUNG CHÍNH (MAIN CONTENT) */}
-      <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0, marginLeft: '260px' }}>
+      <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0, marginLeft: '280px' }}>
         {/* TOPBAR */}
         <Navbar
           bg="white"
