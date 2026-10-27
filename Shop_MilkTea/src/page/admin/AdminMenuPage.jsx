@@ -27,7 +27,7 @@ import {
   validateSizeForm,
 } from '../../validation/menuValidation';
 
-const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1558857563-b37cfb8cb468?auto=format&fit=crop&w=600&q=80';
+const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=600&auto=format&fit=crop&q=80';
 
 export function AdminMenuPage() {
   const {

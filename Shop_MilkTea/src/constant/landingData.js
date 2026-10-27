@@ -3,6 +3,9 @@
  * Hình ảnh chất lượng cao tối ưu cho đồ uống trà sữa
  */
 
+export const DEFAULT_TEA_IMAGE =
+  'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=600&auto=format&fit=crop&q=80';
+
 export const CATEGORIES = [
   { id: 'all', name: '✨ Tất Cả Món', icon: 'bi-grid-fill' },
   { id: 'best-seller', name: '🔥 Bán Chạy Nhất', icon: 'bi-fire' },
@@ -20,7 +23,7 @@ export const PRODUCTS = [
     originalPrice: 55000,
     rating: 4.9,
     reviewsCount: 382,
-    image: 'https://images.unsplash.com/photo-1558857563-b371f31ca910?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?w=600&auto=format&fit=crop&q=80',
     tag: 'Bán chạy số 1',
     tagColor: 'danger',
     description: 'Trà đen Ceylon đậm vị kết hợp trân châu thủ công nấu đường thốt nốt dẻo thơm và sữa tươi thanh trùng béo ngậy.',

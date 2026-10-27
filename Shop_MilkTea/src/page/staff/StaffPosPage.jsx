@@ -20,7 +20,7 @@ import orderService from '../../service/orderService';
 import { formatPrice } from '../../util/formatPrice';
 
 const DEFAULT_TEA_IMAGE =
-  'https://images.unsplash.com/photo-1558857563-b37cfb8cb468?auto=format&fit=crop&w=600&q=80';
+  'https://images.unsplash.com/photo-1541658016709-82535e94bc69?auto=format&fit=crop&w=600&q=80';
 
 const QUICK_CASH_OPTIONS = [50000, 100000, 200000, 500000];
 
