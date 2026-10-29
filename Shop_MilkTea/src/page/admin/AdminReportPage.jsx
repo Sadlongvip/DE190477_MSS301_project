@@ -15,6 +15,7 @@ import {
 import AdminLayout from '../../layout/AdminLayout';
 import useReport from '../../hook/useReport';
 import { formatPrice } from '../../util/formatPrice';
+import { DEFAULT_TEA_IMAGE } from '../../constant/landingData';
 
 /**
  * Helper: Tạo đường cong/cung SVG cho biểu đồ Donut (Bánh kem)
@@ -890,6 +891,10 @@ export function AdminReportPage() {
                                       alt=""
                                       className="rounded-3 shadow-sm object-fit-cover"
                                       style={{ width: '38px', height: '38px' }}
+                                      onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = DEFAULT_TEA_IMAGE;
+                                      }}
                                     />
                                   )}
                                   <div>

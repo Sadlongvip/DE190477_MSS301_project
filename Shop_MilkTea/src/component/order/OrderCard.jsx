@@ -10,7 +10,7 @@ import {
 } from '../../util/orderUtils';
 
 const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1558857563-b37cfb8cb468?auto=format&fit=crop&w=300&q=80';
+  'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=300&auto=format&fit=crop&q=80';
 
 /**
  * OrderCard - Thẻ hiển thị tóm tắt một đơn hàng trong danh sách

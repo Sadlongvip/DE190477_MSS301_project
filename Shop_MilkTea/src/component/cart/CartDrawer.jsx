@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Offcanvas, Button, Badge, Form, InputGroup, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import useCart from '../../hook/useCart';
+import { DEFAULT_TEA_IMAGE } from '../../constant/landingData';
 
 /**
  * CartDrawer - Ngăn kéo xem giỏ hàng phong cách Offcanvas
@@ -195,10 +196,14 @@ export function CartDrawer({
                   className="p-3 rounded-4 bg-light border d-flex gap-3 position-relative"
                 >
                   <img
-                    src={item.image}
+                    src={item.image || DEFAULT_TEA_IMAGE}
                     alt={item.name}
                     className="rounded-3 object-fit-cover"
                     style={{ width: '70px', height: '70px' }}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_TEA_IMAGE;
+                    }}
                   />
                   <div className="flex-grow-1">
                     <div className="d-flex justify-content-between align-items-start pr-3">

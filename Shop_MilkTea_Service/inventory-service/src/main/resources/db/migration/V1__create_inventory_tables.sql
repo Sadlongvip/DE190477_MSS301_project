@@ -1,4 +1,4 @@
--- Migration V1: Tạo toàn bộ bảng cho inventory-service (category_tea, tea_size, milk_tea, topping)
+-- Migration V1: Tạo toàn bộ bảng cho inventory-service (category_tea, tea_size, milk_tea, topping, t_inventory_reservations)
 -- Đầy đủ các cột audit: created_at, created_by, updated_at, updated_by và charset utf8mb4
 
 CREATE TABLE IF NOT EXISTS category_tea (
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS milk_tea (
     description TEXT,
     price DOUBLE NOT NULL,
     image VARCHAR(500),
+    stock_quantity INT NOT NULL DEFAULT 100,
     is_available BOOLEAN NOT NULL DEFAULT TRUE,
     category_id BIGINT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -47,4 +48,17 @@ CREATE TABLE IF NOT EXISTS topping (
     created_by VARCHAR(100) DEFAULT 'SYSTEM',
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     updated_by VARCHAR(100) DEFAULT 'SYSTEM'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS t_inventory_reservations (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_code VARCHAR(100) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL DEFAULT 'RESERVED',
+    items_json TEXT,
+    reason VARCHAR(500),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(100) DEFAULT 'SYSTEM',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(100) DEFAULT 'SYSTEM',
+    INDEX idx_reservation_order_code (order_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

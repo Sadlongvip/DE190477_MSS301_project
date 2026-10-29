@@ -108,7 +108,7 @@ export function HeroSection({ onOpenCart }) {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1558857563-b371f31ca910?w=800&auto=format&fit=crop&q=80"
+                  src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=800&auto=format&fit=crop&q=80"
                   alt="Trà sữa trân châu hoàng kim"
                   className="w-100 h-100 object-fit-cover"
                 />
