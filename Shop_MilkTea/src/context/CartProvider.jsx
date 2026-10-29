@@ -5,7 +5,6 @@ import {
   cartReducer,
   initialCartState,
   CART_ACTION_TYPES,
-  normalizeCartItem,
 } from '../reduce/cartReducer';
 import cartService from '../service/cartService';
 import orderService from '../service/orderService';
@@ -137,12 +136,10 @@ export function CartProvider({ children }) {
     async (cartItemIdOrIndex, newQty) => {
       const quantity = Math.max(0, Number(newQty) || 0);
 
-      let targetIndex = -1;
-      if (typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length) {
-        targetIndex = cartItemIdOrIndex;
-      } else {
-        targetIndex = state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
-      }
+      const targetIndex =
+        typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length
+          ? cartItemIdOrIndex
+          : state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
 
       if (targetIndex === -1) return;
 
@@ -188,12 +185,10 @@ export function CartProvider({ children }) {
    */
   const removeItem = useCallback(
     async (cartItemIdOrIndex) => {
-      let targetIndex = -1;
-      if (typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length) {
-        targetIndex = cartItemIdOrIndex;
-      } else {
-        targetIndex = state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
-      }
+      const targetIndex =
+        typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length
+          ? cartItemIdOrIndex
+          : state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
 
       if (targetIndex === -1) return;
 
@@ -350,7 +345,7 @@ export function CartProvider({ children }) {
         return { success: false, error: errorMsg };
       }
     },
-    [state.items, state.appliedVoucher, shippingFee, discountAmount, user?.username]
+    [state.items, state.appliedVoucher, shippingFee, discountAmount, user]
   );
 
   const clearLastCompletedOrder = useCallback(() => {

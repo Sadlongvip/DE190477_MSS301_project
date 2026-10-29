@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Badge, Button, Row, Col } from 'react-bootstrap';
+import { Card, Badge, Button } from 'react-bootstrap';
 import {
   ORDER_STATUS_CONFIG,
   PAYMENT_STATUS_CONFIG,
@@ -96,6 +96,8 @@ export function OrderCard({ order, onViewDetail, onCancelOrder, onReorder }) {
                   <img
                     src={item.image || DEFAULT_IMAGE}
                     alt={item.milkTeaName}
+                    loading="lazy"
+                    decoding="async"
                     className="rounded-3 object-fit-cover shadow-xs flex-shrink-0"
                     style={{ width: '56px', height: '56px' }}
                     onError={(e) => {

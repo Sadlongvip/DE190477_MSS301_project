@@ -346,6 +346,8 @@ export function MenuPage() {
                           <img
                             src={tea.image || DEFAULT_TEA_IMAGE}
                             alt={tea.name}
+                            loading="lazy"
+                            decoding="async"
                             onError={(e) => {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = DEFAULT_TEA_IMAGE;

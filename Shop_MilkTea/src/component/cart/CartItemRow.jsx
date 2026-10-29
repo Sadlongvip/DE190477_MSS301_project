@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 import { DEFAULT_TEA_IMAGE } from '../../constant/landingData';
 
 /**
@@ -17,6 +17,8 @@ export function CartItemRow({ item, index, onUpdateQuantity, onRemoveItem }) {
         <img
           src={item.image || DEFAULT_TEA_IMAGE}
           alt={item.name}
+          loading="lazy"
+          decoding="async"
           className="rounded-4 object-fit-cover shadow-sm cart-item-img"
           style={{ width: '88px', height: '88px' }}
           onError={(e) => {

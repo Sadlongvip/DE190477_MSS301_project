@@ -19,7 +19,6 @@ export function CartPage() {
   const navigate = useNavigate();
   const {
     cartItems,
-    loading: cartLoading,
     totalQuantity,
     subTotal,
     shippingFee,

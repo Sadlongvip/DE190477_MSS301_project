@@ -5,7 +5,7 @@ import { Container, Row, Col, Button } from 'react-bootstrap';
  * Hero Section - Banner chính ấn tượng cho Shop_MilkTea
  * Tích hợp hệ thống màu accent (Caramel, Hồng đào, Matcha) & hiệu ứng animation mượt mà
  */
-export function HeroSection({ onOpenCart }) {
+export function HeroSection({ onOpenCart: _onOpenCart }) {
   return (
     <section id="home" className="position-relative py-5 overflow-hidden" style={{ background: 'linear-gradient(180deg, #fffbeb 0%, #faf7f2 100%)' }}>
       {/* Decorative blurred background animated lights (Caramel, Hồng đào, Matcha) */}
@@ -126,6 +126,8 @@ export function HeroSection({ onOpenCart }) {
                 <img
                   src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=800&auto=format&fit=crop&q=80"
                   alt="Trà sữa trân châu hoàng kim"
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-100 h-100 object-fit-cover"
                 />
               </div>

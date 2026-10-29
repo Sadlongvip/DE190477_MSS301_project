@@ -10,7 +10,7 @@ const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1541658016709-82535
  * Ưu tiên hiển thị dữ liệu từ Backend thông qua InventoryContext (API Gateway)
  * Có Fallback an toàn sang dữ liệu mẫu nếu Backend chưa sẵn sàng.
  */
-export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
+export function FeaturedMenu({ onSelectProduct, onQuickAdd: _onQuickAdd }) {
   const { categories: beCategories, milkTeas: beMilkTeas } = useContext(InventoryContext) || {};
 
   const [activeCategory, setActiveCategory] = useState('all');

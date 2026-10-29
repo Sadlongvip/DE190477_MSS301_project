@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, Badge, Spinner } from 'react-bootstrap';
 import MainLayout from '../layout/MainLayout';
 import useCart from '../hook/useCart';
@@ -14,15 +14,15 @@ export function PaymentReturnPage() {
   const navigate = useNavigate();
   const { totalQuantity } = useCart();
 
-  const [processing, setProcessing] = useState(true);
-  const [ipnSynced, setIpnSynced] = useState(false);
-
   const responseCode = searchParams.get('vnp_ResponseCode');
   const txnRef = searchParams.get('vnp_TxnRef');
   const rawAmount = searchParams.get('vnp_Amount');
   const bankCode = searchParams.get('vnp_BankCode');
   const transactionNo = searchParams.get('vnp_TransactionNo');
   const orderInfo = searchParams.get('vnp_OrderInfo') || '';
+
+  const hasResponseCode = Boolean(responseCode);
+  const [processing, setProcessing] = useState(hasResponseCode);
 
   const isSuccess = responseCode === '00';
   const amount = rawAmount ? Math.round(Number(rawAmount) / 100) : 0;
@@ -32,27 +32,34 @@ export function PaymentReturnPage() {
   const detectedOrderCode = orderCodeMatch ? orderCodeMatch[0] : null;
 
   useEffect(() => {
+    if (!hasResponseCode) {
+      return;
+    }
+
+    let isMounted = true;
+
     // Tự động đồng bộ IPN với payment-service để đảm bảo DB luôn ghi nhận ngay
     const syncCallback = async () => {
       try {
         const allParams = Object.fromEntries(searchParams.entries());
         if (allParams.vnp_SecureHash) {
           await paymentService.processVNPayIpn(allParams);
-          setIpnSynced(true);
         }
       } catch (err) {
         console.warn('Đồng bộ IPN cục bộ (có thể IPN đã được xử lý):', err.message);
       } finally {
-        setProcessing(false);
+        if (isMounted) {
+          setProcessing(false);
+        }
       }
     };
 
-    if (searchParams.get('vnp_ResponseCode')) {
-      syncCallback();
-    } else {
-      setProcessing(false);
-    }
-  }, [searchParams]);
+    syncCallback();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [searchParams, hasResponseCode]);
 
   return (
     <MainLayout cartCount={totalQuantity} onOpenCart={() => navigate('/cart')}>

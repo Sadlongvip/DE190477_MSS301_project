@@ -164,6 +164,8 @@ export function OrderDetailModal({ show, onHide, order, onCancelOrder, onReorder
                         <img
                           src={it.image || DEFAULT_IMAGE}
                           alt={it.milkTeaName}
+                          loading="lazy"
+                          decoding="async"
                           className="rounded-3 object-fit-cover shadow-xs"
                           style={{ width: '48px', height: '48px' }}
                           onError={(e) => {

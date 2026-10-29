@@ -6,7 +6,7 @@ import { PROMOTIONS } from '../../constant/landingData';
  * Promo Banner Section - Khu vực Voucher & Khuyến mãi đặc biệt
  * Tích hợp hệ thống màu gradient voucher & tương tác sao chép mã tiện lợi
  */
-export function PromoBanner({ onOpenCart }) {
+export function PromoBanner({ onOpenCart: _onOpenCart }) {
   const [copiedCode, setCopiedCode] = useState('');
 
   const handleCopy = (code) => {
