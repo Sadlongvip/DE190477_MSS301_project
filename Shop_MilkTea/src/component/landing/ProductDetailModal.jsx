@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Modal, Button, Form, Badge, Row, Col } from 'react-bootstrap';
 import { InventoryContext } from '../../context/InventoryContext';
 import { TOPPINGS as FALLBACK_TOPPINGS, DEFAULT_TEA_IMAGE } from '../../constant/landingData';
@@ -25,8 +25,8 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [quantity, setQuantity] = useState(1);
 
-  // Reset state when product changes
-  useEffect(() => {
+  // Reset state when modal opens
+  const handleModalShow = () => {
     if (product) {
       const defaultSize = availableSizes.find((s) => s.isDefault && s.isAvailable !== false) || availableSizes[0];
       setSize(defaultSize ? defaultSize.code : 'M');
@@ -35,7 +35,7 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
       setSelectedToppings([]);
       setQuantity(1);
     }
-  }, [product, availableSizes]);
+  };
 
   if (!product) return null;
 
@@ -85,7 +85,7 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered size="lg" className="rounded-4">
+    <Modal show={show} onShow={handleModalShow} onHide={onHide} centered size="lg" className="rounded-4">
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="fw-bold fs-5">Tùy Chọn Đồ Uống</Modal.Title>
       </Modal.Header>
@@ -98,6 +98,8 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
               <img
                 src={product.image || DEFAULT_TEA_IMAGE}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 className="w-100 h-100 object-fit-cover"
                 onError={(e) => {
                   e.currentTarget.onerror = null;

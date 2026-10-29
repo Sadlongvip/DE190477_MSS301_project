@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Nav } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
 import {
@@ -46,16 +46,14 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
 
   const [formFeedback, setFormFeedback] = useState({ success: '', error: '' });
 
-  // Reset form và lỗi khi mở modal
-  useEffect(() => {
-    if (show) {
-      setActiveTab(initialTab);
-      clearError();
-      setFormFeedback({ success: '', error: '' });
-      setLoginErrors({});
-      setRegisterErrors({});
-    }
-  }, [show, initialTab, clearError]);
+  // Reset form và lỗi khi modal mở (sử dụng callback onShow của Modal, không kích hoạt useEffect)
+  const handleModalShow = () => {
+    setActiveTab(initialTab);
+    clearError();
+    setFormFeedback({ success: '', error: '' });
+    setLoginErrors({});
+    setRegisterErrors({});
+  };
 
   /* =====================================================================
    * XỬ LÝ SỰ KIỆN FOCUS / BLUR CHO FORM LOGIN
@@ -167,7 +165,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered backdrop="static" className="rounded-4">
+    <Modal show={show} onShow={handleModalShow} onHide={onHide} centered backdrop="static" className="rounded-4">
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="fw-bold fs-5 d-flex align-items-center gap-2">
           <i className="bi bi-cup-straw text-warning fs-4"></i>

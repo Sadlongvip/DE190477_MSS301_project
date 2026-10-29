@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Row, Col, Card, Button, Table, Badge, ButtonGroup, Spinner, ProgressBar } from 'react-bootstrap';
+import { Row, Col, Card, Button, Table, Badge, Spinner, ProgressBar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../layout/AdminLayout';
 import useReport from '../../hook/useReport';
@@ -22,7 +22,6 @@ export function AdminDashboardPage() {
 
   const topSelling = dashboardData?.topSellingProducts || [];
   const orderDistribution = dashboardData?.orderStatusDistribution || [];
-  const dailyTrend = dashboardData?.dailyRevenueTrend || [];
 
   return (
     <AdminLayout pageTitle="Báo Cáo & Thống Kê Hoạt Động Hệ Thống">

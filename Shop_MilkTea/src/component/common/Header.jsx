@@ -90,7 +90,7 @@ export function Header({ cartCount, onOpenCart, onOpenAuth }) {
 
             {/* 3. Giỏ Hàng */}
             <Nav.Link
-              onClick={() => handleNavigate('/cart')}
+              onClick={onOpenCart || (() => handleNavigate('/cart'))}
               className={`px-3 py-1.5 rounded-pill hover-link text-nowrap d-flex align-items-center ${
                 isCart ? 'fw-bold text-warning active-nav' : 'text-dark'
               }`}

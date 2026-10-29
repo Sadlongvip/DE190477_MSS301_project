@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Alert, Button, Spinner } from 'react-bootstrap';
+import { Container, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hook/useAuth';
 import LoginModal from './LoginModal';

@@ -506,3 +506,561 @@ h1, h2, h3, h4, h5, h6 {
   transform: scale(0.95);
 }
 
+
+
+/* ================================================================
+   SHOP MILKTEA - COMPREHENSIVE ACCENT SYSTEM & UI DECORATION
+   Các tone màu mở rộng:
+   - Nâu Trà Sữa & Vàng Caramel (Signature)
+   - Hồng Đào & Dâu Tây (Peach Pink & Strawberry) 🍑
+   - Xanh Uji Matcha & Trà Xanh (Matcha Green) 🍵
+   - Tím Khoai Môn & Trân Châu (Taro Purple) 🫐
+   - Cam Xoài & Chanh Leo Nhiệt Đới (Mango Tropical) 🥭
+   - Xanh Bạc Hà Mát Lạnh (Mint Ice & Ocean Breeze) 🌿
+   ================================================================ */
+
+/* ── 0. Bổ sung CSS Variables & Color Palettes ── */
+:root {
+  /* 🍑 1. Hồng Đào & Dâu Tây (Peach Pink & Berry) */
+  --peach-pink:        #fb7185;
+  --peach-dark:        #e11d48;
+  --peach-light:       #fff1f2;
+  --peach-border:      #fda4af;
+
+  /* 🍵 2. Xanh Uji Matcha (Matcha Green) */
+  --matcha-green:      #15803d;
+  --matcha-mid:        #22c55e;
+  --matcha-light:      #dcfce7;
+  --matcha-pale:       #f0fdf4;
+  --matcha-border:     #86efac;
+
+  /* 🫐 3. Tím Khoai Môn & Trân Châu (Taro Purple) */
+  --taro-purple:       #7c3aed;
+  --taro-mid:          #8b5cf6;
+  --taro-light:        #ede9fe;
+  --taro-border:       #c4b5fd;
+
+  /* 🥭 4. Cam Xoài & Chanh Leo (Mango & Tropical) */
+  --mango-orange:      #ea580c;
+  --mango-mid:         #f97316;
+  --mango-light:       #ffedd5;
+  --mango-border:      #fed7aa;
+
+  /* 🌿 5. Bạc Hà Mát Lạnh (Mint Ice & Teal) */
+  --mint-teal:         #0891b2;
+  --mint-mid:          #06b6d4;
+  --mint-light:        #ecfeff;
+  --mint-border:       #a5f3fc;
+
+  /* ── Gradient Presets ── */
+  --gradient-tea:          linear-gradient(135deg, #854d0e 0%, #d97706 100%);
+  --gradient-caramel:      linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  --gradient-tea-light:    linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+  --gradient-peach:        linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+  --gradient-peach-soft:   linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+  --gradient-matcha:       linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  --gradient-matcha-soft:  linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  --gradient-taro:         linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  --gradient-taro-soft:    linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  --gradient-mango:        linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  --gradient-mango-soft:   linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  --gradient-mint:         linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  --gradient-mint-soft:    linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  --gradient-rainbow-tea:  linear-gradient(135deg, #f59e0b 0%, #fb7185 30%, #7c3aed 65%, #22c55e 100%);
+
+  /* ── Radii & Transitions ── */
+  --radius-sm:     8px;
+  --radius-md:     16px;
+  --radius-lg:     24px;
+  --radius-pill:   9999px;
+
+  --transition-fast:   all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── 1. Gradient Text Utilities ── */
+.text-gradient-tea {
+  background: var(--gradient-tea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-caramel {
+  background: var(--gradient-caramel);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-peach {
+  background: var(--gradient-peach);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-matcha {
+  background: var(--gradient-matcha);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-taro {
+  background: var(--gradient-taro);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-mango {
+  background: var(--gradient-mango);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 2. Brand Section Badges (Huy hiệu tiêu đề các section) ── */
+.section-badge-tea {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--gradient-tea-light);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #92400e;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.12);
+}
+
+.section-badge-peach {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--gradient-peach-soft);
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #be123c;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.12);
+}
+
+.section-badge-matcha {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--gradient-matcha-soft);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #15803d;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(21, 128, 61, 0.12);
+}
+
+.section-badge-taro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--gradient-taro-soft);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5b21b6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
+}
+
+.section-badge-mango {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--gradient-mango-soft);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #c2410c;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.12);
+}
+
+/* ── 3. Animated Hero Blobs & Decorations ── */
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(18px, -24px) scale(1.06); }
+  66%       { transform: translate(-14px, 12px) scale(0.96); }
+}
+
+.hero-blob-caramel {
+  animation: blobFloat 9s ease-in-out infinite;
+  filter: blur(65px);
+  pointer-events: none;
+}
+
+.hero-blob-peach {
+  animation: blobFloat 8s ease-in-out infinite 1s;
+  filter: blur(75px);
+  pointer-events: none;
+}
+
+.hero-blob-matcha {
+  animation: blobFloat 10s ease-in-out infinite 2s;
+  filter: blur(85px);
+  pointer-events: none;
+}
+
+.hero-blob-taro {
+  animation: blobFloat 9.5s ease-in-out infinite 1.5s;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+/* Stat card in Hero */
+.hero-stat-item {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  transition: var(--transition-smooth);
+}
+
+.hero-stat-item:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: #f59e0b;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(133, 77, 14, 0.1);
+}
+
+/* Floating badge animations */
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+.hero-floating-badge {
+  animation: floatBadge 3.2s ease-in-out infinite;
+}
+
+.hero-floating-badge-alt {
+  animation: floatBadge 3.8s ease-in-out infinite 0.6s;
+}
+
+/* ── 4. Enhanced Product Card & Elevation ── */
+.product-card {
+  border: 1px solid rgba(229, 231, 235, 0.7) !important;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, border-color 0.35s ease !important;
+}
+
+.product-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 20px 40px rgba(133, 77, 14, 0.13), 0 0 0 1px rgba(245, 158, 11, 0.2) !important;
+}
+
+.badge-custom-tag {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.badge-peach {
+  background: var(--gradient-peach) !important;
+  color: #fff !important;
+}
+
+.badge-matcha {
+  background: var(--gradient-matcha) !important;
+  color: #fff !important;
+}
+
+.badge-taro {
+  background: var(--gradient-taro) !important;
+  color: #fff !important;
+}
+
+.badge-mango {
+  background: var(--gradient-mango) !important;
+  color: #fff !important;
+}
+
+/* ── 5. Category Buttons Shimmer & Variant Colors ── */
+@keyframes shimmerSlide {
+  0%   { background-position: -250px center; }
+  100% { background-position:  250px center; }
+}
+
+.category-menu-btn.active {
+  background-image: linear-gradient(
+    90deg,
+    #d97706 0%, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, #d97706 100%
+  );
+  background-size: 250% auto;
+  animation: shimmerSlide 2.8s linear infinite;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35) !important;
+}
+
+/* ── 6. Feature Icon Box & Accents (Why Choose Us) ── */
+.feature-icon-box {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.glass-card:hover .feature-icon-box {
+  transform: scale(1.12) rotate(-4deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.feature-tea {
+  background: var(--gradient-tea-light) !important;
+  color: var(--tea-primary) !important;
+}
+
+.feature-matcha {
+  background: var(--gradient-matcha-soft) !important;
+  color: var(--matcha-green) !important;
+}
+
+.feature-peach {
+  background: var(--gradient-peach-soft) !important;
+  color: var(--peach-dark) !important;
+}
+
+.feature-taro {
+  background: var(--gradient-taro-soft) !important;
+  color: var(--taro-purple) !important;
+}
+
+/* ── 7. Testimonials Decor & Quote ── */
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card::before {
+  content: '\201C';
+  position: absolute;
+  top: 6px;
+  left: 14px;
+  font-size: 5rem;
+  line-height: 1;
+  color: rgba(245, 158, 11, 0.12);
+  font-family: Georgia, serif;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── 8. Promo Banner Voucher Code Style ── */
+.voucher-code-box {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px dashed #f59e0b;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #92400e;
+  letter-spacing: 0.08em;
+  transition: var(--transition-fast);
+  cursor: default;
+  user-select: all;
+}
+
+.voucher-code-box:hover {
+  border-color: #d97706;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+
+/* ── 9. FAQ Section Accordion ── */
+.faq-accordion .accordion-button {
+  background: #fdfaf6;
+  color: #1e1b18;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: var(--transition-fast);
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+  background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+  color: #854d0e;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.faq-accordion .accordion-button:focus {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+
+.faq-accordion .accordion-item {
+  border: 1px solid #f0eae1 !important;
+  border-radius: 12px !important;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.faq-accordion .accordion-body {
+  background: #fffef9;
+  color: var(--text-body);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+/* ── 10. Footer Social Icon Glow Effects ── */
+.social-icon-link {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff !important;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+.social-icon-link:hover {
+  background: var(--gradient-tea);
+  border-color: transparent;
+  transform: translateY(-3px) scale(1.12);
+  box-shadow: 0 6px 18px rgba(133, 77, 14, 0.4);
+  color: #fff !important;
+}
+
+.social-icon-link.facebook:hover  { background: #1877f2; box-shadow: 0 6px 18px rgba(24, 119, 242, 0.45); }
+.social-icon-link.instagram:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); box-shadow: 0 6px 18px rgba(220, 39, 67, 0.45); }
+.social-icon-link.tiktok:hover    { background: #000000; box-shadow: 0 6px 18px rgba(255, 255, 255, 0.25); border-color: rgba(255, 255, 255, 0.4); }
+.social-icon-link.youtube:hover   { background: #ff0000; box-shadow: 0 6px 18px rgba(255, 0, 0, 0.45); }
+
+/* ── 11. Scroll Animations (Fade-in / Reveal) ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-up    { animation: fadeInUp    0.6s ease-out both; }
+.animate-fade-left  { animation: fadeInLeft  0.6s ease-out both; }
+.animate-fade-right { animation: fadeInRight 0.6s ease-out both; }
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+
+/* ── 12. Floating Scroll-To-Top Button ── */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-tea);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 16px rgba(133, 77, 14, 0.35);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  z-index: 999;
+  outline: none;
+}
+
+.scroll-top-btn:hover {
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 0 8px 24px rgba(133, 77, 14, 0.45);
+}
+
+/* ── 13. Skeleton Loader ── */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f3ede4 25%, #e8dfd3 50%, #f3ede4 75%);
+  background-size: 400px 100%;
+  animation: skeletonPulse 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── 14. Responsive Fixes ── */
+@media (max-width: 768px) {
+  .hero-floating-badge,
+  .hero-floating-badge-alt {
+    display: none;
+  }
+  .scroll-top-btn {
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob-caramel,
+  .hero-blob-peach,
+  .hero-blob-matcha,
+  .hero-blob-taro,
+  .hero-floating-badge,
+  .hero-floating-badge-alt,
+  .floating-hero-img,
+  .category-menu-btn.active,
+  .animate-fade-up,
+  .animate-fade-left,
+  .animate-fade-right {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+
+/* Menu Page Card Enhancement */
+.tea-card {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, border-color 0.35s ease !important;
+  border: 1px solid rgba(229, 231, 235, 0.7) !important;
+}
+
+.tea-card:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 16px 32px rgba(133, 77, 14, 0.12), 0 0 0 1px rgba(245, 158, 11, 0.18) !important;
+}

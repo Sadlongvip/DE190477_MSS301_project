@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Container, Alert, Button } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
+import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
 import { AuthContext } from '../../context/AuthContext';
 
 /**
@@ -19,8 +20,8 @@ export function AdminRoute({ children }) {
     );
   }
 
-  // Chưa đăng nhập hoặc vai trò không phải ADMIN hoặc STAFF
-  if (!isAuthenticated || !user || !['ADMIN', 'STAFF'].includes(user.role)) {
+  // Chưa đăng nhập hoặc vai trò không phải ADMIN
+  if (!isAuthenticated || !user || user.role !== 'ADMIN') {
     return (
       <Container className="py-5" style={{ maxWidth: '600px' }}>
         <Alert variant="danger" className="rounded-4 p-4 shadow-sm text-center">
@@ -29,7 +30,7 @@ export function AdminRoute({ children }) {
           </div>
           <Alert.Heading className="fw-bold fs-4">Truy Cập Bị Từ Chối</Alert.Heading>
           <p className="text-muted small mb-4">
-            Trang này chỉ dành riêng cho Quản trị viên và Nhân viên hệ thống (ADMIN/STAFF). Bạn đang đăng nhập với quyền:{' '}
+            Trang này chỉ dành riêng cho Quản trị viên hệ thống (ADMIN). Bạn đang đăng nhập với quyền:{' '}
             <strong className="text-dark">{user?.role || 'Khách (Chưa đăng nhập)'}</strong>.
           </p>
           <div className="d-flex justify-content-center gap-2">
