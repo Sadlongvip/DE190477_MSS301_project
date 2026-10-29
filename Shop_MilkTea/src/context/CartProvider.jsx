@@ -1,11 +1,10 @@
-import React, { useReducer, useEffect, useCallback, useMemo, useContext } from 'react';
+import React, { useState, useReducer, useEffect, useCallback, useMemo, useContext } from 'react';
 import CartContext from './CartContext';
 import { AuthContext } from './AuthContext';
 import {
   cartReducer,
   initialCartState,
   CART_ACTION_TYPES,
-  normalizeCartItem,
 } from '../reduce/cartReducer';
 import cartService from '../service/cartService';
 import orderService from '../service/orderService';
@@ -36,10 +35,12 @@ function getOrCreateSessionId() {
  */
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const [lastCompletedOrder, setLastCompletedOrder] = useState(null);
 
   const authContext = useContext(AuthContext);
   const isAuthenticated = authContext?.isAuthenticated;
   const user = authContext?.user;
+
 
   // Tự động lưu giỏ hàng vào localStorage mỗi khi state.items thay đổi
   useEffect(() => {
@@ -135,12 +136,10 @@ export function CartProvider({ children }) {
     async (cartItemIdOrIndex, newQty) => {
       const quantity = Math.max(0, Number(newQty) || 0);
 
-      let targetIndex = -1;
-      if (typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length) {
-        targetIndex = cartItemIdOrIndex;
-      } else {
-        targetIndex = state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
-      }
+      const targetIndex =
+        typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length
+          ? cartItemIdOrIndex
+          : state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
 
       if (targetIndex === -1) return;
 
@@ -186,12 +185,10 @@ export function CartProvider({ children }) {
    */
   const removeItem = useCallback(
     async (cartItemIdOrIndex) => {
-      let targetIndex = -1;
-      if (typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length) {
-        targetIndex = cartItemIdOrIndex;
-      } else {
-        targetIndex = state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
-      }
+      const targetIndex =
+        typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length
+          ? cartItemIdOrIndex
+          : state.items.findIndex((it) => it.cartItemId === cartItemIdOrIndex);
 
       if (targetIndex === -1) return;
 
@@ -238,43 +235,14 @@ export function CartProvider({ children }) {
   }, [isAuthenticated]);
 
   /**
-   * Áp dụng mã giảm giá
+   * Áp dụng mã giảm giá (Đã xóa toàn bộ voucher theo yêu cầu)
    */
-  const applyVoucher = useCallback((code) => {
-    if (!code || !code.trim()) {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER_ERROR,
-        payload: 'Vui lòng nhập mã giảm giá',
-      });
-      return false;
-    }
-
-    const upper = code.trim().toUpperCase();
-    if (upper === 'FREESHIP') {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER,
-        payload: { code: upper, name: 'Miễn phí vận chuyển', discountType: 'FREESHIP', value: 20000 },
-      });
-      return true;
-    } else if (upper === 'MILKTEA10') {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER,
-        payload: { code: upper, name: 'Giảm 10% tổng đơn trà sữa', discountType: 'PERCENT', value: 0.1 },
-      });
-      return true;
-    } else if (upper === 'SALE20K') {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER,
-        payload: { code: upper, name: 'Giảm 20.000đ trực tiếp', discountType: 'FIXED', value: 20000 },
-      });
-      return true;
-    } else {
-      dispatch({
-        type: CART_ACTION_TYPES.SET_VOUCHER_ERROR,
-        payload: 'Mã ưu đãi không hợp lệ hoặc đã hết hạn',
-      });
-      return false;
-    }
+  const applyVoucher = useCallback(() => {
+    dispatch({
+      type: CART_ACTION_TYPES.SET_VOUCHER_ERROR,
+      payload: 'Hiện tại hệ thống không còn chương trình voucher nào khả dụng.',
+    });
+    return false;
   }, []);
 
   const removeVoucher = useCallback(() => {
@@ -360,6 +328,9 @@ export function CartProvider({ children }) {
 
         const response = await orderService.createOrder(orderPayload);
 
+        // Lưu đơn hàng vừa hoàn tất để hiển thị phí ship và chi tiết đơn trong Cart Sidebar
+        setLastCompletedOrder(response);
+
         // Đặt hàng thành công -> Xóa sạch giỏ hàng
         dispatch({ type: CART_ACTION_TYPES.CLEAR_CART });
         localStorage.removeItem(CART_STORAGE_KEY);
@@ -374,8 +345,12 @@ export function CartProvider({ children }) {
         return { success: false, error: errorMsg };
       }
     },
-    [state.items, state.appliedVoucher, shippingFee, discountAmount, user?.username]
+    [state.items, state.appliedVoucher, shippingFee, discountAmount, user]
   );
+
+  const clearLastCompletedOrder = useCallback(() => {
+    setLastCompletedOrder(null);
+  }, []);
 
   const value = {
     // Trạng thái từ Reducer
@@ -384,6 +359,7 @@ export function CartProvider({ children }) {
     error: state.error,
     appliedVoucher: state.appliedVoucher,
     voucherError: state.voucherError,
+    lastCompletedOrder,
 
     // Các chỉ số tính toán
     totalQuantity,
@@ -406,9 +382,11 @@ export function CartProvider({ children }) {
     clearError,
     refreshCart: fetchCart,
     checkout,
+    clearLastCompletedOrder,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
+
 
 export default CartProvider;

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Accordion, Badge, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Accordion, Form, Button, Alert } from 'react-bootstrap';
 import { FAQS } from '../../constant/landingData';
 
 /**
  * FAQ & Newsletter Section
+ * Tích hợp class faq-accordion và form nhận ưu đãi mượt mà
  */
 export function FAQSection() {
   const [email, setEmail] = useState('');
@@ -25,15 +26,15 @@ export function FAQSection() {
       <Container>
         <Row className="gy-5">
           {/* Cột trái: Accordion câu hỏi thường gặp */}
-          <Col lg={7}>
-            <Badge bg="secondary" className="px-3 py-2 rounded-pill fw-bold mb-2">
+          <Col lg={7} className="animate-fade-left">
+            <span className="section-badge-taro mb-2 d-inline-flex">
               ❓ THẮC MẮC PHỔ BIẾN
-            </Badge>
+            </span>
             <h2 className="fw-bold text-dark display-6 mb-4">Câu Hỏi Thường Gặp</h2>
 
-            <Accordion defaultActiveKey="0" className="shadow-sm rounded-4 overflow-hidden border">
+            <Accordion defaultActiveKey="0" className="faq-accordion shadow-sm rounded-4 overflow-hidden">
               {FAQS.map((faq, index) => (
-                <Accordion.Item eventKey={String(index)} key={index} className="border-0 border-bottom">
+                <Accordion.Item eventKey={String(index)} key={index} className="border-0">
                   <Accordion.Header className="fw-semibold">
                     <span className="fw-bold text-dark">{faq.question}</span>
                   </Accordion.Header>
@@ -46,16 +47,16 @@ export function FAQSection() {
           </Col>
 
           {/* Cột phải: Newsletter Banner Nhận Voucher */}
-          <Col lg={5}>
+          <Col lg={5} className="animate-fade-right">
             <div
               className="p-4 p-md-5 rounded-5 h-100 d-flex flex-column justify-content-center text-white position-relative overflow-hidden shadow-lg"
               style={{
-                background: 'linear-gradient(135deg, #854d0e 0%, #b45309 100%)',
+                background: 'linear-gradient(135deg, #854d0e 0%, #b45309 60%, #d97706 100%)',
               }}
             >
               <div className="position-relative" style={{ zIndex: 1 }}>
                 <div
-                  className="rounded-circle d-inline-flex align-items-center justify-content-center bg-white text-warning mb-3"
+                  className="rounded-circle d-inline-flex align-items-center justify-content-center bg-white text-warning mb-3 shadow-sm"
                   style={{ width: '50px', height: '50px', fontSize: '1.5rem' }}
                 >
                   <i className="bi bi-gift-fill"></i>
@@ -66,7 +67,7 @@ export function FAQSection() {
                 </p>
 
                 {subscribed ? (
-                  <Alert variant="success" className="py-2 px-3 small rounded-pill border-0 mb-0">
+                  <Alert variant="success" className="py-2 px-3 small rounded-pill border-0 mb-0 shadow-sm">
                     <i className="bi bi-check-circle-fill me-2"></i>
                     Đã đăng ký thành công! Kiểm tra hộp thư của bạn nhé.
                   </Alert>
@@ -79,13 +80,14 @@ export function FAQSection() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="py-2 px-3 rounded-pill border-0 shadow-sm"
+                        className="py-2.5 px-3.5 rounded-pill border-0 shadow-sm"
+                        style={{ fontSize: '0.9rem' }}
                       />
                     </Form.Group>
                     <Button
                       type="submit"
                       variant="warning"
-                      className="w-100 rounded-pill py-2 fw-bold text-dark shadow-sm"
+                      className="w-100 rounded-pill py-2.5 fw-bold text-dark shadow-sm"
                     >
                       Nhận Mã Ngay
                     </Button>

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Card, Form, Button, ProgressBar, Alert, Badge } from 'react-bootstrap';
+import React from 'react';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 /**
  * Component Tóm Tắt Đơn Hàng & Tính Chi Phí cho Trang Giỏ Hàng
@@ -11,28 +13,10 @@ export function CartSummaryCard({
   isFreeShipping,
   freeShippingRemaining,
   freeShippingProgress,
-  appliedVoucher,
   discountAmount,
-  voucherError,
   finalTotal,
-  onApplyVoucher,
-  onRemoveVoucher,
   onCheckout,
 }) {
-  const [voucherInput, setVoucherInput] = useState('');
-
-  const handleApply = (e) => {
-    e.preventDefault();
-    if (voucherInput.trim()) {
-      onApplyVoucher(voucherInput.trim());
-      setVoucherInput('');
-    }
-  };
-
-  const handleQuickVoucher = (code) => {
-    onApplyVoucher(code);
-  };
-
   return (
     <Card className="border-0 shadow-sm rounded-4 p-4 cart-summary-card sticky-top" style={{ top: '100px' }}>
       <h5 className="fw-bold mb-3 text-dark d-flex align-items-center gap-2">
@@ -73,91 +57,9 @@ export function CartSummaryCard({
         </div>
       </div>
 
-      {/* 2. Nhập mã ưu đãi */}
-      <div className="mb-3">
-        <label className="form-label small fw-semibold text-muted mb-1">Mã Giảm Giá / Voucher</label>
-        {appliedVoucher ? (
-          <div className="d-flex justify-content-between align-items-center p-2 rounded-3 bg-success bg-opacity-10 border border-success-subtle">
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-tag-fill text-success"></i>
-              <div>
-                <strong className="text-success small d-block">{appliedVoucher.code}</strong>
-                <small className="text-muted" style={{ fontSize: '0.72rem' }}>
-                  {appliedVoucher.name} (-{discountAmount.toLocaleString('vi-VN')}đ)
-                </small>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="btn btn-sm btn-link text-danger p-0 text-decoration-none fw-bold"
-              onClick={onRemoveVoucher}
-              title="Bỏ áp dụng mã"
-            >
-              <i className="bi bi-x-circle-fill"></i>
-            </button>
-          </div>
-        ) : (
-          <Form onSubmit={handleApply}>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control rounded-start-pill ps-3 text-uppercase"
-                placeholder="Nhập mã ưu đãi"
-                value={voucherInput}
-                onChange={(e) => setVoucherInput(e.target.value)}
-                style={{ fontSize: '0.85rem' }}
-              />
-              <Button
-                variant="warning"
-                type="submit"
-                className="rounded-end-pill px-3 fw-bold text-dark"
-                style={{ fontSize: '0.85rem' }}
-              >
-                Áp Dụng
-              </Button>
-            </div>
-            {voucherError && (
-              <small className="text-danger mt-1 d-block" style={{ fontSize: '0.75rem' }}>
-                <i className="bi bi-exclamation-circle me-1"></i>
-                {voucherError}
-              </small>
-            )}
-
-            {/* Gợi ý mã nhanh */}
-            <div className="d-flex flex-wrap gap-1 mt-2">
-              <span className="small text-muted me-1" style={{ fontSize: '0.72rem' }}>Gợi ý:</span>
-              <button
-                type="button"
-                className="badge bg-white text-secondary border border-secondary-subtle rounded-pill text-decoration-none"
-                onClick={() => handleQuickVoucher('FREESHIP')}
-                style={{ cursor: 'pointer' }}
-              >
-                FREESHIP
-              </button>
-              <button
-                type="button"
-                className="badge bg-white text-secondary border border-secondary-subtle rounded-pill text-decoration-none"
-                onClick={() => handleQuickVoucher('MILKTEA10')}
-                style={{ cursor: 'pointer' }}
-              >
-                MILKTEA10 (-10%)
-              </button>
-              <button
-                type="button"
-                className="badge bg-white text-secondary border border-secondary-subtle rounded-pill text-decoration-none"
-                onClick={() => handleQuickVoucher('SALE20K')}
-                style={{ cursor: 'pointer' }}
-              >
-                SALE20K
-              </button>
-            </div>
-          </Form>
-        )}
-      </div>
-
       <hr className="my-3 text-muted" />
 
-      {/* 3. Bảng tổng hợp chi phí */}
+      {/* 2. Bảng tổng hợp chi phí */}
       <div className="d-flex flex-column gap-2 small mb-3">
         <div className="d-flex justify-content-between text-muted">
           <span>Tạm tính ({totalQuantity} ly):</span>
@@ -193,7 +95,7 @@ export function CartSummaryCard({
         </div>
       </div>
 
-      {/* 4. Nút Tiến Hành Đặt Hàng */}
+      {/* 3. Nút Tiến Hành Đặt Hàng */}
       <Button
         className="w-100 btn-tea-primary py-3 rounded-pill fw-bold fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2 mb-3 checkout-btn"
         onClick={onCheckout}
@@ -203,7 +105,7 @@ export function CartSummaryCard({
         <span>Tiến Hành Đặt Hàng</span>
       </Button>
 
-      {/* 5. Cam kết khách hàng */}
+      {/* 4. Cam kết khách hàng */}
       <div className="bg-light p-3 rounded-4 border">
         <div className="d-flex align-items-center gap-2 mb-2 text-muted small" style={{ fontSize: '0.76rem' }}>
           <i className="bi bi-clock-history text-warning fs-6"></i>

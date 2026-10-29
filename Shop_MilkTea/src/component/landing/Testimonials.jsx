@@ -1,9 +1,10 @@
 import React from 'react';
-import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card } from 'react-bootstrap';
 import { TESTIMONIALS } from '../../constant/landingData';
 
 /**
  * Testimonials Section - Đánh giá từ khách hàng
+ * Áp dụng testimonial-card với quote watermark và badge phong cách hồng đào
  */
 export function Testimonials() {
   return (
@@ -11,9 +12,9 @@ export function Testimonials() {
       <Container>
         {/* Header */}
         <div className="text-center mb-5">
-          <Badge bg="warning" text="dark" className="px-3 py-2 rounded-pill fw-bold mb-2">
+          <span className="section-badge-peach mb-2 d-inline-flex">
             ⭐ LẮNG NGHE KHÁCH HÀNG
-          </Badge>
+          </span>
           <h2 className="fw-bold text-dark display-6 mb-2">
             Tín Đồ Trà Sữa Nói Gì Về Quán?
           </h2>
@@ -24,9 +25,9 @@ export function Testimonials() {
 
         {/* Reviews Cards */}
         <Row className="g-4">
-          {TESTIMONIALS.map((review) => (
+          {TESTIMONIALS.map((review, idx) => (
             <Col md={4} key={review.id}>
-              <Card className="glass-card border-0 h-100 p-4 d-flex flex-column justify-content-between">
+              <Card className={`glass-card testimonial-card border-0 h-100 p-4 d-flex flex-column justify-content-between animate-fade-up delay-${(idx + 1) * 100}`}>
                 <div>
                   {/* Star Rating */}
                   <div className="d-flex align-items-center gap-1 text-warning mb-3">

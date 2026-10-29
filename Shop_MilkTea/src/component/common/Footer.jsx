@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 /**
  * Footer Component - Chân trang thông tin toàn diện cho Shop_MilkTea
+ * Tích hợp hiệu ứng social-icon-link hover glow theo màu mạng xã hội
  */
 export function Footer() {
   return (
@@ -30,14 +31,20 @@ export function Footer() {
             <p className="text-secondary small mb-3" style={{ lineHeight: 1.7, maxWidth: '320px' }}>
               Thương hiệu trà sữa nguyên bản từ búp trà tươi Mộc Châu. Cam kết đem đến trải nghiệm đồ uống chuẩn vị, an toàn và ngập tràn niềm vui mỗi ngày.
             </p>
-            {/* Social Icons */}
+            {/* Social Icons với hover glow brand effect */}
             <div className="d-flex gap-2">
-              {['bi-facebook', 'bi-instagram', 'bi-tiktok', 'bi-youtube'].map((icon, idx) => (
+              {[
+                { icon: 'bi-facebook',  cls: 'facebook',  name: 'Facebook' },
+                { icon: 'bi-instagram', cls: 'instagram', name: 'Instagram' },
+                { icon: 'bi-tiktok',    cls: 'tiktok',    name: 'TikTok' },
+                { icon: 'bi-youtube',   cls: 'youtube',   name: 'YouTube' },
+              ].map(({ icon, cls, name }, idx) => (
                 <a
                   key={idx}
-                  href={`#${icon}`}
-                  className="rounded-circle d-flex align-items-center justify-content-center text-white text-decoration-none border border-secondary"
-                  style={{ width: '36px', height: '36px', backgroundColor: 'rgba(255,255,255,0.05)' }}
+                  href={`#${cls}`}
+                  className={`social-icon-link ${cls}`}
+                  title={name}
+                  aria-label={name}
                 >
                   <i className={`bi ${icon} small`}></i>
                 </a>
@@ -53,7 +60,7 @@ export function Footer() {
             <ul className="list-unstyled small d-flex flex-column gap-2 mb-0">
               <li><a href="#home" className="text-secondary text-decoration-none hover-white">Trang Chủ</a></li>
               <li><a href="#menu" className="text-secondary text-decoration-none hover-white">Menu Trà Sữa</a></li>
-              <li><a href="#promo" className="text-secondary text-decoration-none hover-white">Mã Khuyến Mãi</a></li>
+              <li><a href="/cart" className="text-secondary text-decoration-none hover-white">Giỏ Hàng</a></li>
               <li><a href="#about" className="text-secondary text-decoration-none hover-white">Về Chúng Tôi</a></li>
               <li><a href="#reviews" className="text-secondary text-decoration-none hover-white">Đánh Giá Khách Hàng</a></li>
             </ul>

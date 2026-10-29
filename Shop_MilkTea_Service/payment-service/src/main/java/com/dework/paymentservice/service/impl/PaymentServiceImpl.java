@@ -4,6 +4,9 @@ import com.dework.paymentservice.client.OrderClient;
 import com.dework.paymentservice.config.VNPayConfig;
 import com.dework.paymentservice.dto.PaymentRequestDTO;
 import com.dework.paymentservice.dto.PaymentResponseDTO;
+import com.dework.paymentservice.event.PaymentFailedEvent;
+import com.dework.paymentservice.event.PaymentSuccessEvent;
+import com.dework.paymentservice.kafka.PaymentEventProducer;
 import com.dework.paymentservice.model.PaymentMethod;
 import com.dework.paymentservice.model.PaymentStatus;
 import com.dework.paymentservice.model.PaymentTransaction;
@@ -20,8 +23,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -34,6 +40,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final VNPayConfig vnPayConfig;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final OrderClient orderClient;
+    private final PaymentEventProducer paymentEventProducer;
 
     @Override
     @Transactional
@@ -107,8 +114,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 3. Kiểm tra số tiền
         long vnpAmount = Long.parseLong(params.get("vnp_Amount")) / 100;
-        if (vnpAmount != (long) transaction.getAmount()) {
-            log.warn("Invalid amount for TxnRef {}. Expected: {}, Received: {}", transactionCode, transaction.getAmount(), vnpAmount);
+        long expectedAmount = transaction.getAmount() != null ? transaction.getAmount().longValue() : 0L;
+        if (vnpAmount != expectedAmount) {
+            log.warn("Invalid amount for TxnRef {}. Expected: {}, Received: {}", transactionCode, expectedAmount, vnpAmount);
             response.put("RspCode", "04");
             response.put("Message", "Invalid Amount");
             return response;
@@ -133,14 +141,25 @@ public class PaymentServiceImpl implements PaymentService {
         if (isSuccess) {
             transaction.setStatus(PaymentStatus.SUCCESS);
             log.info("Payment success for order {}", transaction.getOrderCode());
+            paymentEventProducer.publishPaymentSuccess(PaymentSuccessEvent.builder()
+                    .orderCode(transaction.getOrderCode())
+                    .transactionCode(transaction.getTransactionCode())
+                    .amount(transaction.getAmount())
+                    .paymentMethod(transaction.getPaymentMethod() != null ? transaction.getPaymentMethod().name() : "VNPAY")
+                    .build());
         } else {
             transaction.setStatus(PaymentStatus.FAILED);
             log.warn("Payment failed with response code {} for order {}", responseCode, transaction.getOrderCode());
+            paymentEventProducer.publishPaymentFailed(PaymentFailedEvent.builder()
+                    .orderCode(transaction.getOrderCode())
+                    .transactionCode(transaction.getTransactionCode())
+                    .reason("Thanh toán VNPay không thành công (Mã phản hồi VNPay: " + responseCode + ")")
+                    .build());
         }
 
         paymentTransactionRepository.save(transaction);
 
-        // 6. Báo cho order-service
+        // 6. Báo dự phòng cho order-service
         notifyOrderService(transaction.getOrderCode(), isSuccess ? "PAID" : "FAILED");
 
         response.put("RspCode", "00");
@@ -183,8 +202,9 @@ public class PaymentServiceImpl implements PaymentService {
             vnpParams.put("vnp_BankCode", request.getBankCode());
         }
 
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT+7"));
         String createDate = formatter.format(calendar.getTime());
         vnpParams.put("vnp_CreateDate", createDate);
 
@@ -194,8 +214,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         String hashData = VNPayUtil.hashAllFields(vnpParams);
         String secureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData);
+        String queryUrl = VNPayUtil.buildQueryUrl(vnpParams);
 
-        return vnPayConfig.getPayUrl() + "?" + hashData + "&vnp_SecureHash=" + secureHash;
+        log.info("VNPay Generated URL for order: {}, hashData: {}, secureHash: {}", request.getOrderCode(), hashData, secureHash);
+
+        return vnPayConfig.getPayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + secureHash;
     }
 
     private void notifyOrderService(String orderCode, String paymentStatus) {

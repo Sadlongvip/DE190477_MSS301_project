@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Nav } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
 import {
@@ -46,16 +46,14 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
 
   const [formFeedback, setFormFeedback] = useState({ success: '', error: '' });
 
-  // Reset form và lỗi khi mở modal
-  useEffect(() => {
-    if (show) {
-      setActiveTab(initialTab);
-      clearError();
-      setFormFeedback({ success: '', error: '' });
-      setLoginErrors({});
-      setRegisterErrors({});
-    }
-  }, [show, initialTab, clearError]);
+  // Reset form và lỗi khi modal mở (sử dụng callback onShow của Modal, không kích hoạt useEffect)
+  const handleModalShow = () => {
+    setActiveTab(initialTab);
+    clearError();
+    setFormFeedback({ success: '', error: '' });
+    setLoginErrors({});
+    setRegisterErrors({});
+  };
 
   /* =====================================================================
    * XỬ LÝ SỰ KIỆN FOCUS / BLUR CHO FORM LOGIN
@@ -167,7 +165,7 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered backdrop="static" className="rounded-4">
+    <Modal show={show} onShow={handleModalShow} onHide={onHide} centered backdrop="static" className="rounded-4">
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="fw-bold fs-5 d-flex align-items-center gap-2">
           <i className="bi bi-cup-straw text-warning fs-4"></i>
@@ -233,46 +231,50 @@ export function LoginModal({ show, onHide, initialTab = 'login' }) {
           <Form onSubmit={handleLoginSubmit} noValidate>
             <Form.Group className="mb-3" controlId="loginUsername">
               <Form.Label className="small fw-semibold text-secondary">Tên đăng nhập hoặc Email *</Form.Label>
-              <div className="input-group has-validation">
-                <span className="input-group-text bg-light border-end-0">
-                  <i className="bi bi-person text-muted"></i>
+              <div className={`unified-input-group ${loginErrors.username ? 'is-invalid' : ''}`}>
+                <span className="unified-input-icon">
+                  <i className="bi bi-person"></i>
                 </span>
-                <Form.Control
+                <input
                   type="text"
                   placeholder="Nhập username hoặc email"
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                   onFocus={() => handleLoginFocus('username')}
                   onBlur={() => handleLoginBlur('username')}
-                  isInvalid={Boolean(loginErrors.username)}
-                  className="border-start-0 ps-0"
+                  className="unified-input-control"
                 />
-                <Form.Control.Feedback type="invalid" className="d-block small">
-                  {loginErrors.username}
-                </Form.Control.Feedback>
               </div>
+              {loginErrors.username && (
+                <div className="text-danger small mt-1">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {loginErrors.username}
+                </div>
+              )}
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="loginPassword">
               <Form.Label className="small fw-semibold text-secondary">Mật khẩu *</Form.Label>
-              <div className="input-group has-validation">
-                <span className="input-group-text bg-light border-end-0">
-                  <i className="bi bi-lock text-muted"></i>
+              <div className={`unified-input-group ${loginErrors.password ? 'is-invalid' : ''}`}>
+                <span className="unified-input-icon">
+                  <i className="bi bi-lock"></i>
                 </span>
-                <Form.Control
+                <input
                   type="password"
                   placeholder="••••••••"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                   onFocus={() => handleLoginFocus('password')}
                   onBlur={() => handleLoginBlur('password')}
-                  isInvalid={Boolean(loginErrors.password)}
-                  className="border-start-0 ps-0"
+                  className="unified-input-control"
                 />
-                <Form.Control.Feedback type="invalid" className="d-block small">
-                  {loginErrors.password}
-                </Form.Control.Feedback>
               </div>
+              {loginErrors.password && (
+                <div className="text-danger small mt-1">
+                  <i className="bi bi-exclamation-circle-fill me-1"></i>
+                  {loginErrors.password}
+                </div>
+              )}
             </Form.Group>
 
             <Button

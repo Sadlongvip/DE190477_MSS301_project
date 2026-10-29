@@ -30,14 +30,22 @@ public class MilkTea extends BaseEntity {
 
     private String description;
 
-    private double price;
+    @Builder.Default
+    private Double price = 0.0;
 
     private String image;
 
     @Builder.Default
     private Boolean isAvailable = true;
 
+    @Builder.Default
+    private Integer stockQuantity = 100;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryTea category;
+
+    public Double getPrice() {
+        return price != null ? price : 0.0;
+    }
 }

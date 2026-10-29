@@ -63,7 +63,7 @@ public interface ReportOrderRepository extends JpaRepository<ReportOrder, Long> 
               AND o.created_at BETWEEN :startDateTime AND :endDateTime
             GROUP BY i.milk_tea_id, i.milk_tea_name
             ORDER BY totalQuantitySold DESC
-            LIMIT :limit
+            LIMIT :#{#limit}
             """, nativeQuery = true)
     List<TopSellingItemProjection> getTopSellingProducts(
             @Param("startDateTime") LocalDateTime startDateTime,
@@ -97,4 +97,18 @@ public interface ReportOrderRepository extends JpaRepository<ReportOrder, Long> 
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime
     );
+
+    @Query("""
+            SELECT DISTINCT o FROM ReportOrder o
+            LEFT JOIN FETCH o.items
+            WHERE o.createdAt BETWEEN :startDateTime AND :endDateTime
+              AND (:status IS NULL OR o.status = :status)
+            ORDER BY o.createdAt DESC
+            """)
+    List<ReportOrder> findOrdersForReport(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime,
+            @Param("status") String status
+    );
 }
+

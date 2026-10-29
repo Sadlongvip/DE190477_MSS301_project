@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import { MainLayout } from '../layout';
 import HeroSection from '../component/landing/HeroSection';
-import PromoBanner from '../component/landing/PromoBanner';
 import FeaturedMenu from '../component/landing/FeaturedMenu';
 import WhyChooseUs from '../component/landing/WhyChooseUs';
 import Testimonials from '../component/landing/Testimonials';
@@ -15,6 +14,7 @@ import useCart from '../hook/useCart';
 /**
  * Trang Landing Page chính của Shop_MilkTea
  * Sử dụng MainLayout bao gồm Header và Footer
+ * Tích hợp nút cuộn nhanh lên đầu trang (Scroll To Top)
  */
 export function LandingPage() {
   const {
@@ -32,6 +32,19 @@ export function LandingPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', checkScroll);
+    return () => window.removeEventListener('scroll', checkScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Mở modal Auth với tab chỉ định
   const handleOpenAuth = (tab = 'login') => {
@@ -52,26 +65,35 @@ export function LandingPage() {
       onOpenCart={() => setIsCartOpen(true)}
       onOpenAuth={handleOpenAuth}
     >
-
       {/* 1. Hero Section */}
       <HeroSection onOpenCart={() => setIsCartOpen(true)} />
 
-      {/* 2. Voucher & Khuyến Mãi */}
-      <PromoBanner onOpenCart={() => setIsCartOpen(true)} />
-
-      {/* 3. Menu Món Nổi Bật */}
+      {/* 2. Menu Món Nổi Bật */}
       <FeaturedMenu
         onSelectProduct={(product) => setSelectedProduct(product)}
       />
 
-      {/* 4. Giá Trị Thương Hiệu (Why Choose Us) */}
+      {/* 3. Giá Trị Thương Hiệu (Why Choose Us) */}
       <WhyChooseUs />
 
-      {/* 5. Đánh Giá Khách Hàng (Testimonials) */}
+      {/* 4. Đánh Giá Khách Hàng (Testimonials) */}
       <Testimonials />
 
-      {/* 6. Câu Hỏi Thường Gặp & Newsletter */}
+      {/* 5. Câu Hỏi Thường Gặp & Newsletter */}
       <FAQSection />
+
+      {/* Nút Cuộn Nhanh Lên Đầu Trang */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="scroll-top-btn"
+          title="Cuộn lên đầu trang"
+          aria-label="Cuộn lên đầu trang"
+        >
+          <i className="bi bi-arrow-up"></i>
+        </button>
+      )}
 
       {/* Modal Tùy Chỉnh Chi Tiết Đồ Uống */}
       <ProductDetailModal
@@ -90,7 +112,6 @@ export function LandingPage() {
         onRemoveItem={removeItem}
         onClearCart={clearCart}
       />
-
 
       {/* Modal Đăng Nhập / Đăng Ký */}
       <LoginModal

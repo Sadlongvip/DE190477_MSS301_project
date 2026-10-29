@@ -1,5 +1,5 @@
--- Migration V1: Tạo các bảng cho order-service (t_carts, t_cart_items, t_orders, t_order_items)
--- Ánh xạ quan hệ User 1-1 Cart và User 1-N Order
+-- Migration V1: Tạo toàn bộ các bảng cho order-service
+-- Bao gồm: t_accounts, t_carts, t_cart_items, t_orders (kèm saga_status), t_order_items, t_saga_logs
 -- Chuẩn utf8mb4 và đầy đủ các cột audit
 
 -- Đảm bảo bảng t_accounts sẵn sàng nếu order-service chạy khởi tạo trước
@@ -29,8 +29,7 @@ CREATE TABLE IF NOT EXISTS t_carts (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100) DEFAULT 'SYSTEM',
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    updated_by VARCHAR(100) DEFAULT 'SYSTEM',
-    CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES t_accounts(id) ON DELETE CASCADE
+    updated_by VARCHAR(100) DEFAULT 'SYSTEM'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Bảng chi tiết giỏ hàng
@@ -71,12 +70,13 @@ CREATE TABLE IF NOT EXISTS t_orders (
     payment_method VARCHAR(50) NOT NULL DEFAULT 'COD',
     payment_status VARCHAR(50) NOT NULL DEFAULT 'UNPAID',
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    saga_status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     cancel_reason VARCHAR(500),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100) DEFAULT 'SYSTEM',
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     updated_by VARCHAR(100) DEFAULT 'SYSTEM',
-    CONSTRAINT fk_order_user FOREIGN KEY (user_id) REFERENCES t_accounts(id) ON DELETE SET NULL
+    INDEX idx_orders_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Bảng chi tiết đơn hàng
@@ -98,4 +98,15 @@ CREATE TABLE IF NOT EXISTS t_order_items (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     updated_by VARCHAR(100) DEFAULT 'SYSTEM',
     CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES t_orders(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Bảng log các bước thực thi Saga
+CREATE TABLE IF NOT EXISTS t_saga_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_code VARCHAR(100) NOT NULL,
+    step VARCHAR(100) NOT NULL,
+    result VARCHAR(50) NOT NULL,
+    message VARCHAR(1000),
+    time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_saga_logs_order_code (order_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
