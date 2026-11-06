@@ -1,64 +1,54 @@
 import React from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
 
 /**
  * Hero Section - Banner chính ấn tượng cho Shop_MilkTea
- * Tích hợp hệ thống màu accent (Caramel, Hồng đào, Matcha) & hiệu ứng animation mượt mà
  */
-export function HeroSection({ onOpenCart: _onOpenCart }) {
+export function HeroSection({ onOpenCart }) {
   return (
     <section id="home" className="position-relative py-5 overflow-hidden" style={{ background: 'linear-gradient(180deg, #fffbeb 0%, #faf7f2 100%)' }}>
-      {/* Decorative blurred background animated lights (Caramel, Hồng đào, Matcha) */}
+      {/* Decorative blurred background lights */}
       <div
-        className="position-absolute rounded-circle hero-blob-caramel"
+        className="position-absolute rounded-circle"
         style={{
-          width: '420px',
-          height: '420px',
-          background: 'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, rgba(251, 191, 36, 0) 70%)',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0) 70%)',
           top: '-10%',
           right: '-5%',
           zIndex: 0,
+          pointerEvents: 'none',
         }}
       />
       <div
-        className="position-absolute rounded-circle hero-blob-peach"
+        className="position-absolute rounded-circle"
         style={{
-          width: '380px',
-          height: '380px',
-          background: 'radial-gradient(circle, rgba(251, 113, 133, 0.22) 0%, rgba(251, 113, 133, 0) 70%)',
-          bottom: '-5%',
-          left: '-6%',
+          width: '350px',
+          height: '350px',
+          background: 'radial-gradient(circle, rgba(133, 77, 14, 0.15) 0%, rgba(133, 77, 14, 0) 70%)',
+          bottom: '0%',
+          left: '-5%',
           zIndex: 0,
-        }}
-      />
-      <div
-        className="position-absolute rounded-circle hero-blob-matcha"
-        style={{
-          width: '280px',
-          height: '280px',
-          background: 'radial-gradient(circle, rgba(34, 197, 94, 0.18) 0%, rgba(34, 197, 94, 0) 70%)',
-          top: '40%',
-          right: '25%',
-          zIndex: 0,
+          pointerEvents: 'none',
         }}
       />
 
       <Container className="position-relative" style={{ zIndex: 1 }}>
         <Row className="align-items-center gy-5">
           {/* Cột trái: Văn bản & Kêu gọi hành động */}
-          <Col lg={6} className="text-center text-lg-start animate-fade-left">
-            <div className="mb-3">
-              <span className="section-badge-tea">
-                <i className="bi bi-stars"></i> Trà Sữa Đậm Vị Chuẩn Gu
-              </span>
-            </div>
-
+          <Col lg={6} className="text-center text-lg-start">
             <h1
               className="display-4 fw-bolder mb-3 text-dark"
               style={{ lineHeight: 1.15, letterSpacing: '-1.5px' }}
             >
               Hương Vị Trà Nguyên Bản{' '}
-              <span className="text-gradient-tea d-inline-block">
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #854d0e 0%, #d97706 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
                 Ngọt Ngào Từng Khoảnh Khắc
               </span>
             </h1>
@@ -86,33 +76,27 @@ export function HeroSection({ onOpenCart: _onOpenCart }) {
               </Button>
             </div>
 
-            {/* Thống kê nổi bật trong thẻ card tương tác */}
+            {/* Thống kê nổi bật */}
             <Row className="pt-3 border-top g-3 text-center text-lg-start">
               <Col xs={4}>
-                <div className="hero-stat-item">
-                  <h4 className="fw-bold mb-0 text-dark">50K+</h4>
-                  <small className="text-muted" style={{ fontSize: '0.8rem' }}>Khách hài lòng</small>
-                </div>
+                <h4 className="fw-bold mb-0 text-dark">50K+</h4>
+                <small className="text-muted" style={{ fontSize: '0.8rem' }}>Khách hài lòng</small>
               </Col>
               <Col xs={4}>
-                <div className="hero-stat-item">
-                  <h4 className="fw-bold mb-0 text-dark">30+</h4>
-                  <small className="text-muted" style={{ fontSize: '0.8rem' }}>Vị trà độc quyền</small>
-                </div>
+                <h4 className="fw-bold mb-0 text-dark">30+</h4>
+                <small className="text-muted" style={{ fontSize: '0.8rem' }}>Vị trà độc quyền</small>
               </Col>
               <Col xs={4}>
-                <div className="hero-stat-item">
-                  <h4 className="fw-bold mb-0 text-warning d-flex align-items-center justify-content-center justify-content-lg-start gap-1">
-                    4.9 <i className="bi bi-star-fill fs-6"></i>
-                  </h4>
-                  <small className="text-muted" style={{ fontSize: '0.8rem' }}>10K+ Đánh giá</small>
-                </div>
+                <h4 className="fw-bold mb-0 text-warning d-flex align-items-center justify-content-center justify-content-lg-start gap-1">
+                  4.9 <i className="bi bi-star-fill fs-6"></i>
+                </h4>
+                <small className="text-muted" style={{ fontSize: '0.8rem' }}>10K+ Đánh giá</small>
               </Col>
             </Row>
           </Col>
 
           {/* Cột phải: Hình ảnh minh họa & Floating Cards */}
-          <Col lg={6} className="text-center position-relative animate-fade-right">
+          <Col lg={6} className="text-center position-relative">
             <div className="position-relative d-inline-block">
               {/* Hình ảnh chính với hiệu ứng bo góc và đổ bóng mượt */}
               <div
@@ -126,15 +110,13 @@ export function HeroSection({ onOpenCart: _onOpenCart }) {
                 <img
                   src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=800&auto=format&fit=crop&q=80"
                   alt="Trà sữa trân châu hoàng kim"
-                  fetchPriority="high"
-                  decoding="async"
                   className="w-100 h-100 object-fit-cover"
                 />
               </div>
 
-              {/* Floating Badge 1: Đánh giá cao */}
+              {/* Floating Badge: Đánh giá cao */}
               <div
-                className="glass-card position-absolute p-3 d-flex align-items-center gap-3 shadow-lg hero-floating-badge"
+                className="glass-card position-absolute p-3 d-flex align-items-center gap-3 shadow-lg"
                 style={{
                   bottom: '25px',
                   left: '-20px',
@@ -145,7 +127,7 @@ export function HeroSection({ onOpenCart: _onOpenCart }) {
               >
                 <div
                   className="rounded-circle d-flex align-items-center justify-content-center text-white"
-                  style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}
+                  style={{ width: '42px', height: '42px', background: '#f59e0b' }}
                 >
                   <i className="bi bi-star-fill fs-5"></i>
                 </div>
@@ -155,9 +137,9 @@ export function HeroSection({ onOpenCart: _onOpenCart }) {
                 </div>
               </div>
 
-              {/* Floating Badge 2: Giao nhanh */}
+              {/* Floating Badge: Giao nhanh */}
               <div
-                className="glass-card position-absolute p-3 d-flex align-items-center gap-3 shadow-lg hero-floating-badge-alt"
+                className="glass-card position-absolute p-3 d-flex align-items-center gap-3 shadow-lg"
                 style={{
                   top: '40px',
                   right: '-15px',
@@ -167,7 +149,7 @@ export function HeroSection({ onOpenCart: _onOpenCart }) {
               >
                 <div
                   className="rounded-circle d-flex align-items-center justify-content-center text-white"
-                  style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)' }}
+                  style={{ width: '42px', height: '42px', background: '#15803d' }}
                 >
                   <i className="bi bi-lightning-charge-fill fs-5"></i>
                 </div>

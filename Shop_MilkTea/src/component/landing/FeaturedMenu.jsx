@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useContext } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Form, InputGroup } from 'react-bootstrap';
 import { InventoryContext } from '../../context/InventoryContext';
 import { CATEGORIES as FALLBACK_CATEGORIES, PRODUCTS as FALLBACK_PRODUCTS } from '../../constant/landingData';
 
@@ -10,7 +10,7 @@ const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1541658016709-82535
  * Ưu tiên hiển thị dữ liệu từ Backend thông qua InventoryContext (API Gateway)
  * Có Fallback an toàn sang dữ liệu mẫu nếu Backend chưa sẵn sàng.
  */
-export function FeaturedMenu({ onSelectProduct, onQuickAdd: _onQuickAdd }) {
+export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
   const { categories: beCategories, milkTeas: beMilkTeas } = useContext(InventoryContext) || {};
 
   const [activeCategory, setActiveCategory] = useState('all');
@@ -34,28 +34,20 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd: _onQuickAdd }) {
   // Chuẩn hóa danh sách sản phẩm (Ưu tiên BE, fallback sang static)
   const displayProducts = useMemo(() => {
     if (beMilkTeas && beMilkTeas.length > 0) {
-      return beMilkTeas.map((item, idx) => {
-        let tagColor = 'warning';
-        if (idx === 0) tagColor = 'danger';
-        else if (idx % 4 === 1) tagColor = 'matcha';
-        else if (idx % 4 === 2) tagColor = 'peach';
-        else if (idx % 4 === 3) tagColor = 'taro';
-
-        return {
-          id: item.id,
-          name: item.name,
-          description: item.description || 'Hương vị trà thơm béo chuẩn gu.',
-          price: item.price,
-          image: item.image || DEFAULT_TEA_IMAGE,
-          category: String(item.categoryId),
-          categoryName: item.categoryName,
-          rating: 4.8 + (idx % 3) * 0.1,
-          reviewsCount: 120 + idx * 15,
-          tag: item.isAvailable === false ? 'Tạm hết' : idx < 3 ? 'Bán chạy' : 'Mới',
-          tagColor: item.isAvailable === false ? 'secondary' : tagColor,
-          isAvailable: item.isAvailable !== false,
-        };
-      });
+      return beMilkTeas.map((item, idx) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || 'Hương vị trà thơm béo chuẩn gu.',
+        price: item.price,
+        image: item.image || DEFAULT_TEA_IMAGE,
+        category: String(item.categoryId),
+        categoryName: item.categoryName,
+        rating: 4.8 + (idx % 3) * 0.1,
+        reviewsCount: 120 + idx * 15,
+        tag: item.isAvailable === false ? 'Tạm hết' : idx < 3 ? 'Bán chạy' : 'Mới',
+        tagColor: item.isAvailable === false ? 'secondary' : idx < 3 ? 'danger' : 'warning',
+        isAvailable: item.isAvailable !== false,
+      }));
     }
     return FALLBACK_PRODUCTS;
   }, [beMilkTeas]);
@@ -79,21 +71,14 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd: _onQuickAdd }) {
     });
   }, [displayProducts, activeCategory, searchKeyword]);
 
-  const getTagBadgeClass = (tagColor) => {
-    if (['peach', 'matcha', 'taro', 'mango'].includes(tagColor)) {
-      return `badge-${tagColor}`;
-    }
-    return `bg-${tagColor || 'warning'}`;
-  };
-
   return (
     <section id="menu" className="py-5" style={{ background: '#faf7f2' }}>
       <Container>
         {/* Section Title */}
         <div className="text-center mb-4">
-          <span className="section-badge-matcha mb-2 d-inline-flex">
+          <Badge bg="success" className="px-3 py-2 rounded-pill fw-bold mb-2">
             🧋 MENU ĐẶC BIỆT
-          </span>
+          </Badge>
           <h2 className="fw-bold text-dark display-6 mb-2">Thực Đơn Trà Sữa Chuẩn Gu</h2>
           <p className="text-muted" style={{ maxWidth: '600px', margin: '0 auto' }}>
             Hương vị trà hảo hạng pha trộn cùng sữa tươi béo ngậy và đa dạng topping nhà làm thơm ngon khó cưỡng.
@@ -157,9 +142,9 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd: _onQuickAdd }) {
           </div>
         ) : (
           <Row className="g-4">
-            {filteredProducts.map((product, idx) => (
+            {filteredProducts.map((product) => (
               <Col xs={12} sm={6} lg={3} key={product.id}>
-                <Card className={`product-card animate-fade-up delay-${((idx % 4) + 1) * 100}`}>
+                <Card className="product-card">
                   {/* Ảnh sản phẩm */}
                   <div className="product-img-wrapper">
                     <img
@@ -172,7 +157,7 @@ export function FeaturedMenu({ onSelectProduct, onQuickAdd: _onQuickAdd }) {
                         e.currentTarget.src = DEFAULT_TEA_IMAGE;
                       }}
                     />
-                    <span className={`badge-custom-tag ${getTagBadgeClass(product.tagColor)}`}>
+                    <span className={`badge-custom-tag bg-${product.tagColor || 'warning'}`}>
                       {product.tag}
                     </span>
                   </div>
