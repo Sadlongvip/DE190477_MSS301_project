@@ -1,10 +1,9 @@
 import React from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { FEATURES } from '../../constant/landingData';
 
 /**
  * WhyChooseUs Section - Khẳng định chất lượng và giá trị thương hiệu
- * Áp dụng hệ thống màu accent (Trà, Matcha, Hồng đào, Taro) và hiệu ứng hover micro-interaction
  */
 export function WhyChooseUs() {
   return (
@@ -12,9 +11,9 @@ export function WhyChooseUs() {
       <Container>
         {/* Section Header */}
         <div className="text-center mb-5">
-          <span className="section-badge-tea mb-2">
+          <Badge bg="info" className="px-3 py-2 rounded-pill fw-bold mb-2 text-white">
             🌿 CAM KẾT CHẤT LƯỢNG
-          </span>
+          </Badge>
           <h2 className="fw-bold text-dark display-6 mb-2">
             Tại Sao Bạn Sẽ Mê Shop_MilkTea?
           </h2>
@@ -25,11 +24,11 @@ export function WhyChooseUs() {
 
         {/* 4 Feature Cards */}
         <Row className="g-4">
-          {FEATURES.map((item, idx) => (
+          {FEATURES.map((item) => (
             <Col md={6} lg={3} key={item.id}>
-              <Card className={`glass-card h-100 p-4 border-0 text-center text-md-start animate-fade-up delay-${(idx + 1) * 100}`}>
+              <Card className="glass-card h-100 p-4 border-0 text-center text-md-start">
                 <div
-                  className={`rounded-4 d-inline-flex align-items-center justify-content-center mb-4 mx-auto mx-md-0 shadow-sm feature-icon-box ${item.accentClass || ''}`}
+                  className="rounded-4 d-inline-flex align-items-center justify-content-center mb-4 mx-auto mx-md-0 shadow-sm"
                   style={{
                     width: '64px',
                     height: '64px',
