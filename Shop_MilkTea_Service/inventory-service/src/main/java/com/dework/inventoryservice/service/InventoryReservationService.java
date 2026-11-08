@@ -86,11 +86,13 @@ public class InventoryReservationService {
         }
 
         // 3. Lưu bản ghi giữ chỗ kho vào DB
-        String itemsJson = null;
+        // Không được "nuốt" lỗi bằng fallback lưu dữ liệu: nếu serialize thất bại phải báo lỗi để retry/DLQ xử lý
+        String itemsJson;
         try {
             itemsJson = objectMapper.writeValueAsString(items);
         } catch (Exception e) {
-            log.error("Lỗi parse items sang JSON: {}", e.getMessage());
+            log.error("Lỗi parse items sang JSON: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể serialize items giữ chỗ kho: " + e.getMessage(), e);
         }
 
         InventoryReservation reservation = InventoryReservation.builder()
@@ -126,27 +128,33 @@ public class InventoryReservationService {
 
         // Hoàn trả lại số lượng tồn kho cho từng sản phẩm
         if (reservation.getItemsJson() != null && !reservation.getItemsJson().isBlank()) {
+            List<OrderItemPayload> items;
             try {
-                List<OrderItemPayload> items = objectMapper.readValue(
+                items = objectMapper.readValue(
                         reservation.getItemsJson(),
                         new TypeReference<List<OrderItemPayload>>() {}
                 );
-
-                for (OrderItemPayload item : items) {
-                    if (item.getMilkTeaId() != null) {
-                        milkTeaRepository.findById(item.getMilkTeaId()).ifPresent(milkTea -> {
-                            int reqQty = item.getQuantity() != null ? item.getQuantity() : 1;
-                            int currentStock = milkTea.getStockQuantity() != null ? milkTea.getStockQuantity() : 0;
-                            milkTea.setStockQuantity(currentStock + reqQty);
-                            milkTeaRepository.save(milkTea);
-                            log.info("Bù trừ thành công: Đã hoàn lại {} ly cho sản phẩm [{}] (Tồn mới: {})",
-                                    reqQty, milkTea.getName(), milkTea.getStockQuantity());
-                        });
-                    }
-                }
             } catch (Exception e) {
                 log.error("Lỗi khi đọc itemsJson trong quá trình bù trừ: {}", e.getMessage(), e);
+                throw new RuntimeException("Không thể deserialize items bù trừ kho: " + e.getMessage(), e);
             }
+
+            for (OrderItemPayload item : items) {
+                if (item.getMilkTeaId() != null) {
+                    // Không được "nuốt" lỗi 404/mất kết nối bằng ifPresent: phải báo lỗi để retry xử lý
+                    MilkTea milkTea = milkTeaRepository.findById(item.getMilkTeaId())
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm kho với ID: " + item.getMilkTeaId()));
+                    int reqQty = item.getQuantity() != null ? item.getQuantity() : 1;
+                    int currentStock = milkTea.getStockQuantity() != null ? milkTea.getStockQuantity() : 0;
+                    milkTea.setStockQuantity(currentStock + reqQty);
+                    milkTeaRepository.save(milkTea);
+                    log.info("Bù trừ thành công: Đã hoàn lại {} ly cho sản phẩm [{}] (Tồn mới: {})",
+                            reqQty, milkTea.getName(), milkTea.getStockQuantity());
+                }
+            }
+        } else {
+            // Không có dữ liệu items để bù trừ -> không được âm thầm coi như thành công
+            throw new RuntimeException("Bản ghi giữ chỗ của đơn hàng " + orderCode + " không có itemsJson để bù trừ");
         }
 
         // Cập nhật trạng thái bản ghi giữ chỗ thành RELEASED

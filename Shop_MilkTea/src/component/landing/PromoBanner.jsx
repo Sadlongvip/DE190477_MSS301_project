@@ -4,9 +4,8 @@ import { PROMOTIONS } from '../../constant/landingData';
 
 /**
  * Promo Banner Section - Khu vực Voucher & Khuyến mãi đặc biệt
- * Tích hợp hệ thống màu gradient voucher & tương tác sao chép mã tiện lợi
  */
-export function PromoBanner({ onOpenCart: _onOpenCart }) {
+export function PromoBanner({ onOpenCart }) {
   const [copiedCode, setCopiedCode] = useState('');
 
   const handleCopy = (code) => {
@@ -22,9 +21,9 @@ export function PromoBanner({ onOpenCart: _onOpenCart }) {
       <Container>
         {/* Section Header */}
         <div className="text-center mb-5">
-          <span className="section-badge-tea mb-2 d-inline-flex">
+          <Badge bg="warning" text="dark" className="px-3 py-2 rounded-pill fw-bold mb-2">
             🎁 ƯU ĐÃI NỔI BẬT HÔM NAY
-          </span>
+          </Badge>
           <h2 className="fw-bold text-dark display-6 mb-2">
             Mã Giảm Giá & Combo Tiết Kiệm
           </h2>
@@ -35,22 +34,22 @@ export function PromoBanner({ onOpenCart: _onOpenCart }) {
 
         {/* Voucher Cards Grid */}
         <Row className="g-4">
-          {PROMOTIONS.map((promo, idx) => {
+          {PROMOTIONS.map((promo) => {
             const isCopied = copiedCode === promo.code;
             return (
               <Col md={4} key={promo.id}>
-                <Card className={`border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative bg-white animate-fade-up delay-${(idx + 1) * 100}`}>
-                  {/* Top colored strip with custom accent gradient */}
+                <Card className="border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative bg-white">
+                  {/* Top colored strip */}
                   <div
                     style={{
                       height: '6px',
-                      background: promo.stripGradient || 'linear-gradient(90deg, #f59e0b 0%, #854d0e 100%)',
+                      background: 'linear-gradient(90deg, #f59e0b 0%, #854d0e 100%)',
                     }}
                   />
                   <Card.Body className="p-4 d-flex flex-column justify-content-between">
                     <div>
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <Badge bg={promo.badgeVariant || 'danger'} className="px-2.5 py-1 rounded-pill small fw-semibold">
+                        <Badge bg="danger" className="px-2 py-1 rounded-pill small">
                           {promo.badge}
                         </Badge>
                         <small className="text-muted">{promo.expiry}</small>
@@ -61,24 +60,22 @@ export function PromoBanner({ onOpenCart: _onOpenCart }) {
                     </div>
 
                     <div className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-light border border-dashed">
-                      <div className="voucher-code-box">
+                      <div className="font-monospace fw-bold text-dark px-2">
                         {promo.code}
                       </div>
                       <Button
                         variant={isCopied ? 'success' : 'warning'}
                         size="sm"
                         onClick={() => handleCopy(promo.code)}
-                        className="rounded-pill px-3 py-1.5 fw-bold text-dark d-flex align-items-center gap-1 shadow-sm"
+                        className="rounded-pill px-3 py-1 fw-bold text-dark"
                       >
                         {isCopied ? (
                           <>
-                            <i className="bi bi-check-lg"></i>
-                            <span>Đã chép</span>
+                            <i className="bi bi-check-lg me-1"></i> Đã chép
                           </>
                         ) : (
                           <>
-                            <i className="bi bi-clipboard"></i>
-                            <span>Sao chép</span>
+                            <i className="bi bi-clipboard me-1"></i> Sao chép
                           </>
                         )}
                       </Button>

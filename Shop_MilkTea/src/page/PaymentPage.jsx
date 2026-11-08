@@ -83,19 +83,10 @@ export function PaymentPage() {
     } finally {
       setLoading(false);
     }
-  }, [orderCode, location.state]);
+  }, [orderCode]);
 
   useEffect(() => {
-    let isMounted = true;
-    const run = async () => {
-      if (isMounted) {
-        await initPayment();
-      }
-    };
-    run();
-    return () => {
-      isMounted = false;
-    };
+    initPayment();
   }, [initPayment]);
 
   // 2. Bộ đếm ngược 15 phút (thời gian hiệu lực của mã QR VNPay)
@@ -301,8 +292,6 @@ export function PaymentPage() {
                       <img
                         src="https://sandbox.vnpayment.vn/paymentv2/Images/brands/logo.svg"
                         alt="VNPay"
-                        loading="lazy"
-                        decoding="async"
                         style={{ height: '28px' }}
                         onError={(e) => {
                           e.target.style.display = 'none';

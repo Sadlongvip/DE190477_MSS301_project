@@ -57,6 +57,11 @@ public class OrderService {
     @Value("${saga.demo.simulate-compensation-failure:false}")
     private boolean simulateCompensationFailure;
 
+    // Cho phép bật/tắt giả lập lỗi bù trừ trong kiểm thử (không "nuốt" lỗi thật)
+    public void setSimulateCompensationFailure(boolean simulateCompensationFailure) {
+        this.simulateCompensationFailure = simulateCompensationFailure;
+    }
+
     // Spring Framework 7: RetryTemplate có sẵn trong spring-core (không cần thư viện spring-retry).
     // maxRetries(2) = 1 lần chạy đầu + 2 lần thử lại = tối đa 3 lần, cách nhau 1 giây (chuẩn Slot 13 KB8).
     private final RetryTemplate compensationRetry = new RetryTemplate(

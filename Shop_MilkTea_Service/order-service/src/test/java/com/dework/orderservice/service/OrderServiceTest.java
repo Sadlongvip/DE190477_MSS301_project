@@ -10,8 +10,10 @@ import com.dework.orderservice.model.OrderItem;
 import com.dework.orderservice.model.OrderStatus;
 import com.dework.orderservice.model.PaymentMethod;
 import com.dework.orderservice.model.PaymentStatus;
+import com.dework.orderservice.kafka.OrderEventProducer;
 import com.dework.orderservice.repository.CartRepository;
 import com.dework.orderservice.repository.OrderRepository;
+import com.dework.orderservice.repository.SagaLogRepository;
 import com.dework.orderservice.service.PriceVerificationService;
 import com.dework.orderservice.service.PriceVerificationService.VerifiedProductInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +47,12 @@ class OrderServiceTest {
 
     @Mock
     private PriceVerificationService priceVerificationService;
+
+    @Mock
+    private OrderEventProducer orderEventProducer;
+
+    @Mock
+    private SagaLogRepository sagaLogRepository;
 
     @InjectMocks
     private OrderService orderService;
