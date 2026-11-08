@@ -26,7 +26,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 450M
 
   kafka:
     image: apache/kafka:3.8.0
@@ -57,7 +57,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 450M
 
   api-gateway:
     build:
@@ -70,6 +70,7 @@ services:
       SERVICES_PAYMENT_URL: http://payment-service:8084
       SERVICES_REPORT_URL: http://report-service:8085
       APP_JWT_SECRET: shop-milktea-service-secret-key-2026-mss301
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
     ports:
       - "9000:9000"
     depends_on:
@@ -87,7 +88,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 250M
+          memory: 300M
     restart: unless-stopped
 
   customer-service:
@@ -98,6 +99,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
     ports:
       - "8081:8081"
     depends_on:
@@ -107,7 +109,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 250M
+          memory: 350M
     restart: unless-stopped
 
   inventory-service:
@@ -119,6 +121,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
     ports:
       - "8082:8082"
     depends_on:
@@ -130,7 +133,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 250M
+          memory: 350M
     restart: unless-stopped
 
   order-service:
@@ -143,7 +146,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: rootpassword
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVICES_INVENTORY_URL: http://inventory-service:8082
-      JAVA_OPTS: "-Xms64m -Xmx192m -XX:MaxMetaspaceSize=96m -Xss256k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
     ports:
       - "8083:8083"
     depends_on:
@@ -157,7 +160,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 384M
     restart: unless-stopped
 
   payment-service:
@@ -171,6 +174,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SERVICES_ORDER_URL: http://order-service:8083
       VNPAY_RETURN_URL: http://localhost:5173/payment/vnpay-return
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
     ports:
       - "8084:8084"
     depends_on:
@@ -184,7 +188,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 250M
+          memory: 350M
     restart: unless-stopped
 
   report-service:
@@ -199,6 +203,7 @@ services:
       SERVICES_ORDER_URL: http://order-service:8083
       SERVICES_INVENTORY_URL: http://inventory-service:8082
       SERVICES_CUSTOMER_URL: http://customer-service:8081
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
     ports:
       - "8085:8085"
     depends_on:
@@ -210,7 +215,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 250M
+          memory: 350M
     restart: unless-stopped
 
   frontend:
