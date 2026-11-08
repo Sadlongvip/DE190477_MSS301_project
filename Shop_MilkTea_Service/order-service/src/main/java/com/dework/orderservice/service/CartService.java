@@ -129,21 +129,23 @@ public class CartService {
     @Transactional
     public void clearCart(Long userId, String sessionId) {
         Cart cart = findCart(userId, sessionId);
-        cart.getItems().clear();
-        cart.recalculateTotals();
-        cartRepository.save(cart);
-        log.info("Cart cleared: cartId={}", cart.getId());
+        if (cart.getId() != null) {
+            cart.getItems().clear();
+            cart.recalculateTotals();
+            cartRepository.save(cart);
+            log.info("Cart cleared: cartId={}", cart.getId());
+        }
     }
 
     private Cart findCart(Long userId, String sessionId) {
         if (userId != null) {
             return cartRepository.findByUserId(userId)
-                    .orElseGet(() -> cartRepository.save(Cart.builder().userId(userId).build()));
+                    .orElseGet(() -> Cart.builder().userId(userId).build());
         }
         if (sessionId != null && !sessionId.isBlank()) {
             String sid = sessionId.trim();
             return cartRepository.findBySessionId(sid)
-                    .orElseGet(() -> cartRepository.save(Cart.builder().sessionId(sid).build()));
+                    .orElseGet(() -> Cart.builder().sessionId(sid).build());
         }
         throw ApiException.badRequest("Cần cung cấp userId hoặc sessionId để xác định giỏ hàng");
     }
