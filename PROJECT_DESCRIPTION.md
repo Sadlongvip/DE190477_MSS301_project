@@ -84,11 +84,17 @@ Dự án phục vụ mục đích học tập và nghiên cứu, minh họa đ�
 flowchart TD
     Client["💻 Frontend Client (React 19 + Vite)\nPort: 5173"] -->|REST API Requests| Gateway["🚪 API Gateway (Spring Cloud Gateway)\nPort: 9000"]
 
-    Gateway -->|/api/auth/**\n/api/accounts/**| CustomerSvc["👤 Customer Service\nPort: 8081\nDB: customer_db"]
-    Gateway -->|/api/milkteas/**\n/api/categories/**\n/api/toppings/**| InventorySvc["📦 Inventory Service\nPort: 8082\nDB: inventory_db"]
-    Gateway -->|/api/orders/**\n/api/carts/**| OrderSvc["🧾 Order Service\nPort: 8083\nDB: order_db"]
-    Gateway -->|/api/payments/**| PaymentSvc["💳 Payment Service\nPort: 8084\nDB: payment_db"]
-    Gateway -->|/api/reports/**| ReportSvc["📊 Report Service\nPort: 8085\nDB: report_db"]
+    Gateway -->|/api/auth/**\n/api/accounts/**| CustomerSvc["👤 Customer Service\nPort: 8081"]
+    Gateway -->|/api/milkteas/**\n/api/categories/**\n/api/toppings/**| InventorySvc["📦 Inventory Service\nPort: 8082"]
+    Gateway -->|/api/orders/**\n/api/carts/**| OrderSvc["🧾 Order Service\nPort: 8083"]
+    Gateway -->|/api/payments/**| PaymentSvc["💳 Payment Service\nPort: 8084"]
+    Gateway -->|/api/reports/**| ReportSvc["📊 Report Service\nPort: 8085"]
+
+    CustomerSvc --> CustomerDB[("🗄️ customer_db\nMySQL 8.4")]
+    InventorySvc --> InventoryDB[("🗄️ inventory_db\nMySQL 8.4")]
+    OrderSvc --> OrderDB[("🗄️ order_db\nMySQL 8.4")]
+    PaymentSvc --> PaymentDB[("🗄️ payment_db\nMySQL 8.4")]
+    ReportSvc --> ReportDB[("🗄️ report_db\nMySQL 8.4")]
 
     subgraph KafkaBroker ["📬 Event Bus (Apache Kafka 3.8.0 - Port 9092)"]
         direction LR
@@ -100,7 +106,7 @@ flowchart TD
     OrderSvc <-->|Publish / Subscribe| KafkaBroker
     InventorySvc <-->|Publish / Subscribe| KafkaBroker
     PaymentSvc <-->|Publish / Subscribe| KafkaBroker
-    ReportSvc <-->|Subscribe| KafkaBroker
+    ReportSvc -->|Subscribe| KafkaBroker
 ```
 
 ### 4.3. Danh Sách Microservices
