@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Offcanvas, Button, Badge, Form, InputGroup, Alert } from 'react-bootstrap';
+import { Offcanvas, Button, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import useCart from '../../hook/useCart';
 import { DEFAULT_TEA_IMAGE } from '../../constant/landingData';
@@ -13,7 +12,6 @@ export function CartDrawer({
   cartItems: propCartItems,
   onUpdateQuantity: propUpdateQuantity,
   onRemoveItem: propRemoveItem,
-  onClearCart: propClearCart,
 }) {
   const navigate = useNavigate();
   const cartContext = useCart();
@@ -22,7 +20,6 @@ export function CartDrawer({
   const cartItems = propCartItems !== undefined ? propCartItems : cartContext.cartItems;
   const onUpdateQuantity = propUpdateQuantity || cartContext.updateQuantity;
   const onRemoveItem = propRemoveItem || cartContext.removeItem;
-  const onClearCart = propClearCart || cartContext.clearCart;
   const lastCompletedOrder = cartContext.lastCompletedOrder;
   const clearLastCompletedOrder = cartContext.clearLastCompletedOrder;
 

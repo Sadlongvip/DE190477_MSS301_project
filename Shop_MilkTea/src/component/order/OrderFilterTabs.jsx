@@ -1,4 +1,3 @@
-import React from 'react';
 import { Nav, Badge } from 'react-bootstrap';
 import useOrder from '../../hook/useOrder';
 

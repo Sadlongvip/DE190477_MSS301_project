@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Card, Form, Button, ProgressBar, Alert, Badge } from 'react-bootstrap';
+import { Card, Button, ProgressBar } from 'react-bootstrap';
 
 /**
  * Component Tóm Tắt Đơn Hàng & Tính Chi Phí cho Trang Giỏ Hàng
@@ -11,28 +10,10 @@ export function CartSummaryCard({
   isFreeShipping,
   freeShippingRemaining,
   freeShippingProgress,
-  appliedVoucher,
   discountAmount,
-  voucherError,
   finalTotal,
-  onApplyVoucher,
-  onRemoveVoucher,
   onCheckout,
 }) {
-  const [voucherInput, setVoucherInput] = useState('');
-
-  const handleApply = (e) => {
-    e.preventDefault();
-    if (voucherInput.trim()) {
-      onApplyVoucher(voucherInput.trim());
-      setVoucherInput('');
-    }
-  };
-
-  const handleQuickVoucher = (code) => {
-    onApplyVoucher(code);
-  };
-
   return (
     <Card className="border-0 shadow-sm rounded-4 p-4 cart-summary-card sticky-top" style={{ top: '100px' }}>
       <h5 className="fw-bold mb-3 text-dark d-flex align-items-center gap-2">

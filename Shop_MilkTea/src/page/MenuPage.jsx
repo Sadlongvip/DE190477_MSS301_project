@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import { useState, useContext, useEffect, useMemo } from 'react';
 import { Container, Row, Col, Form, Button, Card, Badge, Spinner, Alert } from 'react-bootstrap';
 import { MainLayout } from '../layout';
 import { InventoryContext } from '../context/InventoryContext';

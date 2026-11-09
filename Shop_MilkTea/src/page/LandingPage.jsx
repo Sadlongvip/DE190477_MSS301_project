@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import { MainLayout } from '../layout';
 import HeroSection from '../component/landing/HeroSection';

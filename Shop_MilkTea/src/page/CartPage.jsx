@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
@@ -19,7 +19,6 @@ export function CartPage() {
   const navigate = useNavigate();
   const {
     cartItems,
-    loading: cartLoading,
     totalQuantity,
     subTotal,
     shippingFee,
