@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Modal, Button, Form, Badge, Row, Col } from 'react-bootstrap';
 import { InventoryContext } from '../../context/InventoryContext';
 import { TOPPINGS as FALLBACK_TOPPINGS, DEFAULT_TEA_IMAGE } from '../../constant/landingData';
@@ -25,17 +25,16 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [quantity, setQuantity] = useState(1);
 
-  // Reset state when product changes
-  useEffect(() => {
-    if (product) {
-      const defaultSize = availableSizes.find((s) => s.isDefault && s.isAvailable !== false) || availableSizes[0];
-      setSize(defaultSize ? defaultSize.code : 'M');
-      setSugar('70% Chuẩn vị');
-      setIce('Bình thường (100%)');
-      setSelectedToppings([]);
-      setQuantity(1);
-    }
-  }, [product, availableSizes]);
+  // Reset lựa chọn tùy biến về mặc định mỗi lần Modal hiển thị (qua sự kiện onShow của Modal,
+  // tránh gọi setState đồng bộ trong useEffect gây cascading renders)
+  const handleModalShow = () => {
+    const defaultSize = availableSizes.find((s) => s.isDefault && s.isAvailable !== false) || availableSizes[0];
+    setSize(defaultSize ? defaultSize.code : 'M');
+    setSugar('70% Chuẩn vị');
+    setIce('Bình thường (100%)');
+    setSelectedToppings([]);
+    setQuantity(1);
+  };
 
   if (!product) return null;
 
@@ -85,7 +84,7 @@ export function ProductDetailModal({ show, product, onHide, onAddToCart }) {
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered size="lg" className="rounded-4">
+    <Modal show={show} onHide={onHide} onShow={handleModalShow} centered size="lg" className="rounded-4">
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="fw-bold fs-5">Tùy Chọn Đồ Uống</Modal.Title>
       </Modal.Header>

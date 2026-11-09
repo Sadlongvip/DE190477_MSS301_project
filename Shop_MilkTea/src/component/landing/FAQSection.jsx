@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Accordion, Badge, Form, Button, Alert } from 'react-bootstrap';
 import { FAQS } from '../../constant/landingData';
 

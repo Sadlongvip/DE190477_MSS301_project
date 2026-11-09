@@ -61,11 +61,17 @@ Hệ thống giải quyết bài toán giao dịch phân tán phức tạp giữ
 flowchart TD
     Client["💻 Frontend Client (React 19 + Vite)\nPort: 5173"] -->|REST API Requests| Gateway["🚪 API Gateway (Spring Cloud Gateway)\nPort: 9000"]
     
-    Gateway -->|/api/auth/**\n/api/accounts/**| CustomerSvc["👤 Customer Service\nPort: 8081\nDB: customer_db"]
-    Gateway -->|/api/milkteas/**\n/api/categories/**\n/api/toppings/**| InventorySvc["📦 Inventory Service\nPort: 8082\nDB: inventory_db"]
-    Gateway -->|/api/orders/**\n/api/carts/**| OrderSvc["🧾 Order Service\nPort: 8083\nDB: order_db"]
-    Gateway -->|/api/payments/**| PaymentSvc["💳 Payment Service\nPort: 8084\nDB: payment_db"]
-    Gateway -->|/api/reports/**| ReportSvc["📊 Report Service\nPort: 8085\nDB: order_db / report_db"]
+    Gateway -->|/api/auth/**\n/api/accounts/**| CustomerSvc["👤 Customer Service\nPort: 8081"]
+    Gateway -->|/api/milkteas/**\n/api/categories/**\n/api/toppings/**| InventorySvc["📦 Inventory Service\nPort: 8082"]
+    Gateway -->|/api/orders/**\n/api/carts/**| OrderSvc["🧾 Order Service\nPort: 8083"]
+    Gateway -->|/api/payments/**| PaymentSvc["💳 Payment Service\nPort: 8084"]
+    Gateway -->|/api/reports/**| ReportSvc["📊 Report Service\nPort: 8085"]
+
+    CustomerSvc --> CustomerDB[("🗄️ customer_db\nMySQL 8.4")]
+    InventorySvc --> InventoryDB[("🗄️ inventory_db\nMySQL 8.4")]
+    OrderSvc --> OrderDB[("🗄️ order_db\nMySQL 8.4")]
+    PaymentSvc --> PaymentDB[("🗄️ payment_db\nMySQL 8.4")]
+    ReportSvc --> ReportDB[("🗄️ report_db\nMySQL 8.4")]
 
     subgraph KafkaBroker ["📬 Event Bus (Apache Kafka 3.8.0 - Port 9092)"]
         direction LR
@@ -77,6 +83,7 @@ flowchart TD
     OrderSvc <-->|Publish / Subscribe| KafkaBroker
     InventorySvc <-->|Publish / Subscribe| KafkaBroker
     PaymentSvc <-->|Publish / Subscribe| KafkaBroker
+    ReportSvc -->|Subscribe| KafkaBroker
 ```
 
 ---
@@ -134,7 +141,7 @@ Mỗi service áp dụng chặt chẽ mẫu hình **Database-per-Service**, qu�
 | **Inventory Service** | `8082` | `inventory_db` | Quản lý danh mục trà sữa, sản phẩm, size, topping, kiểm soát tồn kho và giữ chỗ hàng (`InventoryReservation`). |
 | **Order Service** | `8083` | `order_db` | Quản lý giỏ hàng (`Cart`), đơn hàng (`Order`), điều phối quy trình Saga và lưu vết nhật ký `SagaLog`. |
 | **Payment Service** | `8084` | `payment_db` | Xử lý thanh toán, lưu vết lịch sử giao dịch và bắn sự kiện thanh toán lên Kafka. |
-| **Report Service** | `8085` | `report_db` / `order_db` | Tổng hợp số liệu, cung cấp các API phân tích kinh doanh phục vụ Dashboard quản trị. |
+| **Report Service** | `8085` | `report_db` | Tổng hợp số liệu, cung cấp các API phân tích kinh doanh phục vụ Dashboard quản trị. |
 | **Frontend Web** | `5173` | *Client SPA* | Ứng dụng giao diện người dùng React 19 + Vite cho khách hàng và phân hệ quản trị. |
 
 ---
@@ -214,6 +221,23 @@ npm install
 npm run dev
 ```
 
+#### Bước 4: Khởi động toàn bộ hệ thống bằng Docker Compose (Backend + Frontend + Infra)
+```bash
+cd Shop_MilkTea_Service
+docker compose up -d --build
+```
+Hệ thống sẽ build và chạy MySQL, Kafka, 6 backend services và frontend (nginx).  
+Giới hạn RAM mỗi backend service: `350M` (order-service: `384M`, api-gateway: `300M`), MySQL/Kafka: `450M`, frontend: `64M`.
+
+Dừng hệ thống:
+```bash
+docker compose down
+```
+Xóa luôn dữ liệu MySQL (reset):
+```bash
+docker compose down -v
+```
+
 ---
 
 ## 🔑 7. Tài Khoản Thử Nghiệm Mặc Định
@@ -267,7 +291,8 @@ DE190477_MSS301_project/
 │   └── vite.config.js
 │
 └── Shop_MilkTea_Service/            # Backend Microservices (Spring Boot)
-    ├── docker-compose.yml           # Khởi tạo MySQL 8.4 và Apache Kafka 3.8
+    ├── docker-compose.yml           # Chạy toàn bộ: MySQL, Kafka, 6 backend, frontend
+    ├── */Dockerfile                 # Dockerfile cho từng service (multi-stage)
     ├── mysql/
     │   └── init.sql                 # Script khởi tạo 5 database độc lập
     ├── api-gateway/                 # Spring Cloud Gateway (Port 9000)

@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useContext } from 'react';
-import { Container, Row, Col, Card, Button, Badge, Form, InputGroup } from 'react-bootstrap';
+import { useState, useMemo, useContext } from 'react';
+import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { InventoryContext } from '../../context/InventoryContext';
 import { CATEGORIES as FALLBACK_CATEGORIES, PRODUCTS as FALLBACK_PRODUCTS } from '../../constant/landingData';
 
@@ -10,7 +10,7 @@ const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1541658016709-82535
  * Ưu tiên hiển thị dữ liệu từ Backend thông qua InventoryContext (API Gateway)
  * Có Fallback an toàn sang dữ liệu mẫu nếu Backend chưa sẵn sàng.
  */
-export function FeaturedMenu({ onSelectProduct, onQuickAdd }) {
+export function FeaturedMenu({ onSelectProduct }) {
   const { categories: beCategories, milkTeas: beMilkTeas } = useContext(InventoryContext) || {};
 
   const [activeCategory, setActiveCategory] = useState('all');

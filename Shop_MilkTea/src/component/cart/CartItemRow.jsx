@@ -1,5 +1,4 @@
-import React from 'react';
-import { Badge, Button } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 import { DEFAULT_TEA_IMAGE } from '../../constant/landingData';
 
 /**

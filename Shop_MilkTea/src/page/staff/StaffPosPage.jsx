@@ -1,6 +1,5 @@
-import React, { useState, useContext, useMemo, useEffect } from 'react';
+import { useState, useContext, useMemo, useEffect, lazy } from 'react';
 import {
-  Container,
   Row,
   Col,
   Card,
@@ -15,8 +14,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { InventoryContext } from '../../context/InventoryContext';
 import { AuthContext } from '../../context/AuthContext';
-import ProductDetailModal from '../../component/landing/ProductDetailModal';
+import LazySuspense from '../../component/common/LazySuspense';
 import orderService from '../../service/orderService';
+
+// Nạp lười (Lazy Loading & Code Splitting) Modal Tùy chỉnh món (chỉ tải khi mở lần đầu)
+const ProductDetailModal = lazy(() => import('../../component/landing/ProductDetailModal'));
 import { formatPrice } from '../../util/formatPrice';
 
 const DEFAULT_TEA_IMAGE =
@@ -592,18 +594,20 @@ export function StaffPosPage() {
             className="h-100 d-flex flex-column ps-lg-2"
             style={{ minHeight: 0 }}
           >
-            <Card className="border-0 shadow-sm rounded-4 h-100 d-flex flex-column p-3 bg-white">
+            <Card
+              className="border-0 shadow-sm rounded-4 h-100 d-flex flex-column bg-white overflow-hidden p-2 p-md-3"
+            >
               {/* Header giỏ */}
-              <div className="d-flex align-items-center justify-content-between pb-3 mb-2 border-bottom flex-shrink-0">
+              <div className="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom flex-shrink-0">
                 <div className="d-flex align-items-center gap-2">
                   <div
-                    className="rounded-3 d-flex align-items-center justify-content-center bg-warning bg-opacity-25 text-warning"
-                    style={{ width: '38px', height: '38px' }}
+                    className="rounded-3 d-flex align-items-center justify-content-center bg-warning bg-opacity-25 text-warning flex-shrink-0"
+                    style={{ width: '34px', height: '34px' }}
                   >
                     <i className="bi bi-receipt-cutoff fs-5"></i>
                   </div>
                   <div>
-                    <h5 className="fw-bold mb-0 text-dark">Đơn Hàng Hiện Tại</h5>
+                    <h6 className="fw-bold mb-0 text-dark">Đơn Hàng Hiện Tại</h6>
                     <small className="text-muted" style={{ fontSize: '0.75rem' }}>
                       {totalQuantity} món • {formatPrice(totalAmount)}
                     </small>
@@ -614,8 +618,9 @@ export function StaffPosPage() {
                     variant="outline-danger"
                     size="sm"
                     onClick={handleClearCart}
-                    className="rounded-pill px-3 py-2 border-0 small d-flex align-items-center gap-2"
+                    className="rounded-pill px-2.5 py-1 border-0 small d-flex align-items-center gap-1"
                     title="Xóa toàn bộ giỏ đơn này"
+                    style={{ fontSize: '0.78rem' }}
                   >
                     <i className="bi bi-trash"></i>
                     <span>Hủy đơn</span>
@@ -629,9 +634,10 @@ export function StaffPosPage() {
                   variant="danger"
                   dismissible
                   onClose={() => setErrorMessage('')}
-                  className="rounded-3 py-2 px-3 small mb-2 flex-shrink-0"
+                  className="rounded-3 py-1.5 px-2.5 small mb-2 flex-shrink-0"
+                  style={{ fontSize: '0.8rem' }}
                 >
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  <i className="bi bi-exclamation-triangle-fill me-1"></i>
                   {errorMessage}
                 </Alert>
               )}
@@ -639,19 +645,19 @@ export function StaffPosPage() {
               {/* Danh sách các ly đã chọn (Cuộn độc lập) */}
               <div
                 className="flex-grow-1 overflow-y-auto mb-2 pe-1"
-                style={{ minHeight: '130px' }}
+                style={{ minHeight: 0 }}
               >
                 {posCart.length === 0 ? (
-                  <div className="h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 text-muted">
+                  <div className="h-100 d-flex flex-column align-items-center justify-content-center text-center py-2 text-muted">
                     <div
                       className="rounded-circle d-flex align-items-center justify-content-center bg-light text-secondary mb-2"
-                      style={{ width: '60px', height: '60px' }}
+                      style={{ width: '46px', height: '46px' }}
                     >
-                      <i className="bi bi-cart-x fs-2"></i>
+                      <i className="bi bi-cart-x fs-4"></i>
                     </div>
                     <span className="fw-medium small text-dark">Chưa có món nào trong đơn</span>
-                    <p className="text-muted small mt-1 mb-0" style={{ fontSize: '0.78rem' }}>
-                      Nhấp vào món ở cột thực đơn bên trái để thêm vào đơn.
+                    <p className="text-muted small mt-1 mb-0" style={{ fontSize: '0.75rem' }}>
+                      Nhấp vào món ở thực đơn bên trái để thêm vào đơn.
                     </p>
                   </div>
                 ) : (
@@ -659,13 +665,13 @@ export function StaffPosPage() {
                     {posCart.map((item) => (
                       <div
                         key={item.cartItemId}
-                        className="p-3 rounded-3 bg-light border d-flex gap-2 align-items-center position-relative"
+                        className="p-2 rounded-3 bg-light border d-flex gap-2 align-items-center position-relative"
                       >
                         <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                          <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div className="d-flex justify-content-between align-items-start mb-1">
                             <span
                               className="fw-bold text-dark small text-truncate pe-2"
-                              style={{ maxWidth: '170px' }}
+                              style={{ maxWidth: '170px', fontSize: '0.85rem' }}
                               title={item.name}
                             >
                               {item.name}
@@ -675,8 +681,8 @@ export function StaffPosPage() {
                             </span>
                           </div>
 
-                          <div className="text-muted d-flex align-items-center gap-2 flex-wrap" style={{ fontSize: '0.75rem' }}>
-                            <Badge bg="warning" text="dark" className="px-2 py-1">
+                          <div className="text-muted d-flex align-items-center gap-2 flex-wrap" style={{ fontSize: '0.73rem' }}>
+                            <Badge bg="warning" text="dark" className="px-2 py-0.5">
                               Size {item.size}
                             </Badge>
                             <span>Đường: {item.sugar} • Đá: {item.ice}</span>
@@ -690,16 +696,16 @@ export function StaffPosPage() {
                           )}
 
                           {/* Bộ tăng giảm số lượng */}
-                          <div className="d-flex align-items-center gap-2 mt-2">
+                          <div className="d-flex align-items-center gap-2 mt-1.5">
                             <div
-                              className="d-flex align-items-center bg-white rounded-pill border px-2 py-1 shadow-xs"
+                              className="d-flex align-items-center bg-white rounded-pill border px-1.5 py-0.5 shadow-xs"
                               style={{ border: '1px solid #cbd5e1' }}
                             >
                               <Button
                                 variant="light"
                                 size="sm"
                                 className="rounded-circle p-0 d-flex align-items-center justify-content-center text-dark border-0"
-                                style={{ width: '26px', height: '26px', backgroundColor: '#f1f5f9' }}
+                                style={{ width: '24px', height: '24px', backgroundColor: '#f1f5f9' }}
                                 onClick={() =>
                                   handleUpdateQuantity(item.cartItemId, item.quantity - 1)
                                 }
@@ -707,8 +713,8 @@ export function StaffPosPage() {
                                 <i className="bi bi-dash fw-bold fs-6"></i>
                               </Button>
                               <span
-                                className="fw-bold px-3 text-dark fs-6"
-                                style={{ minWidth: '40px', textAlign: 'center' }}
+                                className="fw-bold px-2.5 text-dark"
+                                style={{ minWidth: '32px', textAlign: 'center', fontSize: '0.88rem' }}
                               >
                                 {item.quantity}
                               </span>
@@ -716,7 +722,7 @@ export function StaffPosPage() {
                                 variant="warning"
                                 size="sm"
                                 className="rounded-circle p-0 d-flex align-items-center justify-content-center text-dark border-0"
-                                style={{ width: '26px', height: '26px' }}
+                                style={{ width: '24px', height: '24px' }}
                                 onClick={() =>
                                   handleUpdateQuantity(item.cartItemId, item.quantity + 1)
                                 }
@@ -724,7 +730,7 @@ export function StaffPosPage() {
                                 <i className="bi bi-plus fw-bold fs-6"></i>
                               </Button>
                             </div>
-                            <span className="text-muted small ms-2" style={{ fontSize: '0.78rem' }}>
+                            <span className="text-muted small ms-1" style={{ fontSize: '0.75rem' }}>
                               x {formatPrice(item.unitPrice)}
                             </span>
                             <button
@@ -743,28 +749,28 @@ export function StaffPosPage() {
               </div>
 
               {/* Form chốt đơn & Thanh toán (Gắn ở đáy cột) */}
-              <div className="border-top pt-3 mt-auto flex-shrink-0 small">
+              <div className="border-top pt-2 mt-auto flex-shrink-0 small">
                 {/* 1. Loại đơn: Dùng tại quán / Mang về */}
                 <div className="d-flex gap-2 mb-2">
                   <Button
                     size="sm"
                     variant={orderType === 'DINE_IN' ? 'warning' : 'outline-secondary'}
-                    className={`flex-grow-1 rounded-pill py-2 fw-bold ${
+                    className={`flex-grow-1 rounded-pill py-1 fw-bold ${
                       orderType === 'DINE_IN' ? 'text-dark shadow-sm' : 'border-opacity-50'
                     }`}
                     onClick={() => setOrderType('DINE_IN')}
                   >
-                    <i className="bi bi-cup-hot me-2"></i>Dùng tại quán
+                    <i className="bi bi-cup-hot me-1.5"></i>Dùng tại quán
                   </Button>
                   <Button
                     size="sm"
                     variant={orderType === 'TAKE_AWAY' ? 'warning' : 'outline-secondary'}
-                    className={`flex-grow-1 rounded-pill py-2 fw-bold ${
+                    className={`flex-grow-1 rounded-pill py-1 fw-bold ${
                       orderType === 'TAKE_AWAY' ? 'text-dark shadow-sm' : 'border-opacity-50'
                     }`}
                     onClick={() => setOrderType('TAKE_AWAY')}
                   >
-                    <i className="bi bi-bag-check me-2"></i>Mang về
+                    <i className="bi bi-bag-check me-1.5"></i>Mang về
                   </Button>
                 </div>
 
@@ -776,7 +782,7 @@ export function StaffPosPage() {
                       placeholder="Tên khách hàng"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className="rounded-3 py-2 px-3"
+                      className="rounded-3 py-1 px-2.5"
                     />
                   </Col>
                   <Col xs={5}>
@@ -785,7 +791,7 @@ export function StaffPosPage() {
                       placeholder="Số ĐT (tùy chọn)"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="rounded-3 py-2 px-3"
+                      className="rounded-3 py-1 px-2.5"
                     />
                   </Col>
                 </Row>
@@ -795,31 +801,31 @@ export function StaffPosPage() {
                   <Button
                     size="sm"
                     variant={paymentMethod === 'COD' ? 'dark' : 'outline-secondary'}
-                    className="flex-grow-1 rounded-3 py-2 fw-semibold border-opacity-50"
+                    className="flex-grow-1 rounded-3 py-1 fw-semibold border-opacity-50"
                     onClick={() => setPaymentMethod('COD')}
                   >
-                    <i className="bi bi-cash-stack me-2 text-warning"></i>Tiền Mặt
+                    <i className="bi bi-cash-stack me-1.5 text-warning"></i>Tiền Mặt
                   </Button>
                   <Button
                     size="sm"
                     variant={paymentMethod === 'VNPAY' ? 'primary' : 'outline-secondary'}
-                    className="flex-grow-1 rounded-3 py-2 fw-semibold border-opacity-50"
+                    className="flex-grow-1 rounded-3 py-1 fw-semibold border-opacity-50"
                     onClick={() => setPaymentMethod('VNPAY')}
                   >
-                    <i className="bi bi-qr-code me-2"></i>Quét VNPay
+                    <i className="bi bi-qr-code me-1.5"></i>Quét VNPay
                   </Button>
                 </div>
 
                 {/* Nếu thanh toán Tiền mặt: Có gợi ý mệnh giá tiền nhanh */}
                 {paymentMethod === 'COD' && (
-                  <div className="bg-light p-3 rounded-3 border mb-2">
+                  <div className="bg-light p-2 rounded-3 border mb-2">
                     {/* Các nút bấm chọn tiền nhanh */}
-                    <div className="d-flex gap-2 mb-2 flex-wrap">
+                    <div className="d-flex gap-1.5 mb-2 flex-wrap" style={{ gap: '6px' }}>
                       <Button
                         size="sm"
                         variant="outline-secondary"
-                        className="py-1 px-3 rounded-pill border-opacity-50 text-dark fw-medium"
-                        style={{ fontSize: '0.78rem' }}
+                        className="py-0 px-2 rounded-pill border-opacity-50 text-dark fw-medium"
+                        style={{ fontSize: '0.75rem', lineHeight: '24px' }}
                         onClick={() => setCashGiven(String(totalAmount))}
                       >
                         Đúng số tiền
@@ -829,8 +835,8 @@ export function StaffPosPage() {
                           key={amt}
                           size="sm"
                           variant="outline-secondary"
-                          className="py-1 px-3 rounded-pill border-opacity-50 text-dark"
-                          style={{ fontSize: '0.78rem' }}
+                          className="py-0 px-2 rounded-pill border-opacity-50 text-dark"
+                          style={{ fontSize: '0.75rem', lineHeight: '24px' }}
                           onClick={() => setCashGiven(String(amt))}
                         >
                           {amt / 1000}k
@@ -838,8 +844,8 @@ export function StaffPosPage() {
                       ))}
                     </div>
 
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="text-muted fw-medium" style={{ fontSize: '0.82rem' }}>
+                    <div className="d-flex justify-content-between align-items-center mb-1.5">
+                      <span className="text-muted fw-medium" style={{ fontSize: '0.8rem' }}>
                         Tiền khách đưa:
                       </span>
                       <Form.Control
@@ -848,13 +854,13 @@ export function StaffPosPage() {
                         placeholder={String(totalAmount)}
                         value={cashGiven}
                         onChange={(e) => setCashGiven(e.target.value)}
-                        className="rounded-3 text-end py-2 px-3 fw-bold fs-6 border"
-                        style={{ width: '150px', height: '38px' }}
+                        className="rounded-3 text-end py-1 px-2 fw-bold border"
+                        style={{ width: '135px', height: '32px', fontSize: '0.9rem' }}
                       />
                     </div>
                     <div
                       className="d-flex justify-content-between align-items-center"
-                      style={{ fontSize: '0.82rem' }}
+                      style={{ fontSize: '0.8rem' }}
                     >
                       <span className="text-muted">Tiền thối lại:</span>
                       <strong className="text-success fs-6">{formatPrice(changeAmount)}</strong>
@@ -863,17 +869,17 @@ export function StaffPosPage() {
                 )}
 
                 {/* 4. Tổng kết chi phí & Nút Chốt đơn */}
-                <div className="d-flex justify-content-between align-items-center pt-2 border-top mb-2">
-                  <span className="fw-bold text-dark fs-6">TỔNG CỘNG:</span>
-                  <span className="fw-black text-danger fs-4 lh-1">
+                <div className="d-flex justify-content-between align-items-center pt-1.5 border-top mb-2">
+                  <span className="fw-bold text-dark" style={{ fontSize: '0.88rem' }}>TỔNG CỘNG:</span>
+                  <span className="fw-black text-danger fs-5 lh-1">
                     {formatPrice(totalAmount)}
                   </span>
                 </div>
 
                 <Button
                   variant="warning"
-                  size="lg"
-                  className="w-100 rounded-pill py-3 fw-bold text-dark shadow-sm d-flex align-items-center justify-content-center gap-2"
+                  className="w-100 rounded-pill py-2 fw-bold text-dark shadow-sm d-flex align-items-center justify-content-center gap-2"
+                  style={{ minHeight: '42px', fontSize: '0.95rem' }}
                   disabled={posCart.length === 0 || submittingOrder}
                   onClick={handleCheckoutAtCounter}
                 >
@@ -895,13 +901,15 @@ export function StaffPosPage() {
         </Row>
       </div>
 
-      {/* Modal Tùy chỉnh topping khi chọn món */}
-      <ProductDetailModal
-        show={Boolean(customizingProduct)}
-        product={customizingProduct}
-        onHide={() => setCustomizingProduct(null)}
-        onAddToCart={handleAddToCartFromModal}
-      />
+      {/* Modal Tùy chỉnh topping khi chọn món - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={Boolean(customizingProduct)}>
+        <ProductDetailModal
+          show={Boolean(customizingProduct)}
+          product={customizingProduct}
+          onHide={() => setCustomizingProduct(null)}
+          onAddToCart={handleAddToCartFromModal}
+        />
+      </LazySuspense>
 
       {/* Modal Hóa đơn bán lẻ tại quầy (Receipt) */}
       <Modal

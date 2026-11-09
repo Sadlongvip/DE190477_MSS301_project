@@ -1,24 +1,32 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   mysql:
-    image: mysql:8.4.1
+    image: mysql:8.4
     container_name: mysql_container
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --log-error-verbosity=1
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --log-error-verbosity=1 --innodb-buffer-pool-size=128M --max-connections=50
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging: *default-logging
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 500M
 
   kafka:
     image: apache/kafka:3.8.0
@@ -29,7 +37,7 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
@@ -38,10 +46,194 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
+      KAFKA_HEAP_OPTS: "-Xms128m -Xmx256m"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging: *default-logging
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 450M
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api_gateway
+    environment:
+      SERVICES_CUSTOMER_URL: http://customer-service:8081
+      SERVICES_INVENTORY_URL: http://inventory-service:8082
+      SERVICES_ORDER_URL: http://order-service:8083
+      SERVICES_PAYMENT_URL: http://payment-service:8084
+      SERVICES_REPORT_URL: http://report-service:8085
+      APP_JWT_SECRET: shop-milktea-service-secret-key-2026-mss301
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+    ports:
+      - "9000:9000"
+    depends_on:
+      customer-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      report-service:
+        condition: service_started
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    restart: unless-stopped
+
+  customer-service:
+    build:
+      context: ./customer-service
+    container_name: customer_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+    restart: unless-stopped
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+    container_name: inventory_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/inventory_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: ./order-service
+    container_name: order_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVICES_INVENTORY_URL: http://inventory-service:8082
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      inventory-service:
+        condition: service_started
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 450M
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/payment_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVICES_ORDER_URL: http://order-service:8083
+      VNPAY_RETURN_URL: http://localhost:5173/payment/vnpay-return
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+    restart: unless-stopped
+
+  report-service:
+    build:
+      context: ./report-service
+    container_name: report_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SERVICES_ORDER_URL: http://order-service:8083
+      SERVICES_INVENTORY_URL: http://inventory-service:8082
+      SERVICES_CUSTOMER_URL: http://customer-service:8081
+      JAVA_OPTS: "-Xms64m -Xmx144m -XX:MaxMetaspaceSize=160m -Xss384k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport"
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../Shop_MilkTea
+      args:
+        VITE_API_BASE_URL: http://localhost:9000
+    container_name: frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    restart: unless-stopped
 
 volumes:
   mysql_data:
