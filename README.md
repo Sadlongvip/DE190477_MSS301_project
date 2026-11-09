@@ -227,7 +227,7 @@ cd Shop_MilkTea_Service
 docker compose up -d --build
 ```
 Hệ thống sẽ build và chạy MySQL, Kafka, 6 backend services và frontend (nginx).  
-Giới hạn RAM mỗi backend service: `250M`, MySQL/Kafka: `384M`, frontend: `64M`.
+Giới hạn RAM mỗi backend service: `350M` (order-service: `384M`, api-gateway: `300M`), MySQL/Kafka: `450M`, frontend: `64M`.
 
 Dừng hệ thống:
 ```bash
