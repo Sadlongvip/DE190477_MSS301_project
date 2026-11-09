@@ -804,7 +804,7 @@ export function StaffPosPage() {
                     className="flex-grow-1 rounded-3 py-1 fw-semibold border-opacity-50"
                     onClick={() => setPaymentMethod('COD')}
                   >
-                    <i className="bi bi-cash-stack me-1.5 text-warning"></i>Tiền Mặt
+                    <i className="bi bi-cash-stack me-1.5 text-warning"></i>  Tiền Mặt
                   </Button>
                   <Button
                     size="sm"
@@ -812,7 +812,7 @@ export function StaffPosPage() {
                     className="flex-grow-1 rounded-3 py-1 fw-semibold border-opacity-50"
                     onClick={() => setPaymentMethod('VNPAY')}
                   >
-                    <i className="bi bi-qr-code me-1.5"></i>Quét VNPay
+                    <i className="bi bi-qr-code me-1.5"></i>  Quét VNPay
                   </Button>
                 </div>
 
