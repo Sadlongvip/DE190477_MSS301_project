@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, Badge, Spinner } from 'react-bootstrap';
 import MainLayout from '../layout/MainLayout';
 import useCart from '../hook/useCart';
@@ -14,7 +14,9 @@ export function PaymentReturnPage() {
   const navigate = useNavigate();
   const { totalQuantity } = useCart();
 
-  const [processing, setProcessing] = useState(true);
+  // Trạng thái xử lý được suy ra trực tiếp từ tham số URL (responseCode),
+  // nên không cần gọi setState đồng bộ trong effect khi trang mở mà không có callback
+  const [processing, setProcessing] = useState(Boolean(searchParams.get('vnp_ResponseCode')));
   const [ipnSynced, setIpnSynced] = useState(false);
 
   const responseCode = searchParams.get('vnp_ResponseCode');
@@ -32,27 +34,37 @@ export function PaymentReturnPage() {
   const detectedOrderCode = orderCodeMatch ? orderCodeMatch[0] : null;
 
   useEffect(() => {
+    // Chỉ đồng bộ IPN khi URL callback có mã phản hồi từ VNPay
+    if (!responseCode) return undefined;
+
+    let isMounted = true;
+
     // Tự động đồng bộ IPN với payment-service để đảm bảo DB luôn ghi nhận ngay
     const syncCallback = async () => {
       try {
         const allParams = Object.fromEntries(searchParams.entries());
-        if (allParams.vnp_SecureHash) {
+        const secureHash = allParams.vnp_SecureHash;
+        if (secureHash) {
           await paymentService.processVNPayIpn(allParams);
-          setIpnSynced(true);
+          if (isMounted) {
+            setIpnSynced(true);
+          }
         }
       } catch (err) {
         console.warn('Đồng bộ IPN cục bộ (có thể IPN đã được xử lý):', err.message);
       } finally {
-        setProcessing(false);
+        if (isMounted) {
+          setProcessing(false);
+        }
       }
     };
 
-    if (searchParams.get('vnp_ResponseCode')) {
-      syncCallback();
-    } else {
-      setProcessing(false);
-    }
-  }, [searchParams]);
+    syncCallback();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [responseCode, searchParams]);
 
   return (
     <MainLayout cartCount={totalQuantity} onOpenCart={() => navigate('/cart')}>
@@ -113,6 +125,12 @@ export function PaymentReturnPage() {
                     {orderInfo || 'Thanh toán đơn hàng'}
                   </span>
                 </div>
+                {ipnSynced && (
+                  <div className="text-success mt-2 pt-2 border-top">
+                    <i className="bi bi-cloud-check-fill me-1"></i>
+                    Giao dịch đã được đồng bộ thành công với hệ thống cửa hàng.
+                  </div>
+                )}
               </div>
 
               <div className="d-flex justify-content-center gap-3 flex-wrap">

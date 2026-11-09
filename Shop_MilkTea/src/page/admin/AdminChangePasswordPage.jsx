@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Card,
@@ -11,7 +11,6 @@ import {
   Toast,
   ToastContainer,
   Badge,
-  InputGroup,
 } from 'react-bootstrap';
 import AdminLayout from '../../layout/AdminLayout';
 import useAccount from '../../hook/useAccount';
@@ -28,7 +27,6 @@ export function AdminChangePasswordPage() {
 
   const {
     accounts,
-    loading,
     submitting,
     fetchAccounts,
     changePassword,

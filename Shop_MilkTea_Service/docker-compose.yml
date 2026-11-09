@@ -26,7 +26,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 450M
+          memory: 500M
 
   kafka:
     image: apache/kafka:3.8.0
@@ -160,7 +160,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 450M
     restart: unless-stopped
 
   payment-service:

@@ -1,10 +1,9 @@
-import React from 'react';
-import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 
 /**
  * Hero Section - Banner chính ấn tượng cho Shop_MilkTea
  */
-export function HeroSection({ onOpenCart }) {
+export function HeroSection() {
   return (
     <section id="home" className="position-relative py-5 overflow-hidden" style={{ background: 'linear-gradient(180deg, #fffbeb 0%, #faf7f2 100%)' }}>
       {/* Decorative blurred background lights */}

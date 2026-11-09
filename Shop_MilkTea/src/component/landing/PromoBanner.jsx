@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { PROMOTIONS } from '../../constant/landingData';
 
 /**
  * Promo Banner Section - Khu vực Voucher & Khuyến mãi đặc biệt
  */
-export function PromoBanner({ onOpenCart }) {
+export function PromoBanner() {
   const [copiedCode, setCopiedCode] = useState('');
 
   const handleCopy = (code) => {

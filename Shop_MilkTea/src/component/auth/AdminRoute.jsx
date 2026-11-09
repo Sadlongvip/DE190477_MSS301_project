@@ -1,5 +1,4 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useContext } from 'react';
 import { Container, Alert, Button } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
 
