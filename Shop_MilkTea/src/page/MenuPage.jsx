@@ -1,11 +1,14 @@
-import { useState, useContext, useEffect, useMemo } from 'react';
+import { useState, useContext, useEffect, useMemo, lazy } from 'react';
 import { Container, Row, Col, Form, Button, Card, Badge, Spinner, Alert } from 'react-bootstrap';
 import { MainLayout } from '../layout';
 import { InventoryContext } from '../context/InventoryContext';
-import CartDrawer from '../component/cart/CartDrawer';
-import LoginModal from '../component/auth/LoginModal';
-import ProductDetailModal from '../component/landing/ProductDetailModal';
+import LazySuspense from '../component/common/LazySuspense';
 import useCart from '../hook/useCart';
+
+// Nạp lười (Lazy Loading & Code Splitting) các Modal / Drawer (chỉ tải khi mở lần đầu)
+const CartDrawer = lazy(() => import('../component/cart/CartDrawer'));
+const LoginModal = lazy(() => import('../component/auth/LoginModal'));
+const ProductDetailModal = lazy(() => import('../component/landing/ProductDetailModal'));
 
 // Ảnh fallback chất lượng cao nếu ảnh từ backend không load được
 const DEFAULT_TEA_IMAGE = 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=600&auto=format&fit=crop&q=80';
@@ -433,31 +436,37 @@ export function MenuPage() {
         </Container>
       </div>
 
-      {/* Modal chi tiết món & Tùy chọn Topping */}
-      <ProductDetailModal
-        show={Boolean(selectedProduct)}
-        product={selectedProduct}
-        onHide={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-      />
+      {/* Modal chi tiết món & Tùy chọn Topping - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={Boolean(selectedProduct)}>
+        <ProductDetailModal
+          show={Boolean(selectedProduct)}
+          product={selectedProduct}
+          onHide={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+        />
+      </LazySuspense>
 
-      {/* Giỏ hàng dạng Drawer trượt */}
-      <CartDrawer
-        show={isCartOpen}
-        onHide={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={removeItem}
-        onClearCart={clearCart}
-      />
+      {/* Giỏ hàng dạng Drawer trượt - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={isCartOpen}>
+        <CartDrawer
+          show={isCartOpen}
+          onHide={() => setIsCartOpen(false)}
+          cartItems={cartItems}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeItem}
+          onClearCart={clearCart}
+        />
+      </LazySuspense>
 
 
-      {/* Modal Đăng Nhập / Đăng Ký */}
-      <LoginModal
-        show={isAuthOpen}
-        onHide={() => setIsAuthOpen(false)}
-        initialTab={authTab}
-      />
+      {/* Modal Đăng Nhập / Đăng Ký - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={isAuthOpen}>
+        <LoginModal
+          show={isAuthOpen}
+          onHide={() => setIsAuthOpen(false)}
+          initialTab={authTab}
+        />
+      </LazySuspense>
     </MainLayout>
   );
 }

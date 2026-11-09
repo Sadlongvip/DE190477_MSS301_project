@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo, useEffect } from 'react';
+import { useState, useContext, useMemo, useEffect, lazy } from 'react';
 import {
   Row,
   Col,
@@ -14,8 +14,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { InventoryContext } from '../../context/InventoryContext';
 import { AuthContext } from '../../context/AuthContext';
-import ProductDetailModal from '../../component/landing/ProductDetailModal';
+import LazySuspense from '../../component/common/LazySuspense';
 import orderService from '../../service/orderService';
+
+// Nạp lười (Lazy Loading & Code Splitting) Modal Tùy chỉnh món (chỉ tải khi mở lần đầu)
+const ProductDetailModal = lazy(() => import('../../component/landing/ProductDetailModal'));
 import { formatPrice } from '../../util/formatPrice';
 
 const DEFAULT_TEA_IMAGE =
@@ -898,13 +901,15 @@ export function StaffPosPage() {
         </Row>
       </div>
 
-      {/* Modal Tùy chỉnh topping khi chọn món */}
-      <ProductDetailModal
-        show={Boolean(customizingProduct)}
-        product={customizingProduct}
-        onHide={() => setCustomizingProduct(null)}
-        onAddToCart={handleAddToCartFromModal}
-      />
+      {/* Modal Tùy chỉnh topping khi chọn món - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={Boolean(customizingProduct)}>
+        <ProductDetailModal
+          show={Boolean(customizingProduct)}
+          product={customizingProduct}
+          onHide={() => setCustomizingProduct(null)}
+          onAddToCart={handleAddToCartFromModal}
+        />
+      </LazySuspense>
 
       {/* Modal Hóa đơn bán lẻ tại quầy (Receipt) */}
       <Modal

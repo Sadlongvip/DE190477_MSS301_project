@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy } from 'react';
 import { Container, Button, Spinner, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
@@ -6,8 +6,11 @@ import useOrder from '../hook/useOrder';
 import useCart from '../hook/useCart';
 import OrderFilterTabs from '../component/order/OrderFilterTabs';
 import OrderCard from '../component/order/OrderCard';
-import OrderDetailModal from '../component/order/OrderDetailModal';
-import CancelOrderModal from '../component/order/CancelOrderModal';
+import LazySuspense from '../component/common/LazySuspense';
+
+// Nạp lười (Lazy Loading & Code Splitting) 2 Modal (chỉ tải khi mở lần đầu)
+const OrderDetailModal = lazy(() => import('../component/order/OrderDetailModal'));
+const CancelOrderModal = lazy(() => import('../component/order/CancelOrderModal'));
 
 /**
  * OrderPage - Trang Quản lý Lịch sử Đơn hàng
@@ -270,21 +273,25 @@ export function OrderPage() {
         </Container>
       </div>
 
-      {/* Modal Xem chi tiết đơn hàng */}
-      <OrderDetailModal
-        show={showDetailModal}
-        onHide={() => setShowDetailModal(false)}
-        order={detailOrder}
-        onCancelOrder={handleOpenCancelModal}
-        onReorder={handleReorder}
-      />
+      {/* Modal Xem chi tiết đơn hàng - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={showDetailModal}>
+        <OrderDetailModal
+          show={showDetailModal}
+          onHide={() => setShowDetailModal(false)}
+          order={detailOrder}
+          onCancelOrder={handleOpenCancelModal}
+          onReorder={handleReorder}
+        />
+      </LazySuspense>
 
-      {/* Modal Xác nhận hủy đơn hàng */}
-      <CancelOrderModal
-        show={showCancelModal}
-        onHide={() => setShowCancelModal(false)}
-        order={cancelOrderTarget}
-      />
+      {/* Modal Xác nhận hủy đơn hàng - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={showCancelModal}>
+        <CancelOrderModal
+          show={showCancelModal}
+          onHide={() => setShowCancelModal(false)}
+          order={cancelOrderTarget}
+        />
+      </LazySuspense>
     </MainLayout>
   );
 }
