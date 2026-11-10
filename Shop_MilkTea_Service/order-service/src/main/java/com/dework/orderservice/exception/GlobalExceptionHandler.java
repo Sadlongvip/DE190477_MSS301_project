@@ -1,6 +1,7 @@
 package com.dework.orderservice.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +70,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethod(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
         return build(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage(), request);
+    }
+
+    /**
+     * Circuit Breaker đang OPEN (service phụ trợ chết/chậm kéo dài) -> 503 ngay lập tức.
+     * Không gọi ra ngoài, không giữ thread - chống lỗi lan truyền giữa các service.
+     */
+    @ExceptionHandler(CallNotPermittedException.class)
+    public ResponseEntity<ErrorResponse> handleCircuitOpen(CallNotPermittedException ex, HttpServletRequest request) {
+        log.warn("Circuit Breaker đang OPEN, từ chối gọi sang service phụ trợ: {}", ex.getMessage());
+        return build(HttpStatus.SERVICE_UNAVAILABLE, "Hệ thống đang tạm thời quá tải, vui lòng thử lại sau ít phút.", request);
     }
 
     @ExceptionHandler(Exception.class)

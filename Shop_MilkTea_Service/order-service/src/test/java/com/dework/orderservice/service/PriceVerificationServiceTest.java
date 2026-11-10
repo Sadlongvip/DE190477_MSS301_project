@@ -6,6 +6,8 @@ import com.dework.orderservice.dto.inventory.TeaSizeClientDto;
 import com.dework.orderservice.dto.inventory.ToppingClientDto;
 import com.dework.orderservice.exception.ApiException;
 import com.dework.orderservice.service.PriceVerificationService.VerifiedProductInfo;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -109,5 +112,31 @@ class PriceVerificationServiceTest {
         );
 
         assertTrue(ex.getMessage().contains("không tồn tại"));
+    }
+
+    @Test
+    @DisplayName("Circuit Breaker OPEN: xác minh giá trả 503 Service Unavailable thay vì 400")
+    void verifyItemPrice_CircuitBreakerOpen_ThrowsServiceUnavailable() {
+        when(inventoryClient.getMilkTeaById(1L))
+                .thenThrow(CallNotPermittedException.createCallNotPermittedException(CircuitBreaker.ofDefaults("inventory-service")));
+
+        ApiException ex = assertThrows(ApiException.class, () ->
+                priceVerificationService.verifyItemPrice(1L, "M", "", 35000.0, sampleSizes, sampleToppings)
+        );
+
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, ex.getStatus());
+        assertTrue(ex.getMessage().contains("tạm thời bận"));
+    }
+
+    @Test
+    @DisplayName("Circuit Breaker OPEN: lấy danh sách size trả 503 Service Unavailable")
+    void getAllSizes_CircuitBreakerOpen_ThrowsServiceUnavailable() {
+        when(inventoryClient.getAllSizes())
+                .thenThrow(CallNotPermittedException.createCallNotPermittedException(CircuitBreaker.ofDefaults("inventory-service")));
+
+        ApiException ex = assertThrows(ApiException.class, priceVerificationService::getAllSizes);
+
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, ex.getStatus());
+        assertTrue(ex.getMessage().contains("tạm thời bận"));
     }
 }
