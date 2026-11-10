@@ -2,30 +2,31 @@
 	"info": {
 		"_postman_id": "b1d4a1c0-0000-4a2b-9c1d-shopmilktea01",
 		"name": "Shop MilkTea - Full Coverage (via API Gateway)",
-		"description": "Postman collection test FULL toan bo 6 microservice, MOI request deu di qua API-GATEWAY ({{gateway_url}} = http://localhost:9000), KHONG goi truc tiep service.\n\nCac dinh tuyen tren Gateway (src .../gateway/routes/Routes.java):\n- /api/auth/** , /api/accounts/**        -> customer-service :8081\n- /api/categories/** , /api/milkteas/** , /api/toppings/** , /api/sizes/** -> inventory-service :8082\n- /api/orders/** , /api/carts/**         -> order-service :8083\n- /api/payments/**                       -> payment-service :8084\n- /api/reports/**                        -> report-service :8085\n\nQUY TRINH CHAY: Run collection theo thu tu folder 00 -> 10 (Postman Runner).\n1) '00 Setup & Auth': dang ky + dang nhap ADMIN & CUSTOMER, tu dong luu token vao bien admin_token / customer_token).\n2) Cac folder sau dung token do de kiem thu tung service nghiep vu.\n3) Gia tri id (category_id, milktea_id, order_code ...) duoc gan lai tu dong bang test script de chain giua cac request.\n4) Folder cuoi chua cac testcase Negative/Security (401/403/400/404).\n\nLuu y: /api/payments/vnpay-ipn va /api/orders/*/saga-logs la public tren gateway, /api/carts va GET san pham khong can token, con lai yeu cau JWT dung role.",
+		"description": "Postman collection test FULL toan bo 6 microservice, MOI request deu di qua API-GATEWAY ({{gateway_url}} = http://localhost:9000), KHONG goi truc tiep service.\n\nCac dinh tuyen tren Gateway (src .../gateway/routes/Routes.java):\n- /api/auth/** , /api/accounts/**        -> customer-service :8081\n- /api/categories/** , /api/milkteas/** , /api/toppings/** , /api/sizes/** -> inventory-service :8082\n- /api/orders/** , /api/carts/**         -> order-service :8083\n- /api/payments/**                       -> payment-service :8084\n- /api/reports/**                        -> report-service :8085\n\nQUY TRINH CHAY: Run collection theo thu tu folder 00 -> 10 (Postman Runner).\n1) '00 Setup & Auth': dang nhap ADMIN bang tai khoan seed trong DB (admin_db / password123, Flyway V2__seed_test_accounts.sql) + dang ky CUSTOMER, tu dong luu token vao bien admin_token / customer_token).\n2) Cac folder sau dung token do de kiem thu tung service nghiep vu.\n3) Gia tri id (category_id, milktea_id, order_code ...) duoc gan lai tu dong bang test script de chain giua cac request.\n4) Folder cuoi chua cac testcase Negative/Security (401/403/400/404).\n\nLUU Y BAO MAT: /api/auth/register LUON tao tai khoan CUSTOMER - truong 'role' gui len bi bo qua (chong tu phong ADMIN). Dang ky cong khai KHONG tao duoc ADMIN; tai khoan ADMIN chi co san tu DB (seed: admin_db / password123) hoac in-memory tu cau hinh (admin / admin123).\n\nCAP NHAT RESILIENCE4J: Folder '11 Circuit Breaker' thu nghiem circuit breaker o order-service (order -> inventory). Rieng request xem actuator goi TRUC TIEP {{order_service_url}} (http://localhost:8083) - ngoai le duy nhat cua quy tac 'chi di qua gateway'.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "00 Setup & Auth (customer-service)",
-			"description": "Khoi tao du lieu: dang ky 2 tai khoan (ADMIN, CUSTOMER) va lay JWT. Chay folder nay TRUOC. Script test tu dong luu admin_token, admin_user_id, customer_token, customer_user_id.",
+			"description": "Khoi tao: login ADMIN bang tai khoan ADMIN seed san trong DB (admin_db / password123 - Flyway V2__seed_test_accounts.sql, khong the tao qua /register), dang ky tai khoan CUSTOMER, va kiem thu truong hop dang ky yeu cau role ADMIN bi ep ve CUSTOMER. Chay folder nay TRUOC. Script test tu dong luu admin_token, admin_user_id, customer_token, customer_user_id.",
 			"item": [
 				{
-					"name": "Auth - Register ADMIN",
+					"name": "Auth - Register ADMIN (NEG) - bi ep ve CUSTOMER",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('Register ADMIN: HTTP 201 Created (400 neu tai khoan da ton tai tu lan chay truoc)', function () {",
+									"pm.test('HTTP 201 Created (400 neu tai khoan da ton tai tu lan chay truoc)', function () {",
 									"    pm.expect([201, 400]).to.include(pm.response.code);",
 									"});",
 									"if (pm.response.code === 201) {",
 									"    const body = pm.response.json();",
-									"    pm.collectionVariables.set('admin_user_id', body.id);",
-									"    pm.collectionVariables.set('admin_username_created', body.username);",
-									"    console.log('ADMIN registered, id =', body.id, 'role =', body.role);",
+									"    pm.test('BAO MAT: role gui len ADMIN phai bi bo qua -> tai khoan LUON la CUSTOMER', function () {",
+									"        pm.expect(body.role).to.eql('CUSTOMER');",
+									"    });",
+									"    console.log('Da dang ky voi role=ADMIN nhung he thong ep ve:', body.role);",
 									"}"
 								]
 							}
@@ -38,14 +39,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\",\n  \"role\": \"ADMIN\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"{{admin_email}}\",\n  \"phoneNumber\": \"0900000001\",\n  \"address\": \"01 Nguyen Hue, Q1, TPHCM\",\n  \"birthday\": \"1995-06-15\"\n}"
+							"raw": "{\n  \"username\": \"fake_admin_test\",\n  \"password\": \"FakeAdmin@123\",\n  \"role\": \"ADMIN\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"fake_admin_test@milktea.local\",\n  \"phoneNumber\": \"0900000009\",\n  \"address\": \"09 Cong Hoa, Tan Binh, TPHCM\",\n  \"birthday\": \"1995-06-15\"\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/auth/register",
 							"host": ["{{gateway_url}}"],
 							"path": ["api", "auth", "register"]
 						},
-						"description": "CUSTOMER-SERVICE | POST /api/auth/register (Public tren Gateway). Tao tai khoan role ADMIN de test cac API quan tri."
+						"description": "NEGATIVE/SECURITY | POST /api/auth/register (Public). Gui role=ADMIN trong body - he thong PHAI bo qua va tao tai khoan CUSTOMER. Dang ky cong khai khong tao duoc ADMIN; tai khoan ADMIN duy nhat la in-memory (admin / admin123)."
 					},
 					"response": []
 				},
@@ -124,7 +125,7 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["api", "auth", "login"]
 						},
-						"description": "CUSTOMER-SERVICE | POST /api/auth/login (Public). Response: { accessToken, tokenType, expiresIn, role, userId, username, email }. Token duoc luu tu dong vao bien collection admin_token."
+						"description": "CUSTOMER-SERVICE | POST /api/auth/login (Public). Dang nhap tai khoan ADMIN seed san trong DB (Flyway V2__seed_test_accounts.sql): username = admin_db, password = password123, role = ADMIN. Khong the tao ADMIN qua /register. Response: { accessToken, tokenType, expiresIn, role, userId, username, email }. Token duoc luu tu dong vao bien collection admin_token, admin_user_id la ID that trong DB."
 					},
 					"response": []
 				},
@@ -251,7 +252,8 @@
 									"pm.test('Ket qua (neu co) phai chua keyword', function () {",
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.be.an('array');",
-									"    const kw = pm.collectionVariables.get('admin_username');",
+									"    const kw = pm.variables.get('admin_username');",
+									"    pm.expect(kw, 'admin_username phai duoc dinh nghia (environment)').to.be.a('string').and.not.eql('');",
 									"    if (body.length > 0) {",
 									"        pm.expect(String(body[0].username).toLowerCase()).to.include(String(kw).toLowerCase());",
 									"    }",
@@ -2499,6 +2501,152 @@
 							"path": ["api", "does-not-exist"]
 						},
 						"description": "NEGATIVE | Duong dan khong thuoc dinh tuyen nao -> gateway tu choi."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "11 Circuit Breaker (Resilience4j) - order-service",
+			"description": "Thu nghiem Resilience4j Circuit Breaker cua order-service (order -> inventory qua OpenFeign). Cau hinh trong order-service/application.properties: mo breaker sau toi thieu 5 lan goi voi >= 50% loi (hoac >= 80% goi cham > 3s); mo trong 15s; TimeLimiter 6s; Feign timeout 2s/5s; retry 2 lan cho loi mang tam thoi.\n\nQUY TRINH DEMO:\nCB 1 - moi service SONG -> 201 (baseline).\nCB 2 - TAT inventory-service roi chay trong Collection Runner 8 lan: ~5 lan dau 400 (breaker CLOSED), tu lan 6 tro di 503 TUC THI (breaker OPEN).\nCB 3 - xem trang thai breaker qua actuator cua order-service (goi TRUC TIEP, khong qua gateway).\nCB 4 - BAT LAI inventory-service, CHO DU 15s, goi lai -> breaker tu dong khoi phuc (HALF-OPEN -> CLOSED).",
+			"item": [
+				{
+					"name": "CB 1 - Moi service SONG: them mon vao gio (ky vong 201)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 neu du lieu khop DB (400 nghia la milkTeaId/unitPrice chua dung - chay folder 05 truoc de co du lieu dung)', function () {",
+									"    pm.expect([201, 400]).to.include(pm.response.code);",
+									"});",
+									"console.log('CB 1: HTTP', pm.response.code, 'trong', pm.response.responseTime, 'ms - baseline khi inventory SONG');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"milkTeaId\": 1,\n  \"milkTeaName\": \"Tra Sua Test\",\n  \"size\": \"M\",\n  \"quantity\": 1,\n  \"unitPrice\": 35000.0\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items"]
+						},
+						"description": "Request di qua gateway -> order-service -> (Feign + CircuitBreaker) -> inventory-service. Doi milkTeaId/unitPrice theo DB inventory cua ban (hoac chay folder 05 truoc roi dung {{milktea_id}} / {{milktea_price}})."
+					},
+					"response": []
+				},
+				{
+					"name": "CB 2 - Inventory CHET: breaker mo dan (400 cham -> 503 TUC THI)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Inventory CHET: 400 khi breaker con CLOSED, 503 khi breaker da OPEN', function () {",
+									"    pm.expect([400, 503]).to.include(pm.response.code);",
+									"});",
+									"if (pm.response.code === 503) {",
+									"    pm.test('Circuit Breaker OPEN: 503 phai tra ve TUC THI (< 1s)', function () {",
+									"        pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"    });",
+									"}",
+									"console.log('CB 2: HTTP', pm.response.code, 'trong', pm.response.responseTime, 'ms');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"milkTeaId\": 1,\n  \"milkTeaName\": \"Tra Sua Test\",\n  \"size\": \"M\",\n  \"quantity\": 1,\n  \"unitPrice\": 35000.0\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items"]
+						},
+						"description": "QUY TRINH: (1) Tat inventory-service: Get-Process -Id (Get-NetTCPConnection -LocalPort 8082 -State Listen).OwningProcess | Stop-Process -Force  (2) Chay request nay trong Collection Runner 8 lan. Ky vong: ~5 lan dau tra 400 moi lan ~0.5-1.5s (breaker CLOSED, co 1 retry ben trong); tu lan thu 6 tro di tra 503 TUC THI < 100ms (breaker OPEN - khong con ket noi ra ngoai). Log order-service in 'Circuit Breaker OPEN - tu choi goi inventory-service...'."
+					},
+					"response": []
+				},
+				{
+					"name": "CB 3 - Xem trang thai breaker (actuator order-service, goi TRUC TIEP)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 (neu 404: ban Spring Cloud hien tai khong kem module actuator cua Resilience4j - dung log va hanh vi 503 tuc thi lam bang chung)', function () {",
+									"    pm.expect([200, 404]).to.include(pm.response.code);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    console.log('Trang thai circuit breakers:', pm.response.text());",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_service_url}}/actuator/circuitbreakers",
+							"host": ["{{order_service_url}}"],
+							"path": ["actuator", "circuitbreakers"]
+						},
+						"description": "GOI TRUC TIEP order-service ({{order_service_url}} = http://localhost:8083) - ngoai le duy nhat khong di qua gateway. Endpoint khac: /actuator/circuitbreakerevents (su kien mo/dong breaker), /actuator/health."
+					},
+					"response": []
+				},
+				{
+					"name": "CB 4 - Inventory ON LAI, cho 15s: breaker tu khoi phuc (ky vong 201)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Sau khi inventory ON LAI va breaker hoan phuc: 201 (400 neu milkTeaId/unitPrice chua khop DB)', function () {",
+									"    pm.expect([201, 400]).to.include(pm.response.code);",
+									"});",
+									"console.log('CB 4: HTTP', pm.response.code, '- neu 201 thi circuit da tu dong dong lai (CLOSED)');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"milkTeaId\": 1,\n  \"milkTeaName\": \"Tra Sua Test\",\n  \"size\": \"M\",\n  \"quantity\": 1,\n  \"unitPrice\": 35000.0\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items"]
+						},
+						"description": "CHUA LAI TU DONG: Bat lai inventory-service, CHO DU 15 giay (wait-duration-in-open-state) roi moi goi. Lan dau breaker di qua HALF-OPEN (toi da 3 request thu nghiem); neu thanh cong -> CLOSED, hoi phuc hoan toan KHONG can restart order-service. Goi truoc khi du 15s van nhan 503 tuc thi."
 					},
 					"response": []
 				}
