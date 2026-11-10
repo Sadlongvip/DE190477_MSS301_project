@@ -38,15 +38,15 @@ public interface ReportOrderRepository extends JpaRepository<ReportOrder, Long> 
 
     @Query(value = """
             SELECT 
-                DATE(o.created_at) AS reportDate,
+                DATE_FORMAT(o.created_at, '%Y-%m-%d') AS reportDate,
                 COALESCE(SUM(CASE WHEN o.status = 'COMPLETED' THEN o.total_amount ELSE 0 END), 0) AS revenue,
                 COUNT(o.id) AS totalOrders,
                 COUNT(CASE WHEN o.status = 'COMPLETED' THEN 1 END) AS completedOrders,
                 COUNT(CASE WHEN o.status = 'CANCELLED' THEN 1 END) AS cancelledOrders
             FROM t_orders o
             WHERE o.created_at BETWEEN :startDateTime AND :endDateTime
-            GROUP BY DATE(o.created_at)
-            ORDER BY DATE(o.created_at) ASC
+            GROUP BY DATE_FORMAT(o.created_at, '%Y-%m-%d')
+            ORDER BY DATE_FORMAT(o.created_at, '%Y-%m-%d') ASC
             """, nativeQuery = true)
     List<DailyRevenueProjection> getDailyRevenueTrend(
             @Param("startDateTime") LocalDateTime startDateTime,

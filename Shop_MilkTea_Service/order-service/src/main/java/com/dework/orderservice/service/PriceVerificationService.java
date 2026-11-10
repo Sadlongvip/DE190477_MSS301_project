@@ -6,6 +6,7 @@ import com.dework.orderservice.dto.inventory.TeaSizeClientDto;
 import com.dework.orderservice.dto.inventory.ToppingClientDto;
 import com.dework.orderservice.exception.ApiException;
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,6 +46,10 @@ public class PriceVerificationService {
     public List<TeaSizeClientDto> getAllSizes() {
         try {
             return inventoryClient.getAllSizes();
+        } catch (CallNotPermittedException e) {
+            // Circuit Breaker đang OPEN: inventory-service đã chết/chậm quá lâu -> trả 503 ngay thay vì treo request
+            log.warn("Circuit Breaker OPEN - từ chối gọi inventory-service lấy danh sách kích cỡ");
+            throw ApiException.serviceUnavailable("Hệ thống kho đang tạm thời bận, vui lòng thử lại sau ít phút.");
         } catch (Exception e) {
             log.error("Lỗi khi kết nối đến inventory-service để lấy danh sách kích cỡ: {}", e.getMessage());
             throw ApiException.badRequest("Không thể kết nối đến dịch vụ kho (inventory-service) để kiểm tra kích cỡ.");
@@ -57,6 +62,10 @@ public class PriceVerificationService {
     public List<ToppingClientDto> getAllToppings() {
         try {
             return inventoryClient.getToppings();
+        } catch (CallNotPermittedException e) {
+            // Circuit Breaker đang OPEN: inventory-service đã chết/chậm quá lâu -> trả 503 ngay thay vì treo request
+            log.warn("Circuit Breaker OPEN - từ chối gọi inventory-service lấy danh sách topping");
+            throw ApiException.serviceUnavailable("Hệ thống kho đang tạm thời bận, vui lòng thử lại sau ít phút.");
         } catch (Exception e) {
             log.error("Lỗi khi kết nối đến inventory-service để lấy danh sách topping: {}", e.getMessage());
             throw ApiException.badRequest("Không thể kết nối đến dịch vụ kho (inventory-service) để kiểm tra topping.");
@@ -85,6 +94,10 @@ public class PriceVerificationService {
             milkTea = inventoryClient.getMilkTeaById(milkTeaId);
         } catch (FeignException.NotFound e) {
             throw ApiException.badRequest("Không tìm thấy món trà sữa với ID: " + milkTeaId);
+        } catch (CallNotPermittedException e) {
+            // Circuit Breaker đang OPEN: inventory-service đã chết/chậm quá lâu -> trả 503 ngay thay vì treo request
+            log.warn("Circuit Breaker OPEN - từ chối gọi inventory-service xác minh món {}", milkTeaId);
+            throw ApiException.serviceUnavailable("Hệ thống kho đang tạm thời bận, vui lòng thử lại sau ít phút.");
         } catch (Exception e) {
             log.error("Lỗi khi kết nối sang inventory-service lấy món {}: {}", milkTeaId, e.getMessage());
             throw ApiException.badRequest("Không thể xác minh thông tin sản phẩm từ hệ thống kho. Vui lòng thử lại sau!");

@@ -4,6 +4,7 @@ import com.dework.customerservice.dto.AccountRequest;
 import com.dework.customerservice.dto.AccountResponse;
 import com.dework.customerservice.dto.LoginRequest;
 import com.dework.customerservice.dto.LoginResponse;
+import com.dework.customerservice.model.Role;
 import com.dework.customerservice.service.AccountService;
 import com.dework.customerservice.service.AuthService;
 import jakarta.validation.Valid;
@@ -31,6 +32,9 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse register(@Valid @RequestBody AccountRequest request) {
+        // Dang ky cong khai CHI tao tai khoan CUSTOMER: bo qua role client gui len (chong tu phong ADMIN).
+        // Tao tai khoan voi role khac la chuc nang quan tri, chi lam qua POST /api/accounts (yeu cau role ADMIN).
+        request.setRole(Role.CUSTOMER);
         return accountService.createAccount(request);
     }
 }
