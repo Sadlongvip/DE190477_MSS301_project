@@ -1,0 +1,2520 @@
+{
+	"info": {
+		"_postman_id": "b1d4a1c0-0000-4a2b-9c1d-shopmilktea01",
+		"name": "Shop MilkTea - Full Coverage (via API Gateway)",
+		"description": "Postman collection test FULL toan bo 6 microservice, MOI request deu di qua API-GATEWAY ({{gateway_url}} = http://localhost:9000), KHONG goi truc tiep service.\n\nCac dinh tuyen tren Gateway (src .../gateway/routes/Routes.java):\n- /api/auth/** , /api/accounts/**        -> customer-service :8081\n- /api/categories/** , /api/milkteas/** , /api/toppings/** , /api/sizes/** -> inventory-service :8082\n- /api/orders/** , /api/carts/**         -> order-service :8083\n- /api/payments/**                       -> payment-service :8084\n- /api/reports/**                        -> report-service :8085\n\nQUY TRINH CHAY: Run collection theo thu tu folder 00 -> 10 (Postman Runner).\n1) '00 Setup & Auth': dang ky + dang nhap ADMIN & CUSTOMER, tu dong luu token vao bien admin_token / customer_token).\n2) Cac folder sau dung token do de kiem thu tung service nghiep vu.\n3) Gia tri id (category_id, milktea_id, order_code ...) duoc gan lai tu dong bang test script de chain giua cac request.\n4) Folder cuoi chua cac testcase Negative/Security (401/403/400/404).\n\nLuu y: /api/payments/vnpay-ipn va /api/orders/*/saga-logs la public tren gateway, /api/carts va GET san pham khong can token, con lai yeu cau JWT dung role.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "00 Setup & Auth (customer-service)",
+			"description": "Khoi tao du lieu: dang ky 2 tai khoan (ADMIN, CUSTOMER) va lay JWT. Chay folder nay TRUOC. Script test tu dong luu admin_token, admin_user_id, customer_token, customer_user_id.",
+			"item": [
+				{
+					"name": "Auth - Register ADMIN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Register ADMIN: HTTP 201 Created (400 neu tai khoan da ton tai tu lan chay truoc)', function () {",
+									"    pm.expect([201, 400]).to.include(pm.response.code);",
+									"});",
+									"if (pm.response.code === 201) {",
+									"    const body = pm.response.json();",
+									"    pm.collectionVariables.set('admin_user_id', body.id);",
+									"    pm.collectionVariables.set('admin_username_created', body.username);",
+									"    console.log('ADMIN registered, id =', body.id, 'role =', body.role);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\",\n  \"role\": \"ADMIN\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"{{admin_email}}\",\n  \"phoneNumber\": \"0900000001\",\n  \"address\": \"01 Nguyen Hue, Q1, TPHCM\",\n  \"birthday\": \"1995-06-15\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/auth/register",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "CUSTOMER-SERVICE | POST /api/auth/register (Public tren Gateway). Tao tai khoan role ADMIN de test cac API quan tri."
+					},
+					"response": []
+				},
+				{
+					"name": "Auth - Register CUSTOMER",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Register CUSTOMER: HTTP 201 Created (400 neu tai khoan da ton tai)', function () {",
+									"    pm.expect([201, 400]).to.include(pm.response.code);",
+									"});",
+									"if (pm.response.code === 201) {",
+									"    const body = pm.response.json();",
+									"    pm.collectionVariables.set('customer_user_id', body.id);",
+									"    console.log('CUSTOMER registered, id =', body.id, 'role =', body.role);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{customer_username}}\",\n  \"password\": \"{{customer_password}}\",\n  \"role\": \"CUSTOMER\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"{{customer_email}}\",\n  \"phoneNumber\": \"0900000002\",\n  \"address\": \"22 Le Loi, Q1, TPHCM\",\n  \"birthday\": \"2000-01-20\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/auth/register",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "CUSTOMER-SERVICE | POST /api/auth/register (Public). Tao tai khoan CUSTOMER dung de tao don hang / gio hang."
+					},
+					"response": []
+				},
+				{
+					"name": "Auth - Login ADMIN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Login ADMIN: HTTP 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const body = pm.response.json();",
+									"pm.test('Login ADMIN: co accessToken va role = ADMIN', function () {",
+									"    pm.expect(body.accessToken).to.be.a('string').and.not.eql('');",
+									"    pm.expect(body.role).to.eql('ADMIN');",
+									"});",
+									"pm.collectionVariables.set('admin_token', body.accessToken);",
+									"pm.collectionVariables.set('admin_user_id', body.userId);",
+									"console.log('ADMIN token saved');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/auth/login",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "CUSTOMER-SERVICE | POST /api/auth/login (Public). Response: { accessToken, tokenType, expiresIn, role, userId, username, email }. Token duoc luu tu dong vao bien collection admin_token."
+					},
+					"response": []
+				},
+				{
+					"name": "Auth - Login CUSTOMER",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Login CUSTOMER: HTTP 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const body = pm.response.json();",
+									"pm.test('Login CUSTOMER: co accessToken va role = CUSTOMER', function () {",
+									"    pm.expect(body.accessToken).to.be.a('string').and.not.eql('');",
+									"    pm.expect(body.role).to.eql('CUSTOMER');",
+									"});",
+									"pm.collectionVariables.set('customer_token', body.accessToken);",
+									"pm.collectionVariables.set('customer_user_id', body.userId);",
+									"console.log('CUSTOMER token saved');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{customer_username}}\",\n  \"password\": \"{{customer_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/auth/login",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "CUSTOMER-SERVICE | POST /api/auth/login (Public). Token duoc luu vao bien customer_token."
+					},
+					"response": []
+				},
+				{
+					"name": "Auth - Login sai mat khau (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Login sai mat khau: phai that bai (401)', function () {",
+									"    pm.expect([401, 400]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"wrong-password-999\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/auth/login",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "NEGATIVE | Dang nhap sai mat khau phan ve 401."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "01 Accounts - Quan ly tai khoan (customer-service)",
+			"description": "Toan bo CRUD cua AccountController (/api/accounts). Tat ca yeu cau role ADMIN (gateway: hasRole('ADMIN')). Yeu cau: da login ADMIN (folder 00).",
+			"item": [
+				{
+					"name": "GET /accounts - Danh sach (page tag)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach tai khoan (array)', function () {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts"]
+						},
+						"description": "GET /api/accounts - lay toan bo tai khoan."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /accounts?keyword= - Tim kiem",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Ket qua (neu co) phai chua keyword', function () {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.be.an('array');",
+									"    const kw = pm.collectionVariables.get('admin_username');",
+									"    if (body.length > 0) {",
+									"        pm.expect(String(body[0].username).toLowerCase()).to.include(String(kw).toLowerCase());",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts?keyword={{admin_username}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts"],
+							"query": [
+								{ "key": "keyword", "value": "{{admin_username}}" }
+							]
+						},
+						"description": "GET /api/accounts?keyword= - tim kiem theo keyword."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /accounts - Tao tai khoan tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Tra ve id tai khoan moi', function () { pm.expect(body.id).to.exist; });",
+									"pm.collectionVariables.set('account_id', body.id);",
+									"pm.collectionVariables.set('account_username', body.username);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"temp_staff_{{$timestamp}}\",\n  \"password\": \"Temp@123456\",\n  \"role\": \"STAFF\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"temp_staff_{{$timestamp}}@milktea.local\",\n  \"phoneNumber\": \"0900000003\",\n  \"address\": \"99 Test Rd\",\n  \"birthday\": \"1998-03-03\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts"]
+						},
+						"description": "POST /api/accounts - admin tao tai khoan STAFF tam (dung cho cac test PUT/PW/DELETE)."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /accounts/{id} - Chi tiet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Id khop voi account_id da tao', function () {",
+									"    pm.expect(String(pm.response.json().id)).to.eql(String(pm.collectionVariables.get('account_id')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts/{{account_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts", "{{account_id}}"]
+						},
+						"description": "GET /api/accounts/{id}."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /accounts/{id} - Cap nhat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Thong tin cap nhat co hieu luc', function () {",
+									"    pm.expect(pm.response.json().email).to.eql('staff.updated@milktea.local');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{account_username}}\",\n  \"password\": \"Temp@123456\",\n  \"role\": \"STAFF\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"staff.updated@milktea.local\",\n  \"phoneNumber\": \"0900000099\",\n  \"address\": \"88 Updated Rd\",\n  \"birthday\": \"1998-03-03\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts/{{account_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts", "{{account_id}}"]
+						},
+						"description": "PUT /api/accounts/{id} - cap nhat thong tin tai khoan."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /accounts/{id}/password - Doi mat khau",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"password\": \"NewPass@999\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts/{{account_id}}/password",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts", "{{account_id}}", "password"]
+						},
+						"description": "PUT /api/accounts/{id}/password - doi mat khau (body: { \"password\": \"...\" })."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /accounts/{id} - Xoa tai khoan tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 204 No Content', function () { pm.response.to.have.status(204); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts/{{account_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts", "{{account_id}}"]
+						},
+						"description": "DELETE /api/accounts/{id} - xoa tai khoan vua tao (don dep du lieu test)."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /accounts (token CUSTOMER) (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - CUSTOMER truy cap API admin: bi tu choi 403', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/accounts",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "accounts"]
+						},
+						"description": "NEGATIVE | Gateway chi cho phep /api/accounts/** voi role ADMIN (hasRole 'ADMIN')."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02 Categories (inventory-service)",
+			"description": "CategoryTeaController (/api/categories) qua gateway. GET public, POST/PUT/DELETE can role ADMIN. Yeu cau: da login (folder 00).",
+			"item": [
+				{
+					"name": "GET /categories - Danh sach",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/categories",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "GET /api/categories - public (khong can token)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /categories - Tao danh muc",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Tra ve id danh muc moi', function () { pm.expect(body.id).to.exist; });",
+									"pm.collectionVariables.set('category_id', body.id);",
+									"pm.collectionVariables.set('category_name', body.name);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Tra Sua Test {{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/categories",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "POST /api/categories (ADMIN) - tao danh muc, id duoc luu vao category_id dung cho MilkTea + Order."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /categories/{id} - Chi tiet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Id khop', function () {",
+									"    pm.expect(String(pm.response.json().id)).to.eql(String(pm.collectionVariables.get('category_id')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/categories/{{category_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "categories", "{{category_id}}"]
+						},
+						"description": "GET /api/categories/{id}."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /categories/{id} - Cap nhat danh muc",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Ten da duoc cap nhat', function () {",
+									"    pm.expect(pm.response.json().name).to.eql('Tra Sua Da Cap Nhat');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Tra Sua Da Cap Nhat\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/categories/{{category_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "categories", "{{category_id}}"]
+						},
+						"description": "PUT /api/categories/{id} (ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /categories - Tao danh muc tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"pm.collectionVariables.set('category_temp_id', pm.response.json().id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Temp Delete Me {{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/categories",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "POST /api/categories - tao ban ghi tam de test DELETE."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /categories/{id} - Xoa danh muc tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 204 No Content', function () { pm.response.to.have.status(204); });",
+									"pm.test('GET lai phai tra ve 404 (da bi xoa)', function () {",
+									"    return; // kiem tra o request GET tiep theo neu can",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/categories/{{category_temp_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "categories", "{{category_temp_id}}"]
+						},
+						"description": "DELETE /api/categories/{id} (ADMIN) - xoa ban ghi tam."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03 Sizes (inventory-service)",
+			"description": "TeaSizeController (/api/sizes) qua gateway. GET public, ghi can role ADMIN.",
+			"item": [
+				{
+					"name": "GET /sizes - Danh sach",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/sizes",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sizes"]
+						},
+						"description": "GET /api/sizes - public."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /sizes - Tao size",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Tra ve id size moi', function () { pm.expect(body.id).to.exist; });",
+									"pm.collectionVariables.set('size_id', body.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Size Test L\",\n  \"code\": \"L{{$timestamp}}\",\n  \"extraPrice\": 5000,\n  \"isDefault\": false,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/sizes",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sizes"]
+						},
+						"description": "POST /api/sizes (ADMIN) - Tao size, luu size_id."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /sizes/{id} - Chi tiet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Id khop', function () {",
+									"    pm.expect(String(pm.response.json().id)).to.eql(String(pm.collectionVariables.get('size_id')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/sizes/{{size_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sizes", "{{size_id}}"]
+						},
+						"description": "GET /api/sizes/{id}."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /sizes/{id} - Cap nhat size",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Phu thu da cap nhat = 7000', function () {",
+									"    pm.expect(pm.response.json().extraPrice).to.eql(7000);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Size Test L Updated\",\n  \"code\": \"LX1\",\n  \"extraPrice\": 7000,\n  \"isDefault\": false,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/sizes/{{size_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sizes", "{{size_id}}"]
+						},
+						"description": "PUT /api/sizes/{id} (ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /sizes - Tao size tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"pm.collectionVariables.set('size_temp_id', pm.response.json().id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Size Temp\",\n  \"code\": \"TMP{{$timestamp}}\",\n  \"extraPrice\": 0,\n  \"isDefault\": false,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/sizes",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sizes"]
+						},
+						"description": "POST /api/sizes - tao ban ghi tam de test DELETE."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /sizes/{id} - Xoa size tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 204 No Content', function () { pm.response.to.have.status(204); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/sizes/{{size_temp_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sizes", "{{size_temp_id}}"]
+						},
+						"description": "DELETE /api/sizes/{id} (ADMIN)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "04 Toppings (inventory-service)",
+			"description": "ToppingController (/api/toppings) qua gateway. GET public, ghi can role ADMIN.",
+			"item": [
+				{
+					"name": "GET /toppings - Danh sach",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/toppings",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "toppings"]
+						},
+						"description": "GET /api/toppings - public."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /toppings - Tao topping",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Tra ve id topping moi', function () { pm.expect(body.id).to.exist; });",
+									"pm.collectionVariables.set('topping_id', body.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Tran Chau Den\",\n  \"price\": 8000,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/toppings",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "toppings"]
+						},
+						"description": "POST /api/toppings (ADMIN) - luu topping_id."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /toppings/{id} - Chi tiet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Id khop', function () {",
+									"    pm.expect(String(pm.response.json().id)).to.eql(String(pm.collectionVariables.get('topping_id')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/toppings/{{topping_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "toppings", "{{topping_id}}"]
+						},
+						"description": "GET /api/toppings/{id}."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /toppings/{id} - Cap nhat topping",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Gia da cap nhat = 10000', function () {",
+									"    pm.expect(pm.response.json().price).to.eql(10000);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Tran Chau Den VIP\",\n  \"price\": 10000,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/toppings/{{topping_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "toppings", "{{topping_id}}"]
+						},
+						"description": "PUT /api/toppings/{id} (ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /toppings - Tao topping tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"pm.collectionVariables.set('topping_temp_id', pm.response.json().id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Temp Topping {{$timestamp}}\",\n  \"price\": 1000,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/toppings",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "toppings"]
+						},
+						"description": "POST /api/toppings - tao ban ghi tam de test DELETE."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /toppings/{id} - Xoa topping tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 204 No Content', function () { pm.response.to.have.status(204); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/toppings/{{topping_temp_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "toppings", "{{topping_temp_id}}"]
+						},
+						"description": "DELETE /api/toppings/{id} (ADMIN)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "05 Milk Teas (inventory-service)",
+			"description": "MilkTeaController (/api/milkteas) qua gateway. GET public, ghi can role ADMIN. Phu thuoc: category_id da tao o folder 02.",
+			"item": [
+				{
+					"name": "GET /milkteas - Danh sach (keyword, categoryId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas?keyword=Tra&categoryId={{category_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas"],
+							"query": [
+								{ "key": "keyword", "value": "Tra" },
+								{ "key": "categoryId", "value": "{{category_id}}" }
+							]
+						},
+						"description": "GET /api/milkteas?keyword=&categoryId= - public."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /milkteas - Tao tra sua",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Tra ve id + gia > 0', function () {",
+									"    pm.expect(body.id).to.exist;",
+									"    pm.expect(body.price).to.be.above(0);",
+									"});",
+									"pm.collectionVariables.set('milktea_id', body.id);",
+									"pm.collectionVariables.set('milktea_name', body.name);",
+									"pm.collectionVariables.set('milktea_price', body.price);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Tra Sua Postman {{$timestamp}}\",\n  \"description\": \"Tra sua test tu Postman\",\n  \"price\": 35000,\n  \"image\": \"\",\n  \"categoryId\": {{category_id}},\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas"]
+						},
+						"description": "POST /api/milkteas (ADMIN) - tao tra sua voi categoryId tu folder 02. Luu milktea_id / milktea_name / milktea_price de tao Gio hang + Don hang."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /milkteas/{id} - Chi tiet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Id khop', function () {",
+									"    pm.expect(String(pm.response.json().id)).to.eql(String(pm.collectionVariables.get('milktea_id')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas/{{milktea_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas", "{{milktea_id}}"]
+						},
+						"description": "GET /api/milkteas/{id} - cung la API ma order-service dung de kiem tra ton kho khi tao don (InventoryClient)."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /milkteas/{id} - Cap nhat tra sua",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Gia da cap nhat = 38000', function () {",
+									"    pm.expect(pm.response.json().price).to.eql(38000);",
+									"});",
+									"pm.collectionVariables.set('milktea_price', pm.response.json().price);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{milktea_name}}\",\n  \"description\": \"Cap nhat gia tu Postman\",\n  \"price\": 38000,\n  \"image\": \"\",\n  \"categoryId\": {{category_id}},\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas/{{milktea_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas", "{{milktea_id}}"]
+						},
+						"description": "PUT /api/milkteas/{id} (ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /milkteas - Tao tra sua tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"pm.collectionVariables.set('milktea_temp_id', pm.response.json().id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Temp MilkTea {{$timestamp}}\",\n  \"description\": \"Delete me\",\n  \"price\": 10000,\n  \"image\": \"\",\n  \"categoryId\": {{category_id}},\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas"]
+						},
+						"description": "POST /api/milkteas - tao ban ghi tam de test DELETE."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /milkteas/{id} - Xoa tra sua tam",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 204 No Content', function () { pm.response.to.have.status(204); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas/{{milktea_temp_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas", "{{milktea_temp_id}}"]
+						},
+						"description": "DELETE /api/milkteas/{id} (ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /milkteas (token CUSTOMER) (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - CUSTOMER tao san pham: bi tu choi 403', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Khong Duoc Tao\",\n  \"price\": 1000,\n  \"image\": \"\",\n  \"categoryId\": {{category_id}}\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/milkteas",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "milkteas"]
+						},
+						"description": "NEGATIVE | Gateway chan POST /api/milkteas voi role CUSTOMER (hasRole 'ADMIN')."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "06 Carts (order-service)",
+			"description": "CartController (/api/carts) qua gateway. Public tren gateway (dang nhap hoac theo sessionId). Phu thuoc: milktea_id, milktea_name, milktea_price tu folder 05.",
+			"item": [
+				{
+					"name": "GET /carts - Gio hang cua user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Co thong tin gio hang', function () {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.be.an('object');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/carts",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts"]
+						},
+						"description": "GET /api/carts - Gateway forward X-User-Id tu JWT sang order-service."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /carts?sessionId= - Gio hang cua khach (session)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/carts?sessionId={{cart_session_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts"],
+							"query": [
+								{ "key": "sessionId", "value": "{{cart_session_id}}" }
+							]
+						},
+						"description": "GET /api/carts?sessionId= - gio hang cua khach chua dang nhap."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /carts/items - Them mon vao gio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Gio hang co it nhat 1 mon', function () {",
+									"    pm.expect(body).to.be.an('object');",
+									"    const items = body.items || [];",
+									"    pm.expect(items.length).to.be.above(0);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"milkTeaId\": {{milktea_id}},\n  \"milkTeaName\": \"{{milktea_name}}\",\n  \"size\": \"L\",\n  \"sugar\": \"70%\",\n  \"ice\": \"50%\",\n  \"toppings\": \"Tran Chau Den\",\n  \"quantity\": 1,\n  \"unitPrice\": {{milktea_price}},\n  \"image\": \"\",\n  \"note\": \"Them da it\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items"]
+						},
+						"description": "POST /api/carts/items (AddToCartRequest)."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /carts/items/{index} - Cap nhat so luong",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('So luong mon dau = 2', function () {",
+									"    const items = pm.response.json().items || [];",
+									"    if (items.length > 0) { pm.expect(items[0].quantity).to.eql(2); }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items/0",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items", "0"]
+						},
+						"description": "PUT /api/carts/items/{index} (UpdateCartItemRequest)."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /carts/items/{index} thieu quantity (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Thieu quantity: loi 400 (bo qua neu gio trong)', function () {",
+									"    pm.expect([400, 404]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items/0",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items", "0"]
+						},
+						"description": "NEGATIVE | PUT /api/carts/items/{index} khong truyen quantity -> badRequest."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /carts/items/{index} - Xoa mon",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/carts/items/0",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts", "items", "0"]
+						},
+						"description": "DELETE /api/carts/items/{index} - xoa mon theo vi tri."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /carts - Xoa toan bo gio hang",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 204 No Content', function () { pm.response.to.have.status(204); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/carts",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "carts"]
+						},
+						"description": "DELETE /api/carts - clear cart."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "07 Orders (order-service)",
+			"description": "OrderController (/api/orders) qua gateway: tao don (CUSTOMER), quan ly trang thai (ADMIN), Saga log (public), huy don, khoi phuc Saga. Phu thuoc: milktea_id, milktea_name, milktea_price tu folder 05.",
+			"item": [
+				{
+					"name": "GET /orders/my - Don hang cua toi",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/my",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "my"]
+						},
+						"description": "GET /api/orders/my - Gateway forward X-User-Id tu JWT."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /orders - Tao don hang COD",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.test('Tao don thanh cong: co orderCode + sagaStatus', function () {",
+									"    pm.expect(body.orderCode).to.be.a('string').and.not.eql('');",
+									"    pm.expect(body.sagaStatus).to.exist;",
+									"});",
+									"pm.collectionVariables.set('order_code', body.orderCode);",
+									"pm.collectionVariables.set('order_total', body.totalAmount);",
+									"console.log('Order created:', body.orderCode);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Nguyen Thanh Long\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"123 Nguyen Hue, Q1, TPHCM\",\n  \"note\": \"Giao hang gio hanh chinh\",\n  \"voucherCode\": \"\",\n  \"shippingFee\": 10000,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{milktea_id}},\n      \"milkTeaName\": \"{{milktea_name}}\",\n      \"size\": \"L\",\n      \"sugar\": \"70%\",\n      \"ice\": \"50%\",\n      \"toppings\": \"Tran Chau Den\",\n      \"quantity\": 2,\n      \"unitPrice\": {{milktea_price}},\n      \"image\": \"\",\n      \"note\": \"\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders"]
+						},
+						"description": "POST /api/orders - Buoc Saga: order-service kiem tra don hang bang InventoryClient (GET /api/milkteas/{id}). Luu order_code + order_total de test Payment."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/{orderCode} - Chi tiet don (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('orderCode khop', function () {",
+									"    pm.expect(pm.response.json().orderCode).to.eql(pm.collectionVariables.get('order_code'));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_code}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_code}}"]
+						},
+						"description": "GET /api/orders/{orderCode}."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/{orderCode}/saga-logs - Saga log (Public)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK (khong can token)', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach saga log (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_code}}/saga-logs",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_code}}", "saga-logs"]
+						},
+						"description": "GET /api/orders/{orderCode}/saga-logs - public tren gateway, kiem tra loi xuyen suot Saga (distributed saga)."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders - Tim kiem admin (status, keyword, page)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response co dang Page (content Array)', function () {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.content).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/orders?status=PENDING&page=0&size=10",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders"],
+							"query": [
+								{ "key": "status", "value": "PENDING" },
+								{ "key": "keyword", "value": "", "disabled": true },
+								{ "key": "paymentStatus", "value": "", "disabled": true },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						},
+						"description": "GET /api/orders - search phan trang (ADMIN/STAFF). status: PENDING|CONFIRMED|PREPAIRING|DELIVERING|COMPLETED|CANCELLED."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /orders/{code}/status - Xac nhan don (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Trang thai = CONFIRMED', function () {",
+									"    pm.expect(pm.response.json().status).to.eql('CONFIRMED');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_code}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_code}}", "status"]
+						},
+						"description": "PUT /api/orders/{orderCode}/status - do status cua don (PENDING -> CONFIRMED)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /payments/create-internal (payment-status PAID tu payment-service)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('paymentStatus = PAID', function () {",
+									"    pm.expect(pm.response.json().paymentStatus).to.eql('PAID');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentStatus\": \"PAID\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_code}}/payment-status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_code}}", "payment-status"]
+						},
+						"description": "PUT /api/orders/{orderCode}/payment-status - API ma payment-service goi noi bo sau khi nhan callback tu VNPay."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /orders/{code}/status - Dang giao (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Trang thai = DELIVERING', function () {",
+									"    pm.expect(pm.response.json().status).to.eql('DELIVERING');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"DELIVERING\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_code}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_code}}", "status"]
+						},
+						"description": "PUT /api/orders/{orderCode}/status - CONFIRMED -> DELIVERING."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /orders/{code}/status - Hoan thanh (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Trang thai = COMPLETED', function () {",
+									"    pm.expect(pm.response.json().status).to.eql('COMPLETED');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"COMPLETED\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_code}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_code}}", "status"]
+						},
+						"description": "PUT /api/orders/{orderCode}/status - DELIVERING -> COMPLETED (day du vong doi don hang)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /orders - Tao don hang thu 2 (de test HUY)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
+									"const body = pm.response.json();",
+									"pm.collectionVariables.set('order_cancel_code', body.orderCode);",
+									"console.log('Order (cancel test) created:', body.orderCode);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Nguyen Thanh Long\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"123 Nguyen Hue, Q1, TPHCM\",\n  \"note\": \"Don nay se bi huy\",\n  \"shippingFee\": 0,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{milktea_id}},\n      \"milkTeaName\": \"{{milktea_name}}\",\n      \"size\": \"M\",\n      \"sugar\": \"100%\",\n      \"ice\": \"70%\",\n      \"toppings\": \"\",\n      \"quantity\": 1,\n      \"unitPrice\": {{milktea_price}},\n      \"image\": \"\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders"]
+						},
+						"description": "POST /api/orders - tao don thu 2 de test cancel + compensate. Luu order_cancel_code."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /orders/{code}/cancel - Huy don (CUSTOMER)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Trang thai = CANCELLED + co ly do', function () {",
+									"    pm.expect(pm.response.json().status).to.eql('CANCELLED');",
+									"    pm.expect(pm.response.json().cancelReason).to.eql('Doi khong nhan hang');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Doi khong nhan hang\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_cancel_code}}/cancel",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_cancel_code}}", "cancel"]
+						},
+						"description": "PUT /api/orders/{orderCode}/cancel - huy don don hang (CUSTOMER / ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /orders/{code}/compensate - Khoi phuc Saga (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Tra ve ket qua khoi phuc Saga (orderCode + sagaStatus)', function () {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.orderCode).to.eql(pm.collectionVariables.get('order_cancel_code'));",
+									"    pm.expect(body.sagaStatus).to.exist;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/{{order_cancel_code}}/compensate",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "{{order_cancel_code}}", "compensate"]
+						},
+						"description": "POST /api/orders/{orderCode}/compensate - khoi phuc Saga bi treo (COMPENSATING) [EXT-4]."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /orders thieu items (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Tao don thieu items: loi 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Test\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"Test\",\n  \"items\": []\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/orders",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders"]
+						},
+						"description": "NEGATIVE | Danh muc san pham trong (@NotEmpty) -> 400."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/INVALID-CODE (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Ma don khong ton tai: 404 (hoac 400/500 tuy xu ly)', function () {",
+									"    pm.expect([404, 400, 500]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/orders/INVALID-CODE-999",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "orders", "INVALID-CODE-999"]
+						},
+						"description": "NEGATIVE | Truy xuat ma don khong ton tai."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "08 Payments (payment-service)",
+			"description": "PaymentController (/api/payments) qua gateway: tao phieu thanh toan VNPay, tra trang thai, IPN webhook (public). Phu thuoc: order_code + order_total tu folder 07.",
+			"item": [
+				{
+					"name": "POST /payments/create - Tao phieu VAT VNPay",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"const body = pm.response.json();",
+									"pm.test('Tra ve thong tin thanh toan', function () {",
+									"    pm.expect(body).to.be.an('object');",
+									"});",
+									"if (body.paymentUrl) {",
+									"    pm.collectionVariables.set('vnpay_payment_url', body.paymentUrl);",
+									"    console.log('VNPay payment URL:', body.paymentUrl);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderCode\": \"{{order_code}}\",\n  \"amount\": {{order_total}},\n  \"paymentMethod\": \"VNPAY\",\n  \"orderInfo\": \"Thanh toan don hang {{order_code}}\",\n  \"bankCode\": \"\",\n  \"userId\": {{customer_user_id}}\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/payments/create",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "payments", "create"]
+						},
+						"description": "POST /api/payments/create - tao phieu thanh toan VNPay cho don hang order_code. Amount min 1000 VND."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /payments/{orderCode}/status - Trang thai thanh toan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('orderCode khop', function () {",
+									"    pm.expect(pm.response.json().orderCode).to.eql(pm.collectionVariables.get('order_code'));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/payments/{{order_code}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "payments", "{{order_code}}", "status"]
+						},
+						"description": "GET /api/payments/{orderCode}/status."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /payments/vnpay-ipn - IPN webhook (Public)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Endpoint IPN tra ve HTTP 200 (chuoi xu ly webhook)', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la map ket qua (RspCode/Message)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('object');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/payments/vnpay-ipn?vnp_TmnCode={{vnpay_tmn_code}}&vnp_Amount=7000000&vnp_CurrCode=VND&vnp_TxnRef={{order_code}}&vnp_OrderInfo=Thanh+toan&vnp_ResponseCode=00&vnp_TransactionNo=VNP2026TEST&vnp_BankCode=NCB&vnp_PayDate=20260101120000&vnp_SecureHash=demo-hash-test",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "payments", "vnpay-ipn"],
+							"query": [
+								{ "key": "vnp_TmnCode", "value": "{{vnpay_tmn_code}}" },
+								{ "key": "vnp_Amount", "value": "7000000" },
+								{ "key": "vnp_CurrCode", "value": "VND" },
+								{ "key": "vnp_TxnRef", "value": "{{order_code}}" },
+								{ "key": "vnp_OrderInfo", "value": "Thanh toan don hang test" },
+								{ "key": "vnp_ResponseCode", "value": "00" },
+								{ "key": "vnp_TransactionNo", "value": "VNP2026TEST" },
+								{ "key": "vnp_BankCode", "value": "NCB" },
+								{ "key": "vnp_PayDate", "value": "20260101120000" },
+								{ "key": "vnp_SecureHash", "value": "demo-hash-test" }
+							]
+						},
+						"description": "GET /api/payments/vnpay-ipn - public tren gateway (webhook VNPay callback). Chu ky sai (demo-hash-test) phan ve khong hop le nhung HTTP van 200."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /payments/create - Cong tien duoi limit (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Amount < 1000: loi 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderCode\": \"{{order_code}}\",\n  \"amount\": 500,\n  \"paymentMethod\": \"VNPAY\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/payments/create",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "payments", "create"]
+						},
+						"description": "NEGATIVE | @DecimalMin(1000) -> 400."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "09 Reports (report-service, ADMIN)",
+			"description": "ReportController (/api/reports) qua gateway. Toan bo API chi danh cho role ADMIN. Phu thuoc: co don hang tu folder 07 de co so lieu.",
+			"item": [
+				{
+					"name": "GET /reports/dashboard - Bang dieu khien",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la object bao cao', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('object');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/dashboard?startDate={{report_start_date}}&endDate={{report_end_date}}&topLimit=10",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "dashboard"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" },
+								{ "key": "topLimit", "value": "10" }
+							]
+						},
+						"description": "GET /api/reports/dashboard - tong hop du lieu cho giao dien quan tri."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/summary?startDate={{report_start_date}}&endDate={{report_end_date}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "summary"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" }
+							]
+						},
+						"description": "GET /api/reports/summary - tong quan doanh thu / so don."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/revenue-trend",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/revenue-trend?startDate={{report_start_date}}&endDate={{report_end_date}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "revenue-trend"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" }
+							]
+						},
+						"description": "GET /api/reports/revenue-trend - doanh thu theo ngay (do thi xu huong)."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/top-selling",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/top-selling?startDate={{report_start_date}}&endDate={{report_end_date}}&limit=5",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "top-selling"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" },
+								{ "key": "limit", "value": "5" }
+							]
+						},
+						"description": "GET /api/reports/top-selling - san pham ban chay."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/order-status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/order-status?startDate={{report_start_date}}&endDate={{report_end_date}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "order-status"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" }
+							]
+						},
+						"description": "GET /api/reports/order-status - phan bo trang thai don hang."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/payment-methods",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Response la danh sach (array)', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/payment-methods?startDate={{report_start_date}}&endDate={{report_end_date}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "payment-methods"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" }
+							]
+						},
+						"description": "GET /api/reports/payment-methods - phan bo theo phuong thuc thanh toan."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/export/orders/csv - Xuat CSV",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Kieu noi dung la CSV', function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv');",
+									"});",
+									"pm.test('Co Content-Disposition attachment', function () {",
+									"    pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/export/orders/csv?startDate={{report_start_date}}&endDate={{report_end_date}}&status=COMPLETED",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "export", "orders", "csv"],
+							"query": [
+								{ "key": "startDate", "value": "{{report_start_date}}" },
+								{ "key": "endDate", "value": "{{report_end_date}}" },
+								{ "key": "status", "value": "COMPLETED" }
+							]
+						},
+						"description": "GET /api/reports/export/orders/csv - xuat file CSV bao cao don hang."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/dashboard (token CUSTOMER) (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - CUSTOMER truy cap bao cao: bi tu choi 403', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{customer_token}}" }
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/dashboard",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "dashboard"]
+						},
+						"description": "NEGATIVE | Gateway chi cho phep /api/reports/** voi role ADMIN."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "10 Gateway & Health",
+			"description": "Kiem tra api-gateway con song va phan hoi khong co token.",
+			"item": [
+				{
+					"name": "GET /actuator/health - Gateway song",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
+									"pm.test('Gateway trang thai UP', function () {",
+									"    const body = pm.response.json();",
+									"    if (body.status) { pm.expect(body.status).to.eql('UP'); }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/actuator/health",
+							"host": ["{{gateway_url}}"],
+							"path": ["actuator", "health"]
+						},
+						"description": "GET /actuator/health tren gateway - public."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /reports/dashboard khong co token (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Khong co JWT phan ve 401', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/reports/dashboard",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "reports", "dashboard"]
+						},
+						"description": "NEGATIVE | Gateway bao ve endpoint khong co token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /route-khong-ton-tai (NEG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('NEG - Duong dan khong ton tai tren gateway: 401/403/404', function () {",
+									"    pm.expect([401, 403, 404]).to.include(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/does-not-exist",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "does-not-exist"]
+						},
+						"description": "NEGATIVE | Duong dan khong thuoc dinh tuyen nao -> gateway tu choi."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
