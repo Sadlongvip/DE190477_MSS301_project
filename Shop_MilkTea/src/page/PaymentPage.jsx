@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Badge, Spinner, Alert } from 'react-bootstrap';
 import MainLayout from '../layout/MainLayout';
@@ -83,11 +83,83 @@ export function PaymentPage() {
     } finally {
       setLoading(false);
     }
-  }, [orderCode]);
+  }, [orderCode, location.state]);
 
+  // Khởi tạo luồng thanh toán một lần khi mount / đổi đơn hàng.
+  // Mọi setState đều được thực thi sau phía sau await đầu tiên (bất đồng bộ),
+  // tránh gọi setState đồng bộ ngay trong body của useEffect gây cascading renders.
   useEffect(() => {
-    initPayment();
-  }, [initPayment]);
+    let isCancelled = false;
+
+    const boot = async () => {
+      try {
+        const fetchDetailFn = orderService.getOrderDetail || orderService.getOrderByCode;
+        let orderRes = location.state?.order || null;
+
+        try {
+          // Await đầu tiên — mọi setState phía dưới đều chạy ở pha bất đồng bộ
+          const remoteOrder = await fetchDetailFn(orderCode);
+          if (remoteOrder) {
+            orderRes = remoteOrder;
+            if (!isCancelled) {
+              setOrder(remoteOrder);
+            }
+          }
+        } catch (fetchErr) {
+          // Nếu fetch chi tiết đơn thất bại mà không có dữ liệu fallback từ router state thì hủy luồng
+          if (!orderRes) {
+            throw fetchErr;
+          }
+        }
+
+        if (orderRes) {
+          if (!isCancelled) {
+            setOrder(orderRes);
+          }
+
+          // Nếu đơn đã thanh toán rồi
+          if (orderRes.paymentStatus === 'PAID') {
+            if (!isCancelled) {
+              setPaymentStatus('SUCCESS');
+              setLoading(false);
+            }
+            return;
+          }
+
+          // Khởi tạo link thanh toán từ payment-service
+          const totalPay = orderRes.totalAmount || (orderRes.subtotal + (orderRes.shippingFee || 0));
+          const payRes = await paymentService.createPayment({
+            orderCode: orderRes.orderCode,
+            amount: totalPay,
+            paymentMethod: 'VNPAY',
+            orderInfo: `Thanh toan don hang ${orderRes.orderCode}`,
+          });
+
+          if (!isCancelled) {
+            setPaymentData(payRes);
+            if (payRes.status === 'SUCCESS') {
+              setPaymentStatus('SUCCESS');
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Lỗi khởi tạo thanh toán:', err);
+        if (!isCancelled) {
+          setError(err.message || 'Không thể kết nối đến cổng thanh toán, vui lòng thử lại.');
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    boot();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [orderCode, location.state?.order]);
 
   // 2. Bộ đếm ngược 15 phút (thời gian hiệu lực của mã QR VNPay)
   useEffect(() => {

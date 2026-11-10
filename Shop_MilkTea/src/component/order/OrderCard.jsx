@@ -1,6 +1,5 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Badge, Button, Row, Col } from 'react-bootstrap';
+import { Card, Badge, Button } from 'react-bootstrap';
 import {
   ORDER_STATUS_CONFIG,
   PAYMENT_STATUS_CONFIG,

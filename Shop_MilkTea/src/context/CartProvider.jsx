@@ -1,12 +1,7 @@
-import React, { useState, useReducer, useEffect, useCallback, useMemo, useContext } from 'react';
+import { useState, useReducer, useEffect, useCallback, useMemo, useContext } from 'react';
 import CartContext from './CartContext';
 import { AuthContext } from './AuthContext';
-import {
-  cartReducer,
-  initialCartState,
-  CART_ACTION_TYPES,
-  normalizeCartItem,
-} from '../reduce/cartReducer';
+import { cartReducer, initialCartState, CART_ACTION_TYPES } from '../reduce/cartReducer';
 import cartService from '../service/cartService';
 import orderService from '../service/orderService';
 
@@ -137,7 +132,7 @@ export function CartProvider({ children }) {
     async (cartItemIdOrIndex, newQty) => {
       const quantity = Math.max(0, Number(newQty) || 0);
 
-      let targetIndex = -1;
+      let targetIndex;
       if (typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length) {
         targetIndex = cartItemIdOrIndex;
       } else {
@@ -188,7 +183,7 @@ export function CartProvider({ children }) {
    */
   const removeItem = useCallback(
     async (cartItemIdOrIndex) => {
-      let targetIndex = -1;
+      let targetIndex;
       if (typeof cartItemIdOrIndex === 'number' && cartItemIdOrIndex < state.items.length) {
         targetIndex = cartItemIdOrIndex;
       } else {
@@ -350,7 +345,7 @@ export function CartProvider({ children }) {
         return { success: false, error: errorMsg };
       }
     },
-    [state.items, state.appliedVoucher, shippingFee, discountAmount, user?.username]
+    [state.items, state.appliedVoucher, shippingFee, discountAmount, user]
   );
 
   const clearLastCompletedOrder = useCallback(() => {

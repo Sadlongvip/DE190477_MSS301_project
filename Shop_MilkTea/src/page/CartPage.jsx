@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, lazy } from 'react';
 import { Container, Row, Col, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
@@ -7,7 +7,10 @@ import useAuth from '../hook/useAuth';
 import useOrder from '../hook/useOrder';
 import CartItemRow from '../component/cart/CartItemRow';
 import CartSummaryCard from '../component/cart/CartSummaryCard';
-import LoginModal from '../component/auth/LoginModal';
+import LazySuspense from '../component/common/LazySuspense';
+
+// Nạp lười (Lazy Loading & Code Splitting) Modal Đăng Nhập (chỉ tải khi mở lần đầu)
+const LoginModal = lazy(() => import('../component/auth/LoginModal'));
 
 /**
  * Trang Giỏ Hàng Chi Tiết (Cart Page)
@@ -19,7 +22,6 @@ export function CartPage() {
   const navigate = useNavigate();
   const {
     cartItems,
-    loading: cartLoading,
     totalQuantity,
     subTotal,
     shippingFee,
@@ -606,12 +608,14 @@ export function CartPage() {
         </Form>
       </Modal>
 
-      {/* Modal Đăng nhập / Đăng ký nếu khách chưa login */}
-      <LoginModal
-        show={showAuthModal}
-        onHide={() => setShowAuthModal(false)}
-        initialTab={authTab}
-      />
+      {/* Modal Đăng nhập / Đăng ký nếu khách chưa login - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={showAuthModal}>
+        <LoginModal
+          show={showAuthModal}
+          onHide={() => setShowAuthModal(false)}
+          initialTab={authTab}
+        />
+      </LazySuspense>
     </MainLayout>
   );
 }

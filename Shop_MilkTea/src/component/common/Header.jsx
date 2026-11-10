@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Navbar, Container, Nav, Button, Badge, Dropdown } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
@@ -8,7 +8,7 @@ import useCart from '../../hook/useCart';
  * Header Navigation Bar - Thanh điều hướng phong cách Glassmorphism
  * Thiết kế tinh gọn, font chữ chuẩn, chống ngắt dòng (text-nowrap)
  */
-export function Header({ cartCount, onOpenCart, onOpenAuth }) {
+export function Header({ cartCount, onOpenAuth }) {
   const { user, isAuthenticated, logout } = useContext(AuthContext);
   const { totalQuantity } = useCart();
   const navigate = useNavigate();

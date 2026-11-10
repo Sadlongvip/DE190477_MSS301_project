@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import { MainLayout } from '../layout';
 import HeroSection from '../component/landing/HeroSection';
 import FeaturedMenu from '../component/landing/FeaturedMenu';
-import WhyChooseUs from '../component/landing/WhyChooseUs';
-import Testimonials from '../component/landing/Testimonials';
-import FAQSection from '../component/landing/FAQSection';
-import ProductDetailModal from '../component/landing/ProductDetailModal';
-import CartDrawer from '../component/cart/CartDrawer';
-import LoginModal from '../component/auth/LoginModal';
+import LazySuspense from '../component/common/LazySuspense';
 import useCart from '../hook/useCart';
+
+// Nạp lười (Lazy Loading & Code Splitting) các section dưới màn hình đầu (below-the-fold)
+const WhyChooseUs = lazy(() => import('../component/landing/WhyChooseUs'));
+const Testimonials = lazy(() => import('../component/landing/Testimonials'));
+const FAQSection = lazy(() => import('../component/landing/FAQSection'));
+
+// Nạp lười các Modal / Drawer (chỉ tải khi người dùng mở lần đầu)
+const ProductDetailModal = lazy(() => import('../component/landing/ProductDetailModal'));
+const CartDrawer = lazy(() => import('../component/cart/CartDrawer'));
+const LoginModal = lazy(() => import('../component/auth/LoginModal'));
 
 /**
  * Trang Landing Page chính của Shop_MilkTea
@@ -61,40 +66,52 @@ export function LandingPage() {
         onSelectProduct={(product) => setSelectedProduct(product)}
       />
 
-      {/* 4. Giá Trị Thương Hiệu (Why Choose Us) */}
-      <WhyChooseUs />
+      {/* 4. Giá Trị Thương Hiệu (Why Choose Us) - Nạp lười */}
+      <Suspense fallback={null}>
+        <WhyChooseUs />
+      </Suspense>
 
-      {/* 5. Đánh Giá Khách Hàng (Testimonials) */}
-      <Testimonials />
+      {/* 5. Đánh Giá Khách Hàng (Testimonials) - Nạp lười */}
+      <Suspense fallback={null}>
+        <Testimonials />
+      </Suspense>
 
-      {/* 6. Câu Hỏi Thường Gặp & Newsletter */}
-      <FAQSection />
+      {/* 6. Câu Hỏi Thường Gặp & Newsletter - Nạp lười */}
+      <Suspense fallback={null}>
+        <FAQSection />
+      </Suspense>
 
-      {/* Modal Tùy Chỉnh Chi Tiết Đồ Uống */}
-      <ProductDetailModal
-        show={Boolean(selectedProduct)}
-        product={selectedProduct}
-        onHide={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-      />
+      {/* Modal Tùy Chỉnh Chi Tiết Đồ Uống - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={Boolean(selectedProduct)}>
+        <ProductDetailModal
+          show={Boolean(selectedProduct)}
+          product={selectedProduct}
+          onHide={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+        />
+      </LazySuspense>
 
-      {/* Drawer Giỏ Hàng Offcanvas */}
-      <CartDrawer
-        show={isCartOpen}
-        onHide={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={removeItem}
-        onClearCart={clearCart}
-      />
+      {/* Drawer Giỏ Hàng Offcanvas - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={isCartOpen}>
+        <CartDrawer
+          show={isCartOpen}
+          onHide={() => setIsCartOpen(false)}
+          cartItems={cartItems}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeItem}
+          onClearCart={clearCart}
+        />
+      </LazySuspense>
 
 
-      {/* Modal Đăng Nhập / Đăng Ký */}
-      <LoginModal
-        show={isAuthOpen}
-        initialTab={authTab}
-        onHide={() => setIsAuthOpen(false)}
-      />
+      {/* Modal Đăng Nhập / Đăng Ký - Nạp lười khi mở lần đầu */}
+      <LazySuspense show={isAuthOpen}>
+        <LoginModal
+          show={isAuthOpen}
+          initialTab={authTab}
+          onHide={() => setIsAuthOpen(false)}
+        />
+      </LazySuspense>
 
       {/* Toast Thông Báo Khi Thêm Món Thành Công */}
       <ToastContainer position="bottom-end" className="p-3 position-fixed" style={{ zIndex: 2000 }}>

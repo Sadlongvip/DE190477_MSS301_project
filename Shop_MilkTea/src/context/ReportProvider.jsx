@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback, useEffect } from 'react';
+import { useReducer, useCallback } from 'react';
 import { ReportContext } from './ReportContext';
 import {
   reportReducer,
