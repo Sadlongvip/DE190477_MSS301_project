@@ -53,7 +53,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) Long headerUserId,
             @RequestParam(required = false) String sessionId,
             @RequestParam(required = false) Integer quantity,
-            @RequestBody(required = false) UpdateCartItemRequest body
+            @Valid @RequestBody(required = false) UpdateCartItemRequest body
     ) {
         Long userId = (headerUserId != null) ? headerUserId : AuditContext.getCurrentUserId();
         int finalQuantity;

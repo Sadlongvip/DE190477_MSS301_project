@@ -38,7 +38,7 @@ public class OrderItemRequest {
     private Integer quantity = 1;
 
     @NotNull(message = "Đơn giá không được để trống")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Đơn giá không được âm")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Đơn giá phải lớn hơn 0")
     @Builder.Default
     private Double unitPrice = 0.0;
 

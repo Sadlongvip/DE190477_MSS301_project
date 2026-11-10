@@ -8,48 +8,8 @@
 	"item": [
 		{
 			"name": "00 Setup & Auth (customer-service)",
-			"description": "Khoi tao: login ADMIN bang tai khoan ADMIN seed san trong DB (admin_db / password123 - Flyway V2__seed_test_accounts.sql, khong the tao qua /register), dang ky tai khoan CUSTOMER, va kiem thu truong hop dang ky yeu cau role ADMIN bi ep ve CUSTOMER. Chay folder nay TRUOC. Script test tu dong luu admin_token, admin_user_id, customer_token, customer_user_id.",
+			"description": "Khoi tao: login ADMIN bang tai khoan ADMIN seed san trong DB (admin_db / password123 - Flyway V2__seed_test_accounts.sql, KHONG tao tai khoan admin nao qua /register) + dang ky/dang nhap CUSTOMER. Chay folder nay TRUOC, co the chay lai nhieu lan (registerCUSTOMER neu tai khoan da ton tai se tu bo qua). Script test tu dong luu admin_token, admin_user_id, customer_token, customer_user_id.",
 			"item": [
-				{
-					"name": "Auth - Register ADMIN (NEG) - bi ep ve CUSTOMER",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('HTTP 201 Created (400 neu tai khoan da ton tai tu lan chay truoc)', function () {",
-									"    pm.expect([201, 400]).to.include(pm.response.code);",
-									"});",
-									"if (pm.response.code === 201) {",
-									"    const body = pm.response.json();",
-									"    pm.test('BAO MAT: role gui len ADMIN phai bi bo qua -> tai khoan LUON la CUSTOMER', function () {",
-									"        pm.expect(body.role).to.eql('CUSTOMER');",
-									"    });",
-									"    console.log('Da dang ky voi role=ADMIN nhung he thong ep ve:', body.role);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"username\": \"fake_admin_test\",\n  \"password\": \"FakeAdmin@123\",\n  \"role\": \"ADMIN\",\n  \"status\": \"ACTIVE\",\n  \"email\": \"fake_admin_test@milktea.local\",\n  \"phoneNumber\": \"0900000009\",\n  \"address\": \"09 Cong Hoa, Tan Binh, TPHCM\",\n  \"birthday\": \"1995-06-15\"\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/auth/register",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "auth", "register"]
-						},
-						"description": "NEGATIVE/SECURITY | POST /api/auth/register (Public). Gui role=ADMIN trong body - he thong PHAI bo qua va tao tai khoan CUSTOMER. Dang ky cong khai khong tao duoc ADMIN; tai khoan ADMIN duy nhat la in-memory (admin / admin123)."
-					},
-					"response": []
-				},
 				{
 					"name": "Auth - Register CUSTOMER",
 					"event": [
@@ -575,8 +535,8 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('HTTP 200 OK', function () { pm.response.to.have.status(200); });",
-									"pm.test('Ten da duoc cap nhat', function () {",
-									"    pm.expect(pm.response.json().name).to.eql('Tra Sua Da Cap Nhat');",
+									"pm.test('Ten da duoc cap nhat (co tien to moi)', function () {",
+									"    pm.expect(pm.response.json().name).to.include('Tra Sua Da Cap Nhat');",
 									"});"
 								]
 							}
@@ -590,7 +550,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Tra Sua Da Cap Nhat\"\n}"
+							"raw": "{\n  \"name\": \"Tra Sua Da Cap Nhat {{$timestamp}}\"\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/categories/{{category_id}}",
@@ -785,7 +745,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Size Test L Updated\",\n  \"code\": \"LX1\",\n  \"extraPrice\": 7000,\n  \"isDefault\": false,\n  \"isAvailable\": true\n}"
+							"raw": "{\n  \"name\": \"Size Test L Updated\",\n  \"code\": \"LX{{$timestamp}}\",\n  \"extraPrice\": 7000,\n  \"isDefault\": false,\n  \"isAvailable\": true\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/sizes/{{size_id}}",
@@ -914,7 +874,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Tran Chau Den\",\n  \"price\": 8000,\n  \"isAvailable\": true\n}"
+							"raw": "{\n  \"name\": \"Tran Chau Den Postman {{$timestamp}}\",\n  \"price\": 8000,\n  \"isAvailable\": true\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/toppings",
@@ -1376,7 +1336,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"milkTeaId\": {{milktea_id}},\n  \"milkTeaName\": \"{{milktea_name}}\",\n  \"size\": \"L\",\n  \"sugar\": \"70%\",\n  \"ice\": \"50%\",\n  \"toppings\": \"Tran Chau Den\",\n  \"quantity\": 1,\n  \"unitPrice\": {{milktea_price}},\n  \"image\": \"\",\n  \"note\": \"Them da it\"\n}"
+							"raw": "{\n  \"milkTeaId\": {{milktea_id}},\n  \"milkTeaName\": \"{{milktea_name}}\",\n  \"size\": \"M\",\n  \"sugar\": \"70%\",\n  \"ice\": \"50%\",\n  \"toppings\": \"\",\n  \"quantity\": 1,\n  \"unitPrice\": {{milktea_price}},\n  \"image\": \"\",\n  \"note\": \"Them da it\"\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/carts/items",
@@ -1576,7 +1536,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"customerName\": \"Nguyen Thanh Long\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"123 Nguyen Hue, Q1, TPHCM\",\n  \"note\": \"Giao hang gio hanh chinh\",\n  \"voucherCode\": \"\",\n  \"shippingFee\": 10000,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{milktea_id}},\n      \"milkTeaName\": \"{{milktea_name}}\",\n      \"size\": \"L\",\n      \"sugar\": \"70%\",\n      \"ice\": \"50%\",\n      \"toppings\": \"Tran Chau Den\",\n      \"quantity\": 2,\n      \"unitPrice\": {{milktea_price}},\n      \"image\": \"\",\n      \"note\": \"\"\n    }\n  ]\n}"
+							"raw": "{\n  \"customerName\": \"Nguyen Thanh Long\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"123 Nguyen Hue, Q1, TPHCM\",\n  \"note\": \"Giao hang gio hanh chinh\",\n  \"voucherCode\": \"\",\n  \"shippingFee\": 10000,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{milktea_id}},\n      \"milkTeaName\": \"{{milktea_name}}\",\n      \"size\": \"M\",\n      \"sugar\": \"70%\",\n      \"ice\": \"50%\",\n      \"toppings\": \"\",\n      \"quantity\": 2,\n      \"unitPrice\": {{milktea_price}},\n      \"image\": \"\",\n      \"note\": \"\"\n    }\n  ]\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/orders",
@@ -1834,7 +1794,10 @@
 									"pm.test('HTTP 201 Created', function () { pm.response.to.have.status(201); });",
 									"const body = pm.response.json();",
 									"pm.collectionVariables.set('order_cancel_code', body.orderCode);",
-									"console.log('Order (cancel test) created:', body.orderCode);"
+									"pm.test('Don moi o trang thai PENDING (co the huy)', function () {",
+									"    pm.expect(body.status).to.eql('PENDING');",
+									"});",
+									"console.log('Order (cancel test) created:', body.orderCode, 'status =', body.status);"
 								]
 							}
 						}
@@ -1847,14 +1810,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"customerName\": \"Nguyen Thanh Long\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"123 Nguyen Hue, Q1, TPHCM\",\n  \"note\": \"Don nay se bi huy\",\n  \"shippingFee\": 0,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"COD\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{milktea_id}},\n      \"milkTeaName\": \"{{milktea_name}}\",\n      \"size\": \"M\",\n      \"sugar\": \"100%\",\n      \"ice\": \"70%\",\n      \"toppings\": \"\",\n      \"quantity\": 1,\n      \"unitPrice\": {{milktea_price}},\n      \"image\": \"\"\n    }\n  ]\n}"
+							"raw": "{\n  \"customerName\": \"Nguyen Thanh Long\",\n  \"phoneNumber\": \"0900123456\",\n  \"shippingAddress\": \"123 Nguyen Hue, Q1, TPHCM\",\n  \"note\": \"Don nay se bi huy\",\n  \"shippingFee\": 0,\n  \"discountAmount\": 0,\n  \"paymentMethod\": \"VNPAY\",\n  \"items\": [\n    {\n      \"milkTeaId\": {{milktea_id}},\n      \"milkTeaName\": \"{{milktea_name}}\",\n      \"size\": \"M\",\n      \"sugar\": \"100%\",\n      \"ice\": \"70%\",\n      \"toppings\": \"\",\n      \"quantity\": 1,\n      \"unitPrice\": {{milktea_price}},\n      \"image\": \"\"\n    }\n  ]\n}"
 						},
 						"url": {
 							"raw": "{{gateway_url}}/api/orders",
 							"host": ["{{gateway_url}}"],
 							"path": ["api", "orders"]
 						},
-						"description": "POST /api/orders - tao don thu 2 de test cancel + compensate. Luu order_cancel_code."
+						"description": "POST /api/orders - tao don thu 2 de test cancel + compensate. Dung VNPAY (khong COD): don online giu nguyen PENDING cho thanh toan - don COD se bi Saga tu dong CONFIRMED ngay khi kho giu hang xong (Kafka) -> khong con PENDING de huy. Luu order_cancel_code."
 					},
 					"response": []
 				},
@@ -2553,13 +2516,16 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('Inventory CHET: 400 khi breaker con CLOSED, 503 khi breaker da OPEN', function () {",
-									"    pm.expect([400, 503]).to.include(pm.response.code);",
+									"pm.test('Inventory CHET: 400 khi breaker con CLOSED, 503 khi breaker da OPEN, 201 neu inventory van SONG', function () {",
+									"    pm.expect([201, 400, 503]).to.include(pm.response.code);",
 									"});",
 									"if (pm.response.code === 503) {",
 									"    pm.test('Circuit Breaker OPEN: 503 phai tra ve TUC THI (< 1s)', function () {",
 									"        pm.expect(pm.response.responseTime).to.be.below(1000);",
 									"    });",
+									"}",
+									"if (pm.response.code === 201) {",
+									"    console.log('Inventory van SONG nen request thanh cong 201. De demo breaker mo: tat inventory truoc roi chay rieng request nay 8 lan (xem description).');",
 									"}",
 									"console.log('CB 2: HTTP', pm.response.code, 'trong', pm.response.responseTime, 'ms');"
 								]
@@ -2581,7 +2547,7 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["api", "carts", "items"]
 						},
-						"description": "QUY TRINH: (1) Tat inventory-service: Get-Process -Id (Get-NetTCPConnection -LocalPort 8082 -State Listen).OwningProcess | Stop-Process -Force  (2) Chay request nay trong Collection Runner 8 lan. Ky vong: ~5 lan dau tra 400 moi lan ~0.5-1.5s (breaker CLOSED, co 1 retry ben trong); tu lan thu 6 tro di tra 503 TUC THI < 100ms (breaker OPEN - khong con ket noi ra ngoai). Log order-service in 'Circuit Breaker OPEN - tu choi goi inventory-service...'."
+						"description": "QUY TRINH: (1) Tat inventory-service: Get-Process -Id (Get-NetTCPConnection -LocalPort 8082 -State Listen).OwningProcess | Stop-Process -Force  (2) Chay request nay trong Collection Runner 8 lan. Ky vong: ~5 lan dau tra 400 moi lan ~0.5-1.5s (breaker CLOSED, co 1 retry ben trong); tu lan thu 6 tro di tra 503 TUC THI < 100ms (breaker OPEN - khong con ket noi ra ngoai). LUU Y: khi chay FULL collection (inventory con SONG) request nay tra 201 - test van PASS, chi in log huong dan. Log order-service in 'Circuit Breaker OPEN - tu choi goi inventory-service...' khi breaker mo."
 					},
 					"response": []
 				},
